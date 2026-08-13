@@ -1,0 +1,19 @@
+{
+  "selected_model": "RF_v2_control",
+  "selected_threshold": 0.65,
+  "selection_rule": "mean_validation_iou - 0.005 * mean_component_error",
+  "validation": {
+    "model": "RF_v2_control",
+    "threshold": 0.65,
+    "mean_validation_iou": 0.9127242524574347,
+    "std_validation_iou": 0.05123166813675394,
+    "mean_validation_dice": 0.9537462961578068,
+    "mean_component_error": 0.16666666666666666,
+    "selection_score": 0.9118909191241014
+  },
+  "test_mean_iou": 0.8186288391698627,
+  "test_std_iou": 0.21832597594343828,
+  "test_mean_dice": 0.8838704060189212,
+  "test_mean_boundary_f1": 0.6722488948314912,
+  "test_mean_component_error": 0.16666666666666666
+}

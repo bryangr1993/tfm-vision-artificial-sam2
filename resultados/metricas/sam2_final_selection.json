@@ -1,0 +1,26 @@
+{
+  "model_family": "SAM 2",
+  "model_variant": "Hiera Tiny",
+  "pretrained": true,
+  "device": "cpu",
+  "prompt_source": "generator metadata",
+  "selected_strategy": "caja_margen_5",
+  "validation": {
+    "strategy": "caja_margen_5",
+    "mean_validation_iou": 0.9082040406742418,
+    "std_validation_iou": 0.030862266998087022,
+    "mean_validation_dice": 0.9516679345425851,
+    "mean_validation_boundary_f1": 0.7050153983638762,
+    "mean_component_error": 0.0,
+    "selection_score": 0.9082040406742418,
+    "mean_inference_seconds": 0.48468445000132004
+  },
+  "test_mean_iou": 0.9153211563949797,
+  "test_std_iou": 0.03794217241568825,
+  "test_mean_dice": 0.9554470798414288,
+  "test_mean_boundary_f1": 0.7234390733723002,
+  "test_mean_component_error": 0.0,
+  "checkpoint_sha256": "65B50056E05BCB13694174F51BB6DA89C894B57B75CCDF0BA6352C597C5D1125",
+  "python": "3.14.0",
+  "torch": "2.12.1+cpu"
+}

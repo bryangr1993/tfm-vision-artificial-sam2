@@ -1,0 +1,55 @@
+\chapter{Introducción}
+\label{cap:introduccion}
+
+Un topper de pocos centímetros puede perderse por completo si el láser no sigue la silueta impresa. El error puede ser pequeño en términos absolutos, pero resulta visible de inmediato en una pieza decorativa. Ese problema cotidiano resume el punto de partida de este trabajo. La fabricación personalizada combina diseños variables, lotes cortos y una fuerte dependencia de la preparación manual. En esas condiciones, la calidad no depende solo de la velocidad de la máquina. También depende de que la impresión y la trayectoria de corte coincidan cada vez que cambia el pedido.
+
+La inteligencia artificial ha ampliado el alcance de la inspección y el guiado visual en la industria. Los modelos de aprendizaje pueden encontrar patrones que resultarían difíciles de expresar mediante reglas fijas, mientras que la visión artificial aporta las transformaciones geométricas necesarias para medir y actuar sobre una escena. En fabricación, ambas perspectivas suelen convivir. Existen sistemas que combinan procesamiento de imagen y clasificadores para control de calidad \cite{Ozkan2025}, y otros que utilizan segmentación neuronal para medir regiones de interés durante el proceso productivo \cite{Loganathan2026}. Esto no significa que un modelo de inteligencia artificial sea siempre superior. Su utilidad depende de los datos, del cambio entre el laboratorio y la planta, de los recursos de cómputo y de la forma en que se integra a la operación real.
+
+El presente TFM se sitúa precisamente en ese cruce. Se desarrolla una herramienta software para registrar una hoja impresa, segmentar los toppers mediante un modelo neuronal preentrenado y convertir sus contornos en geometría vectorial. A la vez, se conserva una línea base de visión clásica y se estudia un Random Forest por píxel. La comparación permite observar qué ocurre cuando los métodos se enfrentan a datos sintéticos controlados y, después, a fotografías tomadas dentro de un taller.
+
+\section{Motivación y contexto del problema}
+
+El caso de aplicación procede de Innokey, una empresa de Riobamba dedicada a productos personalizados mediante impresión digital y corte láser de CO\textsubscript{2}. Entre sus pedidos habituales se encuentran los toppers para pasteles. En este trabajo se entiende por topper una pieza decorativa que combina una imagen adhesiva impresa con una base rígida de MDF o acrílico. La percepción de calidad depende de la coincidencia entre ambas capas. Un giro leve o un desplazamiento lateral puede dejar visible la base y obligar a repetir la pieza.
+
+El proceso convencional separa dos operaciones que luego deben coincidir. Primero se imprime la hoja adhesiva y se recortan las siluetas en un plóter de cuchilla. En paralelo, las bases rígidas se cortan en la máquina láser. Finalmente, el operario pega cada adhesivo sobre su soporte. Esa última unión depende de la habilidad manual y concentra una parte importante de la variabilidad.
+
+La alternativa propuesta cambia la secuencia. La hoja impresa se adhiere completa sobre el MDF o el acrílico antes del corte. A continuación, una cámara registra la zona de trabajo y el software calcula las trayectorias a partir de la posición real de la impresión. De esta forma, la geometría no se prepara para un material idealmente colocado. Se obtiene de la escena que la máquina tiene delante en ese momento.
+
+\figuraopcional{figura_flujo_actual_propuesto_tikz}{\textwidth}{Comparación entre el flujo manual actual y el flujo propuesto para la fabricación de toppers en Innokey.}{fig:flujo_actual_propuesto}
+
+La Figura~\ref{fig:flujo_actual_propuesto} muestra la diferencia principal. En el flujo actual, la impresión y el soporte se encuentran al final del proceso. En el flujo planteado, se unen al comienzo y la visión artificial se encarga de recuperar el contorno sobre el material ya laminado. El beneficio esperado no se limita al tiempo de preparación. La prioridad es reducir la variabilidad del pegado y evitar reprocesos por desalineaciones visibles.
+
+\section{Planteamiento del problema}
+
+Una cortadora láser CNC ejecuta trayectorias vectoriales. Cuando el material está en blanco, el archivo digital puede dictar la geometría completa. El escenario cambia cuando la plancha ya contiene una impresión física. En ese caso no basta con importar el vector original. Es necesario reconocer la posición real de la hoja, corregir la perspectiva de la fotografía, identificar el origen de trabajo y separar los bordes externos de los detalles internos del dibujo.
+
+El problema de investigación puede formularse así: ¿cómo construir una herramienta de inteligencia artificial capaz de transformar una captura de una hoja adhesiva ya colocada sobre el soporte en contornos vectoriales registrados respecto al sistema de coordenadas de trabajo del láser? La respuesta debe ser técnicamente reproducible y, al mismo tiempo, lo bastante sencilla para un entorno de pequeña empresa.
+
+La dificultad no reside en una sola etapa. La cámara puede cambiar ligeramente de posición, la hoja puede aparecer rotada, las sombras del cabezal atraviesan la escena y algunos diseños contienen colores pastel próximos al blanco. Además, el borde exterior que interesa para cortar convive con ojos, pliegues, brillos y otros trazos impresos que no deben convertirse en trayectorias. La herramienta necesita resolver estos problemas sin perder la referencia física de la máquina.
+
+\figuraopcional{fig_cad_cam}{0.92\textwidth}{Relación entre la captura visual, la geometría CAD y la trayectoria de fabricación CAM en el flujo propuesto.}{fig:cad_cam_intro}
+
+La Figura~\ref{fig:cad_cam_intro} sitúa la visión artificial dentro de la cadena CAD/CAM. La captura sigue siendo una imagen rasterizada, pero la máquina necesita curvas expresadas en unidades físicas. El software debe enlazar ambos dominios y bloquear la exportación cuando no exista una referencia geométrica fiable.
+
+\section{Aporte y alcance del trabajo}
+
+El TFM se plantea como desarrollo software aplicado. Su aporte principal es una herramienta modular que integra registro geométrico, segmentación con SAM 2, extracción de contornos y exportación DXF. La visión clásica se utiliza para detectar marcadores, rectificar la hoja, localizar el sistema de coordenadas y proponer cajas aproximadas. SAM 2 genera la máscara final de cada topper. Esa misma máscara alimenta la vectorización y no existe una sustitución silenciosa por el método clásico si el modelo neuronal falla.
+
+La comparación experimental forma una segunda contribución. Se evalúan la línea base clásica, Random Forest y SAM 2 sobre un conjunto sintético con particiones independientes. Los tres se contrastan también en trece capturas de una misma lámina real. El objetivo no es demostrar por anticipado que la inteligencia artificial siempre gana. Se busca establecer con evidencia qué método funciona mejor en cada dominio y qué dependencias aparecen cuando el modelo sale del entorno controlado.
+
+El alcance termina en la validación computacional del software y en la generación de un DXF operativo. No se declara cerrada la validación física del corte. Para hacerlo sería necesario fabricar un lote completo, medir el borde impreso frente al borde cortado y comparar el reproceso con el flujo manual. Esta delimitación evita confundir una trayectoria correctamente calculada con una precisión mecánica que todavía no se ha medido.
+
+\section{Estructura de la memoria}
+
+La memoria se organiza de la siguiente manera:
+
+\begin{itemize}
+    \item El Capítulo~\ref{cap:contexto} describe el entorno de Innokey y revisa los fundamentos de registro, segmentación, inteligencia artificial y vectorización.
+    \item El Capítulo~\ref{cap:objetivos} presenta el objetivo general y los objetivos específicos.
+    \item El Capítulo~\ref{cap:requisitos} delimita los requisitos funcionales y no funcionales de la herramienta.
+    \item El Capítulo~\ref{cap:metodologia} explica el diseño experimental, los datos, la optimización de Random Forest y la selección de prompts de SAM 2.
+    \item El Capítulo~\ref{cap:herramienta} describe la arquitectura del software y el uso de SAM 2 dentro de la interfaz.
+    \item El Capítulo~\ref{cap:evaluacion} presenta los resultados, la comparación entre métodos y las limitaciones observadas.
+    \item El Capítulo~\ref{cap:conclusiones} relaciona los resultados con los objetivos y plantea el trabajo futuro.
+    \item El Apéndice~\ref{ap:repositorio} documenta el repositorio, su estructura y las instrucciones de reproducción.
+\end{itemize}

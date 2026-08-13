@@ -1,0 +1,9 @@
+{
+  "wcs_status": "SUCCESS",
+  "method": "sam2_hiera_tiny_prompted",
+  "prompts": 8,
+  "contours": 8,
+  "dxf_created": true,
+  "dxf_bytes": 65399,
+  "elapsed_seconds_segmentation_and_contours": 4.0927288999955636
+}

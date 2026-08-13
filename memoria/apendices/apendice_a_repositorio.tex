@@ -1,0 +1,111 @@
+\chapter{Repositorio y reproducibilidad}
+\label{ap:repositorio}
+
+Este apéndice describe cómo reconstruir las evaluaciones y ejecutar la herramienta. El repositorio entregado conserva código, configuraciones, métricas y figuras. Los archivos de modelos de gran tamaño se verifican por nombre, tamaño y SHA-256. Las rutas que contienen datos o checkpoints pueden ajustarse en \texttt{software/config/default.yaml}.
+
+\section{Estructura principal}
+
+\begin{description}
+    \item[\texttt{memoria/}] Fuentes \LaTeX, bibliografía y figuras de la memoria.
+    \item[\texttt{software/}] Aplicación, interfaz gráfica, configuración y pruebas.
+    \item[\texttt{datos/}] Manifiesto, particiones, anotaciones y capturas requeridas por los experimentos.
+    \item[\texttt{experimentos/}] Scripts de calidad, Random Forest, SAM 2 y comparación.
+    \item[\texttt{resultados/}] Métricas CSV/JSON, predicciones, modelos y evidencias de integración.
+    \item[\texttt{documentacion/}] Protocolo experimental, trazabilidad y matriz de observaciones.
+    \item[\texttt{output/pdf/}] Memoria final compilada.
+\end{description}
+
+\section{Preparación del entorno}
+
+En Windows PowerShell, el entorno base puede prepararse con:
+
+\begin{verbatim}
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -r requirements-core.txt
+pip install -r requirements-ai.txt
+\end{verbatim}
+
+La instalación de SAM 2 puede depender de las versiones de Python y PyTorch disponibles. La evaluación final se ejecutó en CPU con Python 3.14.0, PyTorch 2.12.1+cpu, OpenCV 4.13.0 y scikit-learn 1.9.0. Estos datos también quedan almacenados en los resúmenes JSON.
+
+\section{Modelos utilizados}
+
+\begin{table}[htbp]
+\centering
+\scriptsize
+\caption{Identificación de modelos y checkpoints.}
+\label{tab:checksums_modelos}
+\begin{tabularx}{\textwidth}{p{3.5cm}p{2.0cm}Y}
+\toprule
+\textbf{Archivo} & \textbf{Tamaño} & \textbf{SHA-256} \\
+\midrule
+\path{sam2_hiera_tiny.pt} & 155,906,050 B & \ttfamily\seqsplit{65B50056E05BCB13694174F51BB6DA89C894B57B75CCDF0BA6352C597C5D1125} \\
+\path{random_forest_legacy_v1.joblib} & 60,111,985 B & \ttfamily\seqsplit{B6141FB7DB8320D9A33155F38BF0EFE1AC6FAE15195462548B1D50DDA5627836} \\
+\path{random_forest_legacy_v2.joblib} & 233,889,745 B & \ttfamily\seqsplit{4B8D8ED8EE2D7E51C7F93AC50A8E9035AFE1D0BE58462A81E9DB18902E7C3911} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+La fuente oficial del checkpoint SAM 2 es el repositorio de Meta. Deben respetarse su licencia y las condiciones del proyecto original. Los modelos Random Forest se generan con los scripts y datos de esta entrega. No es necesario conservarlos si se prefiere reconstruirlos.
+
+\section{Comandos de reproducción}
+
+Los comandos siguientes se ejecutan desde la raíz del repositorio:
+
+\begin{verbatim}
+python experimentos/construir_manifiesto.py
+
+python experimentos/comparacion/crear_referencia_real_asistida.py
+
+python experimentos/random_forest/optimize_rf_v7.py
+python experimentos/random_forest/refine_rf_on_validation.py
+python experimentos/random_forest/evaluate_rf_v1_control.py
+python experimentos/random_forest/consolidate_rf_selection.py
+
+python experimentos/sam2/evaluate_sam2_v7.py
+python experimentos/sam2/evaluate_sam2_real_v7.py
+
+python experimentos/comparacion/evaluate_classical_synthetic_v7.py
+python experimentos/comparacion/evaluate_classical_rf_real_v7.py
+python experimentos/comparacion/generar_figuras_v7.py
+
+python -m unittest discover software/tests -v
+\end{verbatim}
+
+La búsqueda de Random Forest es la etapa de mayor duración. Los archivos finales que justifican la selección son:
+
+\begin{itemize}
+    \item \path{rf_hyperparameter_search.csv}.
+    \item \path{rf_validation_model_threshold_summary.csv}.
+    \item \path{rf_v1_control_selection.json}.
+    \item \path{rf_consolidated_selection.json}.
+\end{itemize}
+
+En SAM 2, la estrategia se registra en \path{sam2_final_selection.json}.
+
+\section{Ejecución de la herramienta}
+
+La interfaz puede abrirse con:
+
+\begin{verbatim}
+python software/src/gui.py
+\end{verbatim}
+
+Para una demostración reproducible puede precargarse y procesarse una imagen:
+
+\begin{verbatim}
+python software/src/gui.py --image datos/reales/raw/20.jpg --process
+\end{verbatim}
+
+La interfaz no vuelve de forma silenciosa al método clásico. Si el checkpoint de SAM 2 no existe o no puede inicializarse, la operación falla con un mensaje. La exportación DXF permanece deshabilitada hasta detectar un WCS válido.
+
+\section{Publicación}
+
+El código fuente, la memoria compilada y los resultados reproducibles están disponibles en el siguiente repositorio público:
+
+\begin{center}
+\small\url{https://github.com/bryangr1993/tfm-vision-artificial-sam2}
+\end{center}
+
+La versión 6 se conservó fuera de su historial de edición. Los checkpoints y modelos pesados no forman parte del repositorio ordinario debido a su tamaño. Pueden distribuirse mediante una versión de GitHub o un almacenamiento externo, siempre acompañados por los checksums de la Tabla~\ref{tab:checksums_modelos}.

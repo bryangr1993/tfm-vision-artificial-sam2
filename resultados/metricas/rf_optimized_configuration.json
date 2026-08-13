@@ -1,0 +1,24 @@
+{
+  "seed": 42,
+  "samples_per_class_per_sheet": 2000,
+  "search_iterations": 10,
+  "group_folds": 4,
+  "scoring": "jaccard",
+  "best_cv_jaccard": 0.807734016808057,
+  "best_hyperparameters": {
+    "n_estimators": 300,
+    "min_samples_split": 2,
+    "min_samples_leaf": 8,
+    "max_features": 0.5,
+    "max_depth": 12,
+    "class_weight": "balanced"
+  },
+  "selected_validation_threshold": 0.6,
+  "search_seconds": 305.94072980000055,
+  "python": "3.14.0",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "numpy": "2.3.5",
+  "opencv": "4.13.0",
+  "scikit_learn": "1.9.0",
+  "model_path": "resultados/modelos/random_forest_optimized.joblib"
+}

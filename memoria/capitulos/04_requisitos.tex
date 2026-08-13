@@ -1,0 +1,54 @@
+\chapter{Identificación de requisitos}
+\label{cap:requisitos}
+
+Los requisitos se derivan del proceso observado en Innokey, de los objetivos del TFM y de la necesidad de mantener la inteligencia artificial dentro del flujo operativo. Cada requisito incluye un criterio verificable para evitar descripciones demasiado abiertas.
+
+\section{Requisitos funcionales}
+
+\begin{description}
+    \item[\textbf{RF1. Carga de la captura.}] La herramienta debe admitir una fotografía estática de la zona de trabajo tomada con una cámara de consumo. Se verifica cuando la aplicación abre la imagen, corrige su orientación y la muestra al usuario.
+
+    \item[\textbf{RF2. Detección de la hoja.}] El sistema debe localizar los cuatro marcadores de esquina y ordenar sus posiciones. Se verifica cuando identifica las cuatro referencias válidas o informa de forma explícita que la rectificación no puede continuar.
+
+    \item[\textbf{RF3. Rectificación geométrica.}] La captura debe transformarse a un plano A4 mediante la homografía calculada con los marcadores. El lienzo resultante debe medir $2100 \times 2970$ píxeles, a una escala de $10\,\text{px/mm}$.
+
+    \item[\textbf{RF4. Detección del WCS.}] La aplicación debe localizar la marca en L grabada por el láser y recuperar su origen y direcciones de eje. Cuando la marca no exista o sea insuficiente, el sistema debe continuar en modo de análisis y bloquear la exportación en coordenadas físicas.
+
+    \item[\textbf{RF5. Localización aproximada de instancias.}] El módulo clásico debe proponer cajas para los toppers mediante componentes conectadas y filtros de área. Estas cajas se utilizan como prompts y no como contorno final.
+
+    \item[\textbf{RF6. Segmentación mediante IA.}] SAM 2 debe producir la máscara binaria final de las instancias localizadas. Si el checkpoint, las dependencias o los prompts no están disponibles, la aplicación debe mostrar un error y no sustituir silenciosamente la salida por la máscara clásica.
+
+    \item[\textbf{RF7. Vectorización.}] Los contornos obtenidos de la máscara de SAM 2 deben simplificarse y transformarse a unidades físicas, conservando una trayectoria exterior por topper y los huecos relevantes cuando existan \cite{DouglasPeucker1973}.
+
+    \item[\textbf{RF8. Exportación DXF.}] El sistema debe generar un archivo DXF compatible con el flujo CAD/CAM cuando exista WCS válido. Las trayectorias de corte y la referencia auxiliar deben almacenarse en capas diferenciadas.
+
+    \item[\textbf{RF9. Revisión visual.}] La interfaz debe mostrar la imagen original, la hoja rectificada, los prompts, la máscara de IA y la previsualización de los vectores para que el operario pueda detectar un resultado anómalo antes de exportarlo.
+
+    \item[\textbf{RF10. Informe de ejecución.}] Cada procesamiento debe registrar el método de segmentación, la fuente de los prompts, el estado del WCS, el número de contornos y el tiempo de ejecución.
+\end{description}
+
+\section{Requisitos no funcionales}
+
+\begin{description}
+    \item[\textbf{RNF1. Bajo coste de captura.}] La solución debe funcionar con un teléfono inteligente y un soporte removible, sin exigir una cámara industrial fija.
+
+    \item[\textbf{RNF2. Reproducibilidad.}] Las particiones de datos, semillas, configuraciones, versiones de dependencias y checksums de los modelos deben quedar documentados.
+
+    \item[\textbf{RNF3. Trazabilidad algorítmica.}] La máscara que recibe el extractor de contornos debe ser exactamente la generada por SAM 2. Esta relación debe poder verificarse mediante pruebas automatizadas.
+
+    \item[\textbf{RNF4. Robustez controlada.}] El sistema debe conservar las ocho instancias en las capturas reales evaluadas bajo sombras, recolocación de cámara y cambios de posición del material. Las condiciones que excedan este alcance deben declararse como limitaciones.
+
+    \item[\textbf{RNF5. Interoperabilidad.}] La salida debe incorporarse al flujo CAD/CAM existente sin obligar a reemplazar el software de preparación del corte.
+
+    \item[\textbf{RNF6. Usabilidad.}] El operario debe poder ejecutar el flujo principal desde una sola ventana y recibir mensajes claros cuando falte el WCS o no pueda cargarse el modelo.
+
+    \item[\textbf{RNF7. Ejecución local.}] La segmentación debe poder realizarse en CPU y sin enviar imágenes del taller a servicios externos.
+
+    \item[\textbf{RNF8. Mantenibilidad.}] La detección geométrica, la segmentación, la extracción de contornos y la exportación deben permanecer en módulos separados, de modo que un componente pueda sustituirse sin reescribir el resto del flujo.
+\end{description}
+
+\section{Criterios de aceptación del prototipo}
+
+El prototipo se considera aceptado dentro del alcance computacional cuando cumple cuatro condiciones. Primero, procesa una captura real con cuatro marcadores y recupera la hoja rectificada. Segundo, localiza ocho cajas y obtiene ocho componentes mediante SAM 2. Tercero, la misma máscara neuronal llega al extractor de contornos. Cuarto, una imagen con marca WCS válida produce un DXF no vacío con ocho trayectorias principales.
+
+Estos criterios no sustituyen la prueba física de corte. Verifican que el software conecta sus módulos de principio a fin y que la inteligencia artificial no queda limitada a una comparación aislada fuera de la aplicación.

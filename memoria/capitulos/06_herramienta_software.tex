@@ -1,0 +1,84 @@
+\chapter[Descripción de la herramienta software desarrollada]{Descripción de la herramienta\\ software desarrollada}
+\label{cap:herramienta}
+
+La contribución operativa del TFM es una aplicación modular que transforma una fotografía del material en trayectorias vectoriales. La herramienta no presenta SAM 2 como un experimento separado. El modelo forma parte de la ruta que utiliza la interfaz y su máscara es la entrada real de la extracción de contornos.
+
+\section{Arquitectura general}
+
+La arquitectura separa las tareas geométricas, la localización aproximada y la segmentación neuronal. La visión clásica detecta los marcadores, calcula la homografía, busca la marca WCS y propone cajas. SAM 2 recibe la hoja rectificada y esas cajas. La máscara resultante pasa al módulo de contornos, se transforma a milímetros y se exporta cuando existe una referencia WCS válida.
+
+\figuraopcional{fig_arquitectura_hibrida}{\textwidth}{Arquitectura híbrida implementada. La localización clásica aporta cajas y SAM 2 genera la máscara que alimenta la vectorización.}{fig:arquitectura_herramienta}
+
+La Figura~\ref{fig:arquitectura_herramienta} destaca una decisión importante. La máscara clásica puede visualizarse como línea base y utilizarse para obtener componentes, pero no sustituye la salida de SAM 2 dentro de la aplicación. Si el checkpoint no está disponible o el modelo no puede inicializarse, el flujo se detiene con un mensaje de error.
+
+\section{Organización del código}
+
+El software se implementó en Python y conserva un módulo por responsabilidad. Esta separación facilita las pruebas y permite sustituir el segmentador sin alterar el registro geométrico o la exportación.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Módulos principales de la herramienta.}
+\label{tab:modulos_software}
+\begin{tabularx}{\textwidth}{p{4.3cm}Y}
+\toprule
+\textbf{Módulo} & \textbf{Responsabilidad} \\
+\midrule
+\texttt{load\_images.py} & Carga de la captura, lectura de orientación EXIF y rotación cuando es necesaria. \\
+\texttt{detect\_markers.py} & Localización y ordenamiento de los cuatro marcadores de la hoja. \\
+\texttt{rectify\_sheet.py} & Estimación de la homografía y generación del plano A4 canónico. \\
+\texttt{detect\_wcs\_l.py} & Detección del vértice y de las direcciones de la marca WCS. \\
+\texttt{segmenters/prompts.py} & Conversión de componentes aproximadas en cajas y aplicación del margen seleccionado. \\
+\path{segmenters/sam2_segmenter.py} & Carga diferida del checkpoint, ejecución de SAM 2 y postprocesamiento de la máscara. \\
+\texttt{ai\_pipeline.py} & Conexión explícita entre localización, segmentación neuronal y contornos. \\
+\texttt{extract\_contours.py} & Extracción de siluetas y simplificación geométrica. \\
+\texttt{export\_dxf.py} & Conversión a milímetros y escritura de capas DXF. \\
+\texttt{gui.py} & Interfaz de usuario, visualización de etapas y control de exportación. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+La configuración se concentra en un archivo YAML. Allí se declaran el segmentador predeterminado, la ruta del checkpoint, la variante del modelo, el dispositivo, el margen de caja, la escala de trabajo y los parámetros de contorno. La interfaz de línea de comandos utiliza SAM 2 de forma predeterminada. La visión clásica solo puede seleccionarse de manera explícita para reproducir la línea base.
+
+\section{Carga, marcadores y rectificación}
+
+Las fotografías del teléfono pueden almacenarse con una orientación distinta de la que muestra el visor. El cargador interpreta la información EXIF y permite una rotación adicional. Después, el detector busca componentes cuadradas oscuras cerca de las esquinas, filtra candidatos y ordena los cuatro puntos.
+
+La homografía lleva esos puntos a las esquinas del lienzo canónico. Todas las etapas posteriores trabajan sobre $2100 \times 2970$ píxeles. La escala de $10\,\text{px/mm}$ simplifica la conversión a unidades físicas y hace comparables las trece capturas.
+
+\section{Detección del sistema de coordenadas de trabajo}
+
+La marca en L se busca en una región reservada de la hoja. El algoritmo separa trazos oscuros, ajusta una recta a cada brazo y calcula su intersección. El vértice define el origen. Los vectores unitarios de los brazos determinan la orientación local.
+
+La exportación está protegida por una regla de seguridad. Si el estado del WCS no es válido, la herramienta permite revisar la hoja, los prompts, la máscara y los contornos, pero no genera coordenadas de corte. Esta decisión evita que un resultado visualmente correcto se importe con un origen falso.
+
+\section{Localización y segmentación con SAM 2}
+
+El localizador clásico produce una máscara aproximada mediante HSV, trazos oscuros y bordes. A continuación se calculan componentes conectadas dentro de un rango de área. Si aparecen más de ocho candidatas, se conservan las de mayor tamaño. Las cajas se ordenan de arriba abajo y de izquierda a derecha para mantener una presentación estable.
+
+Cada caja recibe un margen del 5\%, valor seleccionado en validación. El adaptador carga SAM 2 solo en el primer uso, convierte la imagen BGR a RGB y solicita tres máscaras por prompt. La selección considera la confianza del modelo y la compatibilidad entre el área de la máscara y la caja. Las ocho predicciones se combinan en una máscara binaria, se cierran discontinuidades pequeñas y se eliminan regiones menores de 300 píxeles.
+
+El resultado incluye metadatos sobre la familia, la variante, el dispositivo, el margen y las puntuaciones. La aplicación muestra también que la fuente de los prompts es el localizador clásico. Esta información evita que la arquitectura híbrida se confunda con una detección neuronal completamente autónoma.
+
+\section{Contornos y exportación DXF}
+
+El extractor recibe la máscara de SAM 2 como objeto de entrada. A partir de ella obtiene contornos, descarta regiones incompatibles y aplica Douglas-Peucker con una tolerancia nominal de $1.5$ píxeles, equivalente a $0.15\,\text{mm}$. Las coordenadas de hoja se transforman al WCS y se escriben como polilíneas cerradas.
+
+El DXF separa las trayectorias principales en la capa \texttt{TOPPERS\_CUT} y la referencia auxiliar en \texttt{WCS\_REF}. El offset de corte se mantiene en $0.0\,\text{mm}$ durante la validación. La compensación del ancho de corte queda disponible como parámetro, pero requiere una prueba física para ajustarse.
+
+\figuraopcional{real_20_pipeline_sam2}{0.96\textwidth}{Ejecución completa sobre la captura 20, desde la hoja rectificada y los prompts hasta la máscara de SAM 2, los contornos y la salida registrada.}{fig:pipeline_real20}
+
+\section{Interfaz gráfica}
+\label{sec:interfaz_operativa}
+
+La interfaz se desarrolló con \texttt{tkinter} y utiliza \texttt{matplotlib} para las previsualizaciones. Una zona lateral agrupa la ruta del checkpoint, la escala, el offset y el estado del procesamiento. La zona principal contiene pestañas para la captura original, la hoja rectificada, la segmentación de IA y la geometría vectorial.
+
+El botón principal ejecuta el flujo en orden. Al terminar, la ventana informa el método utilizado, la fuente de los prompts, el número de toppers y la disponibilidad del WCS. La exportación se habilita solo cuando el registro geométrico está completo.
+
+\figuraopcional{gui_v7_sam2}{0.94\textwidth}{Interfaz gráfica de la versión final con SAM 2 como segmentador operativo y revisión de la salida vectorial.}{fig:gui_v7}
+
+\section{Verificación de la integración}
+
+La integración se comprobó mediante pruebas unitarias y una ejecución real. Las pruebas verifican cuatro comportamientos: la máscara de SAM 2 llega sin sustitución al extractor, un checkpoint ausente genera un error, el adaptador devuelve una máscara binaria y el localizador conserva las componentes esperadas.
+
+En la captura 20, la herramienta detectó un WCS válido, generó ocho cajas, obtuvo ocho componentes con SAM 2 y extrajo ocho contornos. El resultado se exportó a un DXF de 65\,399 bytes. Esta prueba confirma la ruta operativa completa y no solo la calidad aislada de la segmentación.

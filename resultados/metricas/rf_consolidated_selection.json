@@ -1,0 +1,54 @@
+{
+  "selection_protocol": "maximum mean full-sheet validation IoU minus 0.005 times the mean absolute component-count error",
+  "test_set_used_for_selection": false,
+  "selected": {
+    "model": "RF_v1_control_no_augmentation",
+    "origin": "control previo sin aumento",
+    "threshold": 0.7,
+    "validation_iou": 0.9902611784655871,
+    "validation_component_error": 0.0,
+    "selection_score": 0.9902611784655871,
+    "test_iou": 0.9901978344737659,
+    "test_dice": 0.9950528218559342,
+    "test_boundary_f1": 0.9424873070910661,
+    "test_component_error": 0.0
+  },
+  "candidates": [
+    {
+      "model": "RF_v1_control_no_augmentation",
+      "origin": "control previo sin aumento",
+      "threshold": 0.7,
+      "validation_iou": 0.9902611784655871,
+      "validation_component_error": 0.0,
+      "selection_score": 0.9902611784655871,
+      "test_iou": 0.9901978344737659,
+      "test_dice": 0.9950528218559342,
+      "test_boundary_f1": 0.9424873070910661,
+      "test_component_error": 0.0
+    },
+    {
+      "model": "RF_v2_control",
+      "origin": "control previo con aumento",
+      "threshold": 0.65,
+      "validation_iou": 0.9127242524574347,
+      "validation_component_error": 0.16666666666666666,
+      "selection_score": 0.9118909191241014,
+      "test_iou": 0.8186288391698627,
+      "test_dice": 0.8838704060189212,
+      "test_boundary_f1": 0.6722488948314912,
+      "test_component_error": 0.16666666666666666
+    },
+    {
+      "model": "RF_busqueda_agrupada",
+      "origin": "busqueda aleatoria con GroupKFold",
+      "threshold": 0.6,
+      "validation_iou": 0.5952520692643731,
+      "validation_component_error": 2.3333333333333335,
+      "selection_score": 0.5835854025977064,
+      "test_iou": 0.4956706943501418,
+      "test_dice": 0.5522793520200825,
+      "test_boundary_f1": 0.42375086402342516,
+      "test_component_error": 3.5
+    }
+  ]
+}

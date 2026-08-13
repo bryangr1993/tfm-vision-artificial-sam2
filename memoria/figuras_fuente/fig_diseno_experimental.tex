@@ -1,0 +1,29 @@
+\documentclass[tikz,border=8pt]{standalone}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usetikzlibrary{arrows.meta,positioning,fit}
+\definecolor{navy}{HTML}{15324B}
+\definecolor{blue}{HTML}{2F80C1}
+\definecolor{cyan}{HTML}{DCEFF7}
+\definecolor{orange}{HTML}{E8873A}
+\definecolor{green}{HTML}{3B8F72}
+\tikzset{box/.style={draw=navy,rounded corners,very thick,align=center,minimum height=1.15cm,fill=white,font=\sffamily},arr/.style={-{Latex[length=3mm]},very thick,navy}}
+\begin{document}
+\begin{tikzpicture}[node distance=0.85cm and 1cm]
+\node[box,fill=cyan,minimum width=2.8cm] (data) at (0,0) {48 láminas sintéticas\\unidad: lámina completa};
+\node[box,fill=blue!12,minimum width=2.7cm] (train) at (4.2,0) {36 entrenamiento\\ajuste de modelos};
+\node[box,fill=orange!15,minimum width=2.7cm] (val) at (8.2,0) {6 validación\\selección y umbrales};
+\node[box,fill=green!15,minimum width=2.7cm] (test) at (12.1,0) {6 prueba\\evaluación única};
+\draw[arr] (data)--(train); \draw[arr] (train)--(val); \draw[arr] (val)--(test);
+\node[box,minimum width=3.8cm,text width=3.45cm] (rf) at (4.2,-2.3) {Random Forest\\búsqueda agrupada por lámina};
+\node[box,minimum width=3.3cm] (sam) at (8.2,-2.3) {SAM 2\\selección de prompts};
+\draw[arr] (train)--(rf); \draw[arr] (val)--(rf); \draw[arr] (val)--(sam);
+\node[box,fill=cyan,minimum width=3.6cm] (metrics) at (12.1,-2.3) {Dice, IoU, Boundary F1\\componentes y tiempo};
+\draw[arr] (test)--(metrics); \draw[arr] (rf)-|(metrics); \draw[arr] (sam)-|(metrics);
+\node[draw=orange,dashed,very thick,fit=(test),inner sep=7pt,label={[navy,font=\sffamily\small]above:Bloqueado hasta cerrar decisiones}] {};
+\node[box,fill=green!10,minimum width=3.2cm] (real) at (0,-2.3) {13 capturas reales\\evaluación de dominio};
+\draw[arr] (real)--(rf);
+\draw[arr] (real.south) -- ++(0,-0.7) -| (metrics.south);
+\end{tikzpicture}
+\end{document}

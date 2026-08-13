@@ -1,0 +1,136 @@
+\chapter{Evaluación y discusión}
+\label{cap:evaluacion}
+
+Este capítulo presenta los resultados una vez cerradas las decisiones de modelo, umbral y prompt. La comparación se organiza en dos dominios. El primero corresponde a las seis hojas sintéticas de prueba, que conservan las condiciones controladas del generador. El segundo está formado por trece fotografías de una misma hoja física, rectificadas a un plano común. Esta separación permite observar no solo qué método segmenta mejor, sino también cuánto de ese rendimiento se conserva cuando cambia la imagen de entrada.
+
+\section{Optimización y selección de Random Forest}
+
+La búsqueda aleatoria evaluó diez configuraciones mediante cuatro particiones agrupadas, lo que produjo cuarenta ajustes con \texttt{GroupKFold}. El mejor candidato en esa etapa obtuvo un Jaccard medio de $0.8077 \pm 0.0472$ sobre los píxeles muestreados. Utilizó 300 árboles, profundidad máxima 12, ocho muestras mínimas por hoja del árbol, dos por división, 50\% de las características y balanceo de clases.
+
+El resultado de la búsqueda no se aceptó de forma automática. Al reconstruir las seis hojas completas de validación, ese candidato alcanzó un IoU de $0.5953$ y un error medio de $2.33$ componentes. La diferencia frente a su puntuación interna mostró que clasificar bien una muestra balanceada de píxeles no equivale a conservar objetos completos y cerrados. Por esa razón se mantuvo la segunda etapa prevista en el protocolo y se comparó el ganador de la búsqueda con los dos controles existentes.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Selección de Random Forest sobre las seis hojas completas de validación.}
+\label{tab:seleccion_rf}
+\begin{tabularx}{\textwidth}{Ycccc}
+\toprule
+\textbf{Candidato} & \textbf{Umbral} & \textbf{IoU val.} & \textbf{Error comp.} & \textbf{Puntuación $S$} \\
+\midrule
+RF v1, sin aumento & 0.70 & \textbf{0.9903} & \textbf{0.00} & \textbf{0.9903} \\
+RF v2, con aumento & 0.65 & 0.9127 & 0.17 & 0.9119 \\
+Ganador de búsqueda agrupada & 0.60 & 0.5953 & 2.33 & 0.5836 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+RF v1 con umbral 0.70 fue, por tanto, la configuración bloqueada para prueba. Este modelo conserva 200 árboles, profundidad máxima 25, dos muestras mínimas por hoja y selección de características por raíz cuadrada. Que el control anterior supere al candidato optimizado no invalida la búsqueda. Al contrario, aporta una observación metodológica: la función de puntuación y la unidad de validación deben parecerse al uso final. En este problema, la hoja completa es más informativa que una colección balanceada de píxeles.
+
+\section{Selección de prompts para SAM 2}
+
+Las cinco estrategias se compararon únicamente sobre validación. La caja con un margen del 5\% obtuvo el mayor IoU, $0.9082$, seguida de la caja ajustada con $0.9074$. El margen del 10\% redujo ligeramente el resultado. Incorporar puntos no produjo una mejora y la estrategia con un punto positivo fue la de menor IoU, con $0.8966$.
+
+\figuraopcional{fig_sam_prompts_validacion}{0.88\textwidth}{IoU medio de las cinco estrategias de prompt de SAM 2 sobre el conjunto sintético de validación.}{fig:sam_prompts_validacion}
+
+La diferencia entre las dos primeras opciones es pequeña, de $0.0008$ puntos de IoU. El margen del 5\% se conservó porque evitaba recortar bordes próximos a la caja sin introducir demasiado fondo. Con esa decisión bloqueada, SAM 2 alcanzó en prueba un IoU de $0.9153 \pm 0.0379$, Dice de $0.9554$ y Boundary F1 de $0.7234$. Las seis hojas mantuvieron el número esperado de componentes.
+
+\section{Resultados en el dominio sintético}
+
+La Tabla~\ref{tab:resultados_sinteticos} reúne los resultados finales. Random Forest fue el método con mayor solapamiento y mejor coincidencia de borde. SAM 2 ocupó el segundo lugar en IoU y Dice. La línea clásica obtuvo un Boundary F1 superior al de SAM 2, aunque con menor solapamiento de área. Los tres métodos conservaron la cantidad correcta de objetos.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Resultados sobre las seis hojas sintéticas de prueba.}
+\label{tab:resultados_sinteticos}
+\begin{tabularx}{\textwidth}{Yccccc}
+\toprule
+\textbf{Método} & \textbf{IoU} & \textbf{Dice} & \textbf{Boundary F1} & \textbf{Error comp.} & \textbf{Tiempo (s)} \\
+\midrule
+Visión clásica & $0.9016 \pm 0.0439$ & 0.9478 & 0.7728 & 0.00 & 0.102 \\
+Random Forest v1 & $\mathbf{0.9902 \pm 0.0102}$ & \textbf{0.9951} & \textbf{0.9425} & 0.00 & 7.345 \\
+SAM 2 Hiera Tiny & $0.9153 \pm 0.0379$ & 0.9554 & 0.7234 & 0.00 & 0.528 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\figuraopcional{fig_metricas_sinteticas}{0.9\textwidth}{Comparación de IoU, Dice y Boundary F1 en las seis hojas sintéticas de prueba.}{fig:metricas_sinteticas}
+
+El $0.9902$ de Random Forest confirma que las características de color, gradiente y escala describen muy bien el generador sintético. También debe leerse con cautela. Las hojas de prueba cambian la distribución y la condición visual, pero comparten el banco de 32 diseños con entrenamiento. No son una prueba de identidades completamente nuevas.
+
+El tiempo de Random Forest incluye el cálculo de las 19 características para todos los píxeles y la predicción de probabilidad en CPU. SAM 2 también se ejecutó en CPU. Las cifras sirven para dimensionar el prototipo, aunque no representan una comparación optimizada de producción.
+
+\section{Transferencia a capturas reales}
+
+La evaluación real utilizó la referencia canónica descrita en el Capítulo~\ref{cap:metodologia}. La línea clásica alcanzó el mayor IoU, con $0.9787$. SAM 2 quedó cerca, con $0.9536$, y conservó las ocho instancias en las trece capturas. Random Forest descendió a $0.2877$ y presentó un error medio de siete componentes.
+
+\begin{table}[htbp]
+\centering
+\scriptsize
+\caption{Resultados sobre trece capturas rectificadas de una misma hoja real.}
+\label{tab:resultados_reales}
+\begin{tabularx}{\textwidth}{Yccccc}
+\toprule
+\textbf{Método} & \textbf{IoU} & \textbf{IC 95\% de IoU} & \textbf{Dice} & \textbf{Boundary F1} & \textbf{Error comp.} \\
+\midrule
+Visión clásica & $\mathbf{0.9787 \pm 0.0159}$ & $[0.9696,\,0.9863]$ & \textbf{0.9892} & \textbf{0.9069} & 0.00 \\
+Random Forest v1 & $0.2877 \pm 0.0044$ & $[0.2862,\,0.2902]$ & 0.4468 & 0.3030 & 7.00 \\
+SAM 2 Hiera Tiny & $0.9536 \pm 0.0083$ & $[0.9490,\,0.9577]$ & 0.9762 & 0.7198 & 0.00 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Los intervalos se obtuvieron mediante bootstrap de capturas. Como las trece imágenes muestran la misma hoja, describen variación frente a cambios de adquisición y no generalización a trece productos independientes. Esta diferencia es relevante para no atribuir al experimento un alcance que los datos no tienen.
+
+\figuraopcional{real_13_comparison_v7}{0.96\textwidth}{Comparación visual de la referencia canónica y las predicciones de los tres métodos sobre una captura real.}{fig:comparacion_real}
+
+\figuraopcional{fig_brecha_dominios}{0.9\textwidth}{Cambio del IoU medio entre prueba sintética y capturas reales.}{fig:brecha_dominios}
+
+Random Forest perdió $0.7025$ puntos de IoU entre dominios. El fondo blanco digital, las condiciones simuladas y los gráficos del generador no reprodujeron por completo la textura del papel, el balance de blancos de la cámara ni los ocho diseños reales. La aumentación de RF v2 mejoró algunos escenarios en la versión anterior, pero la selección rigurosa sobre validación completa favoreció RF v1. El resultado final documenta, por tanto, el comportamiento del candidato elegido sin utilizar las capturas reales para corregirlo a posteriori.
+
+SAM 2 perdió solo $0.0381$ puntos y mantuvo la topología de ocho objetos. Su preentrenamiento aporta una representación visual más amplia que la aprendida por Random Forest dentro del proyecto. Sin embargo, el modelo recibe cajas generadas por el localizador clásico. El resultado demuestra segmentación neuronal condicionada y no detección autónoma.
+
+La visión clásica fue la mejor opción en este montaje controlado. Las hojas tienen fondo claro, marcadores conocidos y una cantidad fija de toppers. Estas condiciones favorecen reglas de color y morfología cuidadosamente ajustadas. Que SAM 2 no la supere no elimina su aporte. El modelo conserva un IoU alto, muestra menor dependencia del entrenamiento local que Random Forest y permite que la herramienta final utilice IA de manera efectiva y verificable.
+
+\section{Repetibilidad del registro geométrico}
+
+La estabilidad del registro se calculó sobre las diez capturas con marca WCS válida. Se compararon los centroides físicos de los ocho toppers después de la rectificación y la transformación al sistema de trabajo. Esta medición evalúa la cadena geométrica, no la precisión de un corte físico.
+
+\begin{table}[htbp]
+\centering
+\scriptsize
+\caption{Repetibilidad del registro por topper en capturas con WCS válido.}
+\label{tab:repetibilidad_wcs}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Topper} & \textbf{$\bar{x}$ (mm)} & \textbf{$\bar{y}$ (mm)} & \textbf{$\sigma_x$ (mm)} & \textbf{$\sigma_y$ (mm)} & \textbf{Deriva máx. (mm)} \\
+\midrule
+Estrella & 37.334 & 39.037 & 0.145 & 0.163 & 0.472 \\
+Arcoíris & 126.228 & 38.682 & 0.158 & 0.327 & 0.824 \\
+Mariposa & 37.920 & 96.082 & 0.262 & 0.179 & 0.642 \\
+Dinosaurio & 120.817 & 98.997 & 0.245 & 0.320 & 0.802 \\
+Princesa & 36.541 & 162.826 & 0.314 & 0.178 & 0.780 \\
+Unicornio & 120.811 & 161.783 & 0.294 & 0.248 & 0.630 \\
+Camión & 35.838 & 220.587 & 0.318 & 0.252 & 0.766 \\
+Sirena & 122.956 & 224.457 & 0.579 & 0.340 & 1.647 \\
+\midrule
+Promedio global & -- & -- & 0.289 & 0.251 & 0.820 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Las desviaciones estándar medias fueron $0.289\,\text{mm}$ en X y $0.251\,\text{mm}$ en Y. La deriva máxima promedio fue $0.820\,\text{mm}$. La sirena, situada lejos del origen, presentó la mayor deriva. Ese comportamiento es coherente con la propagación de un pequeño error angular, que aumenta con la distancia al WCS. La calibración intrínseca de la cámara y una marca en L de mayor longitud son dos vías directas para reducir este efecto.
+
+\section{Validación de la cadena software}
+
+Las pruebas automatizadas cubrieron cuatro condiciones de integración y finalizaron correctamente. La máscara devuelta por SAM 2 fue la misma que recibió el extractor de contornos. También se verificaron la binarización de la salida, la conservación de componentes por el localizador y el fallo explícito cuando falta el checkpoint. No existe una sustitución silenciosa por la máscara clásica.
+
+La captura 20 se utilizó como prueba de extremo a extremo. El sistema detectó la hoja y los cuatro marcadores, obtuvo un WCS válido, generó ocho prompts, produjo ocho componentes con SAM 2 y extrajo ocho contornos. La exportación resultante fue un DXF de $65\,399$ bytes. La interfaz mostró el modo \texttt{SAM 2 + WCS} y habilitó el control de exportación.
+
+\section{Limitaciones}
+
+Los resultados tienen cinco límites. Las trece capturas reales proceden de una sola hoja y la referencia es canónica y asistida. SAM 2 depende de las cajas del localizador clásico. Las identidades se repiten entre particiones sintéticas, aunque no las hojas. La validación llega hasta el DXF y la repetibilidad computacional, sin cortes físicos ni calibración intrínseca.
+
+Aun así, las preguntas quedan respondidas. SAM 2 generó máscaras estables para vectorización y mantuvo un IoU alto en las capturas reales, aunque la línea clásica fue superior. El mejor resultado sintético no garantizó transferencia. La salida operativa de SAM 2 permitió integrarlo como motor de la aplicación.
