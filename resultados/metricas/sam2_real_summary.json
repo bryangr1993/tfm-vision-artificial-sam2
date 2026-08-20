@@ -1,0 +1,29 @@
+{
+  "model_family": "SAM 2",
+  "model_variant": "Hiera Tiny",
+  "pretrained": true,
+  "selected_strategy": "caja_margen_5",
+  "selection_partition": "synthetic_validation",
+  "evaluation_domain": "13 rectified captures of one physical sheet",
+  "prompt_source": "classical coarse localizer; boxes only",
+  "reference": "assisted canonical reference independent of compared masks",
+  "mean_iou": 0.9536275951036995,
+  "std_iou": 0.008251430915472384,
+  "iou_capture_bootstrap_95_ci": [
+    0.9490325435265579,
+    0.9576620645011776
+  ],
+  "mean_dice": 0.9762465169398682,
+  "std_dice": 0.004339835919810204,
+  "dice_capture_bootstrap_95_ci": [
+    0.9738329579914056,
+    0.9783956596494664
+  ],
+  "mean_boundary_f1": 0.7198318724515167,
+  "mean_component_error": 0.0,
+  "mean_inference_seconds": 0.5312911307701143,
+  "device": "cpu",
+  "python": "3.14.0",
+  "torch": "2.12.1+cpu",
+  "interpretation_limit": "The interval quantifies variation between captures of the same sheet and must not be interpreted as generalization to new sheet designs."
+}

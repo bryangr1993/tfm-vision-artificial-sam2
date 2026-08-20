@@ -1,0 +1,41 @@
+{
+  "model": "RF_v1_control_no_augmentation",
+  "origin": "pre-existing configuration retained as a protocol control",
+  "parameters": {
+    "bootstrap": true,
+    "ccp_alpha": 0.0,
+    "class_weight": "balanced",
+    "criterion": "gini",
+    "max_depth": 25,
+    "max_features": "sqrt",
+    "max_leaf_nodes": null,
+    "max_samples": null,
+    "min_impurity_decrease": 0.0,
+    "min_samples_leaf": 2,
+    "min_samples_split": 2,
+    "min_weight_fraction_leaf": 0.0,
+    "monotonic_cst": null,
+    "n_estimators": 200,
+    "n_jobs": -1,
+    "oob_score": false,
+    "random_state": 42,
+    "verbose": 0,
+    "warm_start": false
+  },
+  "selected_threshold": 0.7,
+  "selection_rule": "mean_validation_iou - 0.005 * mean_component_error",
+  "validation": {
+    "model": "RF_v1_control_no_augmentation",
+    "threshold": 0.7,
+    "mean_validation_iou": 0.9902611784655871,
+    "std_validation_iou": 0.011532012928701905,
+    "mean_validation_dice": 0.9950784082207266,
+    "mean_component_error": 0.0,
+    "selection_score": 0.9902611784655871
+  },
+  "test_mean_iou": 0.9901978344737659,
+  "test_std_iou": 0.01016816853104926,
+  "test_mean_dice": 0.9950528218559342,
+  "test_mean_boundary_f1": 0.9424873070910661,
+  "test_mean_component_error": 0.0
+}

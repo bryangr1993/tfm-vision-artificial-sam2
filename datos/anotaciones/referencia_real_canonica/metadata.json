@@ -1,0 +1,35 @@
+{
+  "status": "assisted_reference_visual_qc_complete",
+  "source_images": [
+    "rectified_13.png",
+    "rectified_15.png",
+    "rectified_17.png",
+    "rectified_20.png",
+    "rectified_22.png",
+    "rectified_24.png",
+    "rectified_26.png",
+    "rectified_28.png",
+    "rectified_30.png",
+    "rectified_32.png",
+    "rectified_34.png",
+    "rectified_36.png",
+    "rectified_38.png"
+  ],
+  "canonical_image": "pixelwise median of 13 rectified captures",
+  "annotation_method": "box-initialized GrabCut plus edge closure and external fill",
+  "experimental_unit_note": "the 13 captures show the same physical sheet in canonical rectified coordinates",
+  "uses_classical_masks_as_labels": false,
+  "uses_sam2_masks_as_labels": false,
+  "prompt_boxes_source": "classical coarse localization on real_13",
+  "visual_qc": {
+    "status": "complete",
+    "checks": [
+      "eight separate instances",
+      "outer silhouettes follow visible print borders",
+      "rainbow inner opening preserved",
+      "corner fiducials and WCS mark excluded",
+      "thin appendages retained"
+    ]
+  },
+  "instances": 8
+}

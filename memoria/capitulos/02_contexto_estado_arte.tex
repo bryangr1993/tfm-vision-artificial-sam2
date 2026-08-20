@@ -1,0 +1,129 @@
+\chapter{Contexto y estado del arte}
+\label{cap:contexto}
+
+Este capítulo sitúa el problema dentro del proceso productivo y reúne los fundamentos que sostienen la solución. La revisión avanza desde el flujo CAD/CAM y la geometría de la captura hasta los métodos de segmentación. Después aborda Random Forest, los modelos fundacionales de segmentación y la conversión de máscaras a trayectorias de corte.
+
+\section{Contexto productivo}
+
+El contexto productivo determina qué información debe recuperar la cámara y qué salida necesita la máquina. Por ello, antes de revisar los algoritmos conviene describir la pieza, el flujo CAD/CAM y las condiciones reales de captura.
+
+\subsection{Fabricación personalizada de toppers}
+
+La fabricación por encargo obliga a preparar la máquina muchas veces para lotes pequeños. Cada pedido puede incluir formas distintas, tamaños variables y materiales parcialmente aprovechados. En Innokey, los toppers muestran con claridad esa variación. Los diseños parten de imágenes o ideas entregadas por los clientes y luego se corrigen, depuran o redibujan antes de imprimirlos sobre una lámina adhesiva.
+
+El punto crítico aparece al integrar la impresión y la base rígida. El plóter recorta la capa adhesiva y el láser corta el MDF o el acrílico en operaciones separadas. Más tarde, el operario debe hacer coincidir cada par de piezas. La diversidad de formas vuelve poco prácticas las guías rígidas y una desviación pequeña puede dejar visible el soporte.
+
+\subsection{Flujo CAD/CAM y sistema de coordenadas de trabajo}
+
+Las cortadoras láser CNC trabajan con trayectorias vectoriales planas. La geometría suele prepararse en un entorno de diseño asistido por computador (CAD) y después pasa al software de fabricación asistida por computador (CAM), donde se establecen velocidad, potencia y orden de corte. Cuando la pieza ya contiene una impresión, la visión artificial puede observar su posición real y convertirla en geometría compatible con ese flujo \cite{Bhandari2023,Jednorg2025,Khafagy2025}.
+
+Conviene distinguir el sistema de coordenadas de máquina del sistema de coordenadas de trabajo. El primero pertenece a la estructura de la cortadora y a sus finales de carrera. El segundo, denominado WCS por \textit{Work Coordinate System}, lo define el operario según el material y el aprovechamiento de la mesa. En una máquina de aproximadamente $130 \times 90\,\text{cm}$, ese origen puede cambiar entre pedidos. Por este motivo, la herramienta no depende de una plantilla fija. Utiliza una marca en forma de L grabada por el propio láser sobre una zona libre de la hoja.
+
+\subsection{Captura con cámara de consumo}
+
+La región de trabajo se limita a una hoja A4 adherida al soporte. La restricción concentra los píxeles de la cámara en el área que realmente contiene los diseños y permite trabajar a una escala nominal de $10\,\text{px/mm}$. Cubrir toda la mesa exigiría alejar la cámara y reduciría el detalle disponible para los bordes finos.
+
+La captura se realiza con un teléfono inteligente montado en la compuerta superior. El soporte es removible y no garantiza una posición idéntica entre sesiones. La hoja incorpora cuatro marcadores negros que permiten estimar su orientación y rectificar la perspectiva. Esta decisión reduce el coste del montaje y hace posible reproducirlo sin una cámara industrial fija.
+
+\subsection{Dificultades visuales de la escena}
+
+La impresión sobre fondo blanco facilita parte de la separación, pero no elimina la dificultad. Los diseños contienen tonos pastel, zonas blancas internas, degradados y trazos oscuros que no pertenecen al borde de corte. La iluminación del taller añade sombras, reflejos y cambios de balance de blancos. También pueden aparecer en la captura el cabezal y la guía del eje X.
+
+El sistema debe recuperar la silueta externa sin seguir ojos, pliegues ni detalles decorativos. La Figura~\ref{fig:dificultades_visuales} reúne varias de las condiciones observadas durante la adquisición.
+
+\figuraopcionaldetallada{dificultades_visuales_toppers}{0.9\textwidth}{Dificultades visuales presentes en las capturas reales.}{Dificultades visuales presentes en las capturas reales. El panel superior izquierdo muestra una iluminación desigual, con una sombra horizontal que atraviesa la hoja y el soporte. El panel superior derecho incorpora parte del cabezal dentro del campo visual. En la fila inferior se observan, respectivamente, la rotación de la hoja y su desplazamiento lateral respecto a la posición habitual. Los marcadores de las esquinas permiten rectificar la escena antes de segmentar los diseños pese a esas diferencias.}{fig:dificultades_visuales}
+
+\section{Fundamentos geométricos}
+
+El registro de la impresión exige distinguir dos problemas geométricos. La calibración describe cómo la cámara forma la imagen, mientras que la homografía relaciona la hoja observada con un plano de dimensiones conocidas.
+
+\subsection{Calibración y distorsión de cámara}
+
+La calibración intrínseca estima la distancia focal, el punto principal y los coeficientes que describen la distorsión del objetivo. El procedimiento de Zhang sigue siendo una referencia para obtener estos parámetros a partir de varias observaciones de un patrón plano \cite{Zhang2000}. Trabajos posteriores muestran que la calidad de las esquinas detectadas y las diferencias entre zonas del sensor influyen en el resultado de la calibración \cite{Wang2022}.
+
+En este TFM no se completa una calibración intrínseca formal. La captura se concentra en la zona central del teléfono y la corrección dominante se resuelve mediante una transformación planar. Esta elección es suficiente para validar el software, pero deja abierta la posibilidad de error radial en la periferia. La limitación se declara porque la homografía corrige perspectiva, no todas las deformaciones de lente.
+
+\subsection{Homografía y rectificación planar}
+
+Una homografía es una transformación proyectiva entre dos planos. Permite relacionar la hoja observada en perspectiva con un rectángulo de dimensiones conocidas. En coordenadas homogéneas, un punto $(x,y)$ de la imagen original se transforma en $(x',y')$ mediante
+
+\begin{equation}
+\begin{bmatrix}
+x' \\ y' \\ 1
+\end{bmatrix}
+\sim
+H
+\begin{bmatrix}
+x \\ y \\ 1
+\end{bmatrix},
+\qquad
+H =
+\begin{bmatrix}
+h_{11} & h_{12} & h_{13} \\
+h_{21} & h_{22} & h_{23} \\
+h_{31} & h_{32} & 1
+\end{bmatrix}.
+\label{eq:homografia}
+\end{equation}
+
+Las cuatro correspondencias de esquina aportadas por los marcadores permiten estimar $H$ y llevar la hoja a un lienzo de $2100 \times 2970$ píxeles. Investigaciones recientes confirman la utilidad de la homografía para corregir distorsión de perspectiva en mediciones planas \cite{Wang2025}. La Figura~\ref{fig:homografia_contexto} muestra el sentido de esta transformación dentro del sistema.
+
+\figuraopcional{fig_homografia}{0.88\textwidth}{Rectificación de la hoja mediante correspondencias entre los marcadores detectados y el plano canónico A4.}{fig:homografia_contexto}
+
+Los marcadores fiduciales se utilizan con frecuencia para recuperar posición y orientación a partir de patrones conocidos \cite{GarridoJurado2014}. Aquí los cuatro cuadrados delimitan la hoja, mientras que la marca en L cumple una función diferente. Su vértice define el origen WCS y sus brazos aportan la dirección de los ejes.
+
+\section{Segmentación mediante visión clásica}
+
+Los métodos clásicos separan regiones a partir de propiedades expresadas de forma explícita. En este caso resultan útiles la saturación, la luminosidad, los gradientes y la conectividad espacial. La corrección de brillo y la segmentación adaptativa se han empleado en escenas industriales con reflejos \cite{Li2023}, mientras que los operadores adaptativos de borde buscan conservar límites de pieza bajo ruido variable \cite{Li2024}.
+
+El detector de Canny combina suavizado, gradiente, supresión de no máximos e histéresis \cite{Canny1986}. Sin embargo, una imagen de topper contiene muchas líneas internas. Por eso el borde no se usa solo. Se combina con umbrales en HSV y con operaciones morfológicas que cierran discontinuidades y rellenan la región externa. El resultado constituye una línea base interpretable y también un localizador aproximado de las cajas que recibe SAM 2.
+
+\section{Aprendizaje automático para segmentación}
+
+Los métodos de aprendizaje considerados representan dos niveles de complejidad. Random Forest aprende una decisión por píxel a partir de características diseñadas, mientras que SAM 2 reutiliza una representación neuronal preentrenada y recibe una guía espacial mediante prompts.
+
+Los antecedentes industriales citados permiten concretar qué significa esa incorporación de IA. Ozkan compara regresión logística, máquinas de vectores de soporte, árboles de decisión, Random Forest, XGBoost y una red neuronal artificial después de extraer descriptores geométricos. La red neuronal obtuvo el mejor resultado en la detección de defectos de casquillos metálicos \cite{Ozkan2025}. Loganathan et al. emplean YOLOv8n-seg para segmentación multiclase de defectos de soldadura y medición geométrica en tiempo real \cite{Loganathan2026}. Ambos trabajos combinan aprendizaje con procesamiento visual previo y muestran que el modelo debe describirse por su función concreta dentro de la cadena.
+
+\subsection{Random Forest como clasificador por píxel}
+
+Random Forest agrega las predicciones de varios árboles entrenados con muestreo y selección aleatoria de características \cite{Breiman2001}. La combinación reduce la varianza de un árbol individual y permite modelar relaciones no lineales sin una red neuronal profunda. En una segmentación por píxel, cada observación se describe mediante color, gradiente y textura local. El modelo estima entonces la probabilidad de que ese píxel pertenezca al topper.
+
+\figuraopcional{fig_random_forest}{0.9\textwidth}{Funcionamiento del Random Forest por píxel, desde la extracción de características hasta la agregación de los árboles y la formación de la máscara.}{fig:rf_contexto}
+
+La Figura~\ref{fig:rf_contexto} resume el procedimiento. Su principal ventaja para este proyecto es que puede entrenarse con un volumen moderado de datos y ofrece una referencia supervisada distinta de las reglas clásicas. Su mayor riesgo es la dependencia del dominio. Un clasificador puede aprender con gran precisión el blanco digital, las sombras programadas y las texturas sintéticas, pero fallar cuando la cámara introduce ruido, compresión y variaciones cromáticas que no aparecieron en el entrenamiento.
+
+\subsection{Redes convolucionales y alternativas consideradas}
+
+Las redes convolucionales aprenden representaciones jerárquicas a partir de los datos \cite{LeCun1998}. U-Net combina un codificador con un decodificador y conexiones de salto para recuperar detalle espacial \cite{Ronneberger2015}. Mask R-CNN añade una rama de máscara a un detector regional \cite{He2017}, mientras que YOLO plantea una detección directa orientada a velocidad \cite{Redmon2016}.
+
+Estas arquitecturas son válidas, pero exigirían un conjunto real con numerosas instancias anotadas y diversidad de diseños. Las trece fotografías disponibles corresponden a una sola lámina física, de modo que entrenar una red propia desde cero produciría una evaluación poco defendible. El banco sintético ayuda a estudiar transferencia, pero no sustituye la variabilidad de producción. Por esa razón se elige un modelo preentrenado que puede trabajar con prompts y no necesita ajuste sobre las imágenes del proyecto.
+
+\subsection{Modelos fundacionales y SAM 2}
+
+Un modelo fundacional se preentrena con un conjunto amplio y diverso para adquirir representaciones reutilizables en tareas posteriores. En lugar de aprender desde cero cada nuevo problema, se adapta mediante prompts, ajuste fino o módulos ligeros. En segmentación, SAM introdujo un esquema capaz de producir máscaras a partir de puntos o cajas y mostró transferencia sin entrenamiento específico a distintas distribuciones visuales \cite{Kirillov2023}.
+
+SAM 2 extiende la segmentación condicionada a imágenes y vídeo. Su arquitectura combina un codificador visual jerárquico, un codificador de prompts y un decodificador de máscaras. La memoria temporal es relevante para vídeo, aunque en este TFM cada hoja se procesa como una imagen independiente \cite{Ravi2025}. La variante Hiera Tiny es la opción más ligera de la familia utilizada. Se selecciona porque puede ejecutarse en CPU y porque el objetivo es integrar el modelo en una herramienta de taller, no maximizar el tamaño de la red.
+
+\figuraopcional{fig_sam2}{0.94\textwidth}{Arquitectura funcional de SAM 2 para una imagen estática condicionada mediante cajas geométricas.}{fig:sam2_contexto}
+
+La Figura~\ref{fig:sam2_contexto} diferencia la imagen, el prompt y la máscara resultante. El modelo no se entrena con los datos del TFM. Se carga un checkpoint preentrenado y se comparan distintas formas de construir el prompt. Esta decisión evita presentar como aprendizaje propio lo que en realidad es transferencia desde un modelo fundacional. También obliga a declarar una dependencia: SAM 2 necesita una localización inicial. En las capturas reales, esa localización procede de componentes obtenidas por el módulo clásico, pero sus bordes no se reutilizan como máscara final.
+
+\section{Métricas de segmentación}
+
+La evaluación de una máscara exige medir algo más que el porcentaje de píxeles acertados, porque el fondo ocupa gran parte de la hoja. La intersección sobre unión, conocida como IoU o índice de Jaccard, divide el área común entre la unión de la predicción y la referencia. El coeficiente Dice duplica la intersección y la divide entre la suma de ambas áreas. Las dos medidas toman el valor uno cuando las máscaras coinciden y disminuyen con los falsos positivos y falsos negativos. Dice suele producir un valor numérico mayor que IoU para el mismo par de máscaras, aunque ambas ordenan de forma coherente el grado de solapamiento \cite{Taha2015}.
+
+El Boundary F1 traslada la comparación al borde. Un punto predicho se considera correcto cuando cae dentro de una tolerancia alrededor del contorno de referencia. A partir de la precisión y la exhaustividad de esos puntos se calcula su media armónica, siguiendo el protocolo de correspondencia tolerante utilizado para evaluar límites en imágenes \cite{Martin2004}. Esta métrica resulta útil para corte porque dos máscaras pueden tener un área similar y, sin embargo, diferir en apéndices finos o entrantes de la silueta. El error de componentes complementa el análisis al comparar la cantidad de regiones conectadas con las instancias esperadas.
+
+\section{Vectorización y geometría fabricable}
+
+Una máscara binaria todavía no constituye una trayectoria de máquina. El contorno contiene una gran cantidad de vértices y pequeñas irregularidades propias del raster. Una polilínea es una secuencia ordenada de segmentos rectos que aproxima ese límite y que puede cerrarse para describir la silueta completa.
+
+El algoritmo de Douglas-Peucker reduce los puntos redundantes dentro de una tolerancia geométrica $\varepsilon$ \cite{DouglasPeucker1973}. El procedimiento une primero los extremos de una secuencia y localiza el punto con mayor distancia perpendicular al segmento. Si esa distancia supera $\varepsilon$, divide la curva en ese punto y repite el cálculo en cada parte. Si no lo supera, conserva únicamente los extremos. Un valor pequeño mantiene más detalle y produce más vértices, mientras que uno grande simplifica la trayectoria y puede deformar rasgos finos. Por ello, la tolerancia debe expresarse en relación con la escala física de la imagen.
+
+La literatura que conecta imagen y fabricación confirma la necesidad de validar la salida como geometría y no solo como visualización. Bhandari y Manandhar combinan visión y CAD para recuperar dimensiones \cite{Bhandari2023}. Jednoróg desarrolla una herramienta orientada a generar DXF desde fotografías en un entorno de pequeña empresa \cite{Jednorg2025}. Khafagy et al. estudian la extracción y optimización de trayectorias complejas desde gráficos vectoriales para aplicaciones robóticas \cite{Khafagy2025}. En todos los casos, la utilidad final depende de conservar escala, conectividad y referencia espacial.
+
+\section{Síntesis crítica}
+
+La revisión conduce a una arquitectura híbrida. La geometría controlada resuelve la rectificación y el WCS de forma auditable. Un localizador clásico aporta cajas aproximadas con un coste bajo. SAM 2 refina las siluetas mediante conocimiento preentrenado y su máscara alimenta la vectorización. Random Forest permite estudiar el aprendizaje supervisado por píxel y la brecha sintético-real.
+
+Esta combinación no presupone que la inteligencia artificial mejorará todas las métricas. La evaluación debe mostrar cuándo aporta una segmentación útil y cuándo una regla específica del entorno sigue siendo más precisa. El criterio de diseño es que la aplicación final use el modelo de IA de forma real y trazable, sin borrar el papel de los componentes geométricos que hacen posible el registro físico.

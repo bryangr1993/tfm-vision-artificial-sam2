@@ -1,0 +1,59 @@
+# Entornos y cachés
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# Artefactos LaTeX
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lot
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+
+# Modelos y checkpoints pesados
+*.pt
+*.pth
+*.joblib
+*.pkl
+resultados/modelos/*
+!resultados/modelos/README.md
+
+# Datos no redistribuibles o pesados
+datos/reales/raw/*
+datos/reales/rectificadas/*
+datos/reales/referencias_clasicas/*
+datos/reales/prompts_legacy/*
+datos/sinteticos/imagenes/*
+datos/sinteticos/mascaras/*
+datos/sinteticos/prompts/*
+!datos/**/README.md
+!datos/manifiesto/**
+!datos/anotaciones/**
+
+# Resultados temporales
+tmp/
+resultados/cache/
+output/pdf/*
+!output/pdf/TFM_Bryan_Guananga.pdf
+software/outputs_gui/
+datos/anotaciones/borrador_referencia_real/
+
+# PDFs de compilación local; el entregable versionado está en output/pdf/
+memoria/main.pdf
+
+# Sistema y editores
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

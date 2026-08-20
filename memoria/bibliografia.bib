@@ -1,0 +1,288 @@
+@article{Wang2025,
+   abstract = {In monocular vision measurement, a barrier to implementation is the perspective distortion caused by manufacturing errors in the imaging chip and non-parallelism between the measurement plane and its image, which seriously affects the accuracy of pixel equivalent and measurement results. This paper proposed a perspective distortion correction method for planar imaging based on homography mapping. Factors causing perspective distortion from the camera's intrinsic and extrinsic parameters were analyzed, followed by constructing a perspective transformation model. Then, a corrected imaging plane was constructed, and the model was further calibrated by utilizing the homography between the measurement plane, the actual imaging plane, and the corrected imaging plane. The nonlinear and perspective distortions were simultaneously corrected by transforming the original image to the corrected imaging plane. The experiment measuring the radius, length, angle, and area of a designed pattern shows that the root mean square errors will be 0.016 mm, 0.052 mm, 0.16 degrees , and 0.68 mm2, and the standard deviations will be 0.016 mm, 0.045 mm, 0.033 degrees  and 0.65 mm2, respectively. The proposed method can effectively solve the problem of high-precision planar measurement under perspective distortion.},
+   author = {Chen Wang and Yabin Ding and Kai Cui and Jianhui Li and Qingpo Xu and Jiangping Mei},
+   doi = {10.3390/s25061891},
+   issn = {14248220},
+   issue = {6},
+   journal = {Sensors},
+   keywords = {homography mapping,monocular vision,perspective distortion,pixel equivalent,precision measurement},
+   month = {3},
+   pmid = {40293062},
+   publisher = {Multidisciplinary Digital Publishing Institute (MDPI)},
+   title = {A Perspective Distortion Correction Method for Planar Imaging Based on Homography Mapping},
+   volume = {25},
+   year = {2025}
+}
+@article{Loganathan2026,
+   abstract = {Weld quality in friction stir welding (FSW) is difficult to maintain because rapid changes in heat input and material flow can generate transient surface defects during welding. These defects cannot be detected in real time using conventional inspection approaches, resulting in increased inspection time and higher production cost. Real-time visual monitoring is therefore required to support stable and efficient production. This study investigates whether modern convolutional neural network (CNN) models can provide reliable, in-situ segmentation of FSW surface defects together with accurate geometric measurements during welding. A multi-class dataset of weld-surface video frames was created and annotated for flash, burrs, voids, galling, tool interaction, and weld-zone regions. Several CNN-based segmentation models were evaluated, and a lightweight architecture suitable for real-time deployment was selected and integrated with a high-dynamic-range industrial camera on the FSW setup. The system performs continuous segmentation and extracts weld width and defect area from live video at approximately 25 frames per second. Quantitative validation against optical-microscope measurements demonstrated near microscope-level accuracy, with sub-millimetre weld-width deviations and defect-area errors below 6 %. These results demonstrate that real-time visual segmentation can provide reliable weld-quality monitoring in FSW, support early defect detection, and establish a practical foundation for future automated process-control strategies in manufacturing environments.},
+   author = {Naveen Loganathan and Joel Andersson and Vivek Patel},
+   doi = {10.1016/j.jmsy.2026.01.007},
+   issn = {02786125},
+   journal = {Journal of Manufacturing Systems},
+   keywords = {Computer vision,Deep learning,Friction stir welding,Real time monitoring,Segmentation,Weld quality},
+   month = {4},
+   pages = {175-192},
+   publisher = {Elsevier B.V.},
+   title = {Machine vision defect segmentation and geometric measurement for real time quality monitoring in friction stir welding},
+   volume = {85},
+   year = {2026}
+}
+@article{Madejski2024,
+   abstract = {In modern autonomous systems, measurement repeatability and precision are crucial for robust decision-making algorithms. Stereovision, which is widely used in safety applications, provides information about an object's shape, orientation, and 3D localisation. The camera's lens distortion is a common source of systematic measurement errors, which can be estimated and then eliminated or at least reduced using a suitable correction/calibration method. In this study, a set of cameras equipped with Basler lenses (C125-0618-5M F1.8 f6mm) and Sony IMX477R matrices are calibrated using a state-of-the-art Zhang-Duda-Frese method. The resulting distortion coefficients are used to correct the images. The calibrations are evaluated with the aid of two novel methods for lens distortion measurement. The first one is based on linear regression with images of a vertical and horizontal line pattern. Based on the evaluation tests, outlying cameras are eliminated from the test set by applying the 2 (Formula presented.) criterion. For the remaining cameras, the MSE was reduced up to 75.4 times, to 1.8 px-6.9 px. The second method is designed to evaluate the impact of lens distortion on stereovision applied to bird tracking around wind farms. A bird's flight trajectory is synthetically generated to estimate changes in disparity and distance before and after calibration. The method shows that at the margins of the image, lens distortion might introduce errors into the object's distance measurement of +17%-+20% for cameras with the same distortion and from -41% up to (Formula presented.) for camera pairs with different lens distortions. These results highlight the importance of having well-calibrated cameras in systems that require precision, such as stereovision bird tracking in bird-turbine collision risk assessment systems.},
+   author = {Grzegorz Madejski and Sebastian Zbytniewski and Mateusz Kurowski and Dawid Gradolewski and Wlodzimierz Kaoka and Wlodek J. Kulesza},
+   doi = {10.3390/ecsa-11-20457},
+   issn = {26734591},
+   issue = {1},
+   journal = {Engineering Proceedings},
+   keywords = {evaluation methods,image processing,image transformation,intrinsic parameters,lenses,linear regression,optical sensors,stereovision},
+   publisher = {Multidisciplinary Digital Publishing Institute (MDPI)},
+   title = {Lens Distortion Measurement and Correction for Stereovision Multi-Camera System },
+   volume = {82},
+   year = {2024}
+}
+@article{Wang2022,
+   abstract = {Traditional calibration methods rely on the accurate localization of the chessboard points in images and their maximum likelihood estimation (MLE)-based optimization models implicitly require all detected points to have an identical uncertainty. The uncertainties of the detected control points are mainly determined by camera pose, the slant of the chessboard and the inconsistent imaging capabilities of the camera. The negative influence of the uncertainties that are induced by the two former factors can be eliminated by adequate data sampling. However, the last factor leads to the detected control points from some sensor areas having larger uncertainties than those from other sensor areas. This causes the final calibrated parameters to overfit the control points that are located at the poorer sensor areas. In this paper, we present a method for measuring the uncertainties of the detected control points and incorporating these measured uncertainties into the optimization model of the geometric calibration. The new model suppresses the influence from the control points with large uncertainties while amplifying the contributions from points with small uncertainties for the final convergence. We demonstrate the usability of the proposed method by first using eight cameras to collect a calibration dataset and then comparing our method to other recent works and the calibration module in OpenCV using that dataset.},
+   author = {Ke Wang and Chuhao Liu and Shaojie Shen},
+   doi = {10.3390/s22072739},
+   issn = {14248220},
+   issue = {7},
+   journal = {Sensors},
+   keywords = {camera calibration,geometric calibration,inconsistent imaging},
+   month = {4},
+   pmid = {35408352},
+   publisher = {MDPI},
+   title = {Geometric Calibration for Cameras with Inconsistent Imaging Capabilities},
+   volume = {22},
+   year = {2022}
+}
+@article{Li2023,
+   abstract = {This paper proposes an adaptive threshold segmentation algorithm for the magnesium ingot stack based on image overexposure area correction (ATSIOAC), which solves the problem of mirror reflection on the surface of magnesium alloy ingots caused by external ambient light and auxiliary light sources. Firstly, considering the brightness and chromaticity information of the mapped image, we divide the exposure probability threshold into weak exposure and strong exposure regions. Secondly, the saturation difference between the magnesium ingot region and the background region is used to obtain a mask for the magnesium ingot region to eliminate interference from the image background. Then, the RGB average of adjacent pixels in the overexposed area is used as a reference to correct the colors of the strongly exposed and weakly exposed areas, respectively. Furthermore, in order to smoothly fuse the two corrected images, pixel weighted average (WA) is applied. Finally, the magnesium ingot sorting experimental device was constructed and the corrected top surface image of the ingot pile was segmented through ATSIOAC. The experimental results show that the overexposed area detection and correction algorithm proposed in this paper can effectively correct the color information in the overexposed area, and when segmenting ingot images, complete segmentation results of the top surface of the ingot pile can be obtained, effectively improving the accuracy of magnesium alloy ingot segmentation. The segmentation algorithm achieves a segmentation accuracy of 94.38%.},
+   author = {Qiguang Li and Huazheng Zheng and Wensheng Wang and Chenggang Li},
+   doi = {10.3390/s23156809},
+   issn = {14248220},
+   issue = {15},
+   journal = {Sensors},
+   keywords = {exposure correction,magnesium ingot segmentation,magnesium ingot sorting,the high reflection of magnesium ingot},
+   month = {8},
+   pmid = {37571592},
+   publisher = {Multidisciplinary Digital Publishing Institute (MDPI)},
+   title = {Magnesium Ingot Stacking Segmentation Algorithm for Industrial Robot Based on the Correction of Image Overexposure Area},
+   volume = {23},
+   year = {2023}
+}
+@article{Khafagy2025,
+   abstract = {Advances in industrial automation and image processing technology have enabled the utilization of industrial robots more efficiently in intelligent manufacturing and modern automation systems. In robotics applications, the simple path of the tool attached to the end effector is easily online programmed by the teaching and playback method using a teach pendant. However, programming complex tool paths, such as those found in cracks for tasks like welding, deburring, and adhesive application remains a significant challenge. This study proposes an automated offline programming (AOLP) method for industrial robots, utilizing Scalable Vector Graphics (SVG) and Genetic Algorithms (GA) to extract and optimize complex paths from raster images. The method involves capturing a raster image of the workpiece, converting it to SVG format, splitting branched paths, and optimizing the sequence using GA. The optimized path is simulated in RoboDK and executed on a KUKA KR6 R700-2 robot. The simulation and experimental results show that the presented method can be utilized successfully and accurately to automatically extract complex paths in two-dimensional robotics applications.},
+   author = {Ragab R. Khafagy and Mohamed E.H. Eltaib and Roshdy F. Abo-Shanab},
+   doi = {10.1007/s00170-025-15846-8},
+   issn = {14333015},
+   issue = {1},
+   journal = {International Journal of Advanced Manufacturing Technology},
+   keywords = {Crack detection,Genetic algorithm optimization,Image processing,Path extraction,Robotics,Scalable vector graphics},
+   month = {7},
+   pages = {1033-1052},
+   publisher = {Springer Science and Business Media Deutschland GmbH},
+   title = {Automated complex path extraction and optimization based on scalable vector graphics and genetic algorithm for industrial robot applications},
+   volume = {139},
+   year = {2025}
+}
+@article{Salunke2023,
+   abstract = {Computer vision is a subset of artificial intelligence (AI), which is used to extract meaningful data from images. It provides different features such as object detection, edge detection, image classification etc. Edge detection is very useful in industries like the civil industry, agriculture industry, autonomous vehicles, facial recognition, manufacturing, etc. Using opencv, we can use different edge detection operators to get object edges and detect objects. The main problem with dimension detection is the edges. Edges are one of the important characteristics of the image, which can provide us with very useful information about the object. Though edge detection is a very old topic, there is still no solid study to explain which edge detection method will work best for dimension detection. So here is a comparative analysis to find which edge detection algorithm performs best for dimension detection to locate excellent edges that will generate decent contours. All edge detection systems' effectiveness needs to be evaluated. The edges of the image may be extracted using a variety of edge detection algorithms, and the performance can be judged using metrics like signal-to-noise ratio (SNR), structural similarity index measure (SSIM), entropy, peak signal-to-noise ratio (PSNR), mean squared error (MSE). In this paper, in addition to first derivative operators like sobel, robert, and prewitt, gaussian-based algorithms, the laplacian of gaussian, and the canny edge detector have also been taken into consideration. It is experimentally observed that the sobel operator is performing better than others, with an average SNR value of 1.1730.},
+   author = {Dipmala Salunke and Bhushan Dhamankar and Sairaj Chidrawar and Rohit Kangule and Shrikrushnakumar Sondge and Sumit Deshmukh},
+   doi = {10.14445/22315381/IJETT-V71I2P208},
+   issn = {22315381},
+   issue = {2},
+   journal = {International Journal of Engineering Trends and Technology},
+   keywords = {Canny,Dimension detection,Edge detection,Image segmentation,Laplacian of gaussian,Opencv,Prewitt,Robert,Sobel},
+   month = {2},
+   pages = {61-70},
+   publisher = {Seventh Sense Research Group},
+   title = {Comparative Analysis of Edge Detection Methods using Deep Learning},
+   volume = {71},
+   year = {2023}
+}
+@article{Ozkan2025,
+   abstract = {The structural integrity of metallic bullet casings is critical not only for military applications-where a single defective casing can compromise ammunition performance and jeopardize personnel safety-but also for industrial manufacturing, where undetected flaws translate into costly rework and production delays. In this study, we present a comprehensive, automated pipeline that combines image processing, feature extraction and machine learning to detect defects in the mouth regions of bullet casings with high reliability and scalability. A dataset of 860 images (440 defective, 420 normal) was captured under varying lighting and camera angles. Each image undergoes adaptive thresholding and morphological opening/closing to isolate the rim contour, followed by Hough Transform-based circle detection and radius comparison to align and normalize the mouth region. Geometric features-including area, perimeter, circularity, aspect ratio, extent and solidity-are computed from the largest contour, while variance analysis of radial profiles captures subtle surface irregularities. Extracted features were fed into a suite of classifiers (Logistic Regression, Support Vector Machine, Decision Tree, Random Forest, XGBoost), alongside an Artificial Neural Network). The best-performing Artificial Neural Network model achieved 97.3% accuracy on held-out test data, substantially outperforming tree-based and linear baselines. In summary, effective results are obtained when classical image processing techniques are combined with modern learning algorithms for real-time quality control of bullet cartridges used in the military.},
+   author = {Merve Ozkan},
+   doi = {10.1109/ACCESS.2025.3610358},
+   issn = {21693536},
+   journal = {IEEE Access},
+   keywords = {Bullet casings,defect detection,image processing,industrial quality control,machine learning,military applications},
+   pages = {162764-162778},
+   publisher = {Institute of Electrical and Electronics Engineers Inc.},
+   title = {Toward Automated Quality Control: An End-to-End Image Processing and Machine Learning Pipeline for Bullet Case Mouth Defect Detection},
+   volume = {13},
+   year = {2025}
+}
+@article{Jednorg2025,
+   abstract = {Low-volume and custom production jobs in small and medium-sized metalworking enterprises are often declined due to the high fixed costs and time requirements of manual CAD modeling. This paper presents a practical, production-ready desktop application for the automated generation of DXF files from photographs of physical parts, designed to support rapid laser cutting and prototyping workflows. The system combines a user-friendly GUI with a robust computer vision pipeline including adaptive thresholding, contour extraction, geometric scaling, and vector simplification. Unlike generic raster-to-vector tools, it targets the specific needs of SMEs: offline use, closed contours, minimal training, and compatibility with CAM systems. A real-world case study demonstrates the successful replication of an agricultural machine parts, showing ~90% reduction in preparation time and ~45% profit margin on the order. Interviews with industry stakeholders confirm the potential of the proposed solution to recover previously unviable jobs and increase monthly revenues by an estimated 5-7%. This interdisciplinary contribution integrates computer vision and applied economics, offering a scalable solution to improve productivity and digital inclusion in SMEs.},
+   author = {Rafal Jednorog},
+   doi = {10.34739/si.2025.32.05},
+   issn = {1731-2264},
+   issue = {1},
+   journal = {Studia Informatica. System and information technology},
+   month = {11},
+   pages = {61-75},
+   publisher = {Siedlce University of Natural Sciences and Humanities},
+   title = {A Vision-Based System for Rapid DXF Generation in Metalworking: Image Processing Pipeline and Economic Feasibility Case Study},
+   volume = {32},
+   year = {2025}
+}
+@article{Li2024,
+   abstract = {Visual quality inspection of part surfaces is a crucial step in industrial production. Image edge detection is a common technique for assessing the surface conditions of parts. However, current methods have limitations, including poor noise filtering, low adaptability, and inadequate accuracy of edge detection. To overcome these challenges, this study proposes an adaptive edge detection method for part images using selective processing. Firstly, this method divides the input image into noise, edge, and noise-free blocks, followed by selective mixed filtering to remove noise while preserving original image details. Secondly, a four-parameter adaptive selective edge detection algorithm model is constructed, which adaptively adjusts parameter values based on image characteristics to address issues of missing edges and false detections, thereby enhancing the adaptability and accuracy of the method. Moreover, by comparing and adjusting the four parameter values, different edge information can be selectively detected, enabling rapid acquisition of desired edge detection results and improving detection efficiency and flexibility. Experimental results demonstrated that the proposed method outperformed existing classical techniques in both subjective and objective evaluations, maintaining stable detection under varying noise conditions. Thus, this method was validated for its effectiveness and stability, enhancing production efficiency in manufacturing processes of parts.},
+   author = {Yaohe Li and Long Jin and Min Liu and Youtang Mo and Weiguang Zheng and Dongyuan Ge and Yindi Bai},
+   doi = {10.3390/pr12102271},
+   issn = {22279717},
+   issue = {10},
+   journal = {Processes},
+   keywords = {adaptive algorithm,edge detection,mixed filter,part surface quality inspection,selective processing},
+   month = {10},
+   publisher = {Multidisciplinary Digital Publishing Institute (MDPI)},
+   title = {Research on Adaptive Edge Detection Method of Part Images Using Selective Processing},
+   volume = {12},
+   year = {2024}
+}
+
+@article{LeCun1998,
+  author  = {Yann LeCun and L{\'e}on Bottou and Yoshua Bengio and Patrick Haffner},
+  title   = {Gradient-Based Learning Applied to Document Recognition},
+  journal = {Proceedings of the IEEE},
+  year    = {1998},
+  volume  = {86},
+  number  = {11},
+  pages   = {2278--2324},
+  doi     = {10.1109/5.726791}
+}
+
+@inproceedings{Ronneberger2015,
+  author    = {Olaf Ronneberger and Philipp Fischer and Thomas Brox},
+  title     = {U-Net: Convolutional Networks for Biomedical Image Segmentation},
+  booktitle = {Medical Image Computing and Computer-Assisted Intervention -- MICCAI 2015},
+  year      = {2015},
+  pages     = {234--241},
+  publisher = {Springer},
+  doi       = {10.1007/978-3-319-24574-4\_28}
+}
+
+@inproceedings{Redmon2016,
+  author    = {Joseph Redmon and Santosh Divvala and Ross Girshick and Ali Farhadi},
+  title     = {You Only Look Once: Unified, Real-Time Object Detection},
+  booktitle = {2016 IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+  year      = {2016},
+  pages     = {779--788},
+  doi       = {10.1109/CVPR.2016.91}
+}
+
+@inproceedings{He2017,
+  author    = {Kaiming He and Georgia Gkioxari and Piotr Doll{\'a}r and Ross Girshick},
+  title     = {Mask R-CNN},
+  booktitle = {2017 IEEE International Conference on Computer Vision (ICCV)},
+  year      = {2017},
+  pages     = {2980--2988},
+  doi       = {10.1109/ICCV.2017.322}
+}
+
+@article{Canny1986,
+  author  = {John Canny},
+  title   = {A Computational Approach to Edge Detection},
+  journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  year    = {1986},
+  volume  = {PAMI-8},
+  number  = {6},
+  pages   = {679--698},
+  doi     = {10.1109/TPAMI.1986.4767851}
+}
+
+@article{GarridoJurado2014,
+  author  = {Sergio Garrido-Jurado and Rafael Mu{\~n}oz-Salinas and Francisco J. Madrid-Cuevas and Manuel J. Mar{\'i}n-Jim{\'e}nez},
+  title   = {Automatic Generation and Detection of Highly Reliable Fiducial Markers under Occlusion},
+  journal = {Pattern Recognition},
+  year    = {2014},
+  volume  = {47},
+  number  = {6},
+  pages   = {2280--2292},
+  doi     = {10.1016/j.patcog.2014.01.005}
+}
+
+@article{DouglasPeucker1973,
+  author  = {David H. Douglas and Thomas K. Peucker},
+  title   = {Algorithms for the Reduction of the Number of Points Required to Represent a Digitized Line or Its Caricature},
+  journal = {Cartographica: The International Journal for Geographic Information and Geovisualization},
+  year    = {1973},
+  volume  = {10},
+  number  = {2},
+  pages   = {112--122},
+  doi     = {10.3138/FM57-6770-U75U-7727}
+}
+
+
+@article{Zhang2000,
+  author  = {Zhengyou Zhang},
+  title   = {A Flexible New Technique for Camera Calibration},
+  journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  year    = {2000},
+  volume  = {22},
+  number  = {11},
+  pages   = {1330--1334},
+  doi     = {10.1109/34.888718}
+}
+
+
+@article{Bhandari2023,
+  author  = {Binayak Bhandari and Prakash Manandhar},
+  title   = {Integrating Computer Vision and CAD for Precise Dimension Extraction and 3D Solid Model Regeneration for Enhanced Quality Assurance},
+  journal = {Machines},
+  year    = {2023},
+  volume  = {11},
+  number  = {12},
+  pages   = {1083},
+  doi     = {10.3390/machines11121083}
+}
+
+
+@article{Breiman2001,
+  author = {Breiman, Leo},
+  title = {Random Forests},
+  journal = {Machine Learning},
+  volume = {45},
+  number = {1},
+  pages = {5--32},
+  year = {2001},
+  doi = {10.1023/A:1010933404324}
+}
+
+@article{Taha2015,
+  author  = {Abdel Aziz Taha and Allan Hanbury},
+  title   = {Metrics for Evaluating 3D Medical Image Segmentation: Analysis, Selection, and Tool},
+  journal = {BMC Medical Imaging},
+  year    = {2015},
+  volume  = {15},
+  pages   = {29},
+  doi     = {10.1186/s12880-015-0068-x}
+}
+
+@article{Martin2004,
+  author  = {David R. Martin and Charless C. Fowlkes and Jitendra Malik},
+  title   = {Learning to Detect Natural Image Boundaries Using Local Brightness, Color, and Texture Cues},
+  journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  year    = {2004},
+  volume  = {26},
+  number  = {5},
+  pages   = {530--549},
+  doi     = {10.1109/TPAMI.2004.1273918}
+}
+
+@inproceedings{Kirillov2023,
+  author = {Kirillov, Alexander and Mintun, Eric and Ravi, Nikhila and Mao, Hanzi and Rolland, Chloe and Gustafson, Laura and Xiao, Tete and Whitehead, Spencer and Berg, Alexander C. and Lo, Wan-Yen and Doll{\'a}r, Piotr and Girshick, Ross},
+  title = {Segment Anything},
+  booktitle = {Proceedings of the IEEE/CVF International Conference on Computer Vision},
+  pages = {4015--4026},
+  year = {2023}
+}
+
+@inproceedings{Ravi2025,
+  author = {Ravi, Nikhila and Gabeur, Valentin and Hu, Yuan-Ting and Hu, Ronghang and Ryali, Chaitanya and Ma, Tengyu and Khedr, Haitham and R{\"a}dle, Roman and Rolland, Chloe and Gustafson, Laura and Mintun, Eric and Pan, Junting and Alwala, Kalyan Vasudev and Carion, Nicolas and Wu, Chao-Yuan and Girshick, Ross and Doll{\'a}r, Piotr and Feichtenhofer, Christoph},
+  title = {SAM 2: Segment Anything in Images and Videos},
+  booktitle = {International Conference on Learning Representations},
+  year = {2025},
+  url = {https://proceedings.iclr.cc/paper_files/paper/2025/hash/45c1f6a8cbf2da59ebf2c802b4f742cd-Abstract-Conference.html}
+}

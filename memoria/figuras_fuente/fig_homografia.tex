@@ -1,0 +1,27 @@
+\documentclass[tikz,border=8pt]{standalone}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usetikzlibrary{arrows.meta,calc,positioning}
+\definecolor{navy}{HTML}{15324B}
+\definecolor{blue}{HTML}{2F80C1}
+\definecolor{orange}{HTML}{E8873A}
+\definecolor{green}{HTML}{3B8F72}
+\begin{document}
+\begin{tikzpicture}[font=\sffamily]
+\coordinate (a) at (0,0); \coordinate (b) at (4.8,0.5); \coordinate (c) at (4.1,3.8); \coordinate (d) at (0.8,3.2);
+\fill[blue!10] (a)--(b)--(c)--(d)--cycle;
+\draw[navy,very thick] (a)--(b)--(c)--(d)--cycle;
+\foreach \p/\lab in {a/$p_1$,b/$p_2$,c/$p_3$,d/$p_4$}{\fill[orange] (\p) circle (4pt);\node[navy,above=2pt] at (\p) {\lab};}
+\node[navy,align=center] at (2.4,-0.75) {Imagen capturada\\con perspectiva};
+\draw[-{Latex[length=4mm]},blue,ultra thick] (5.3,1.9)--(7.0,1.9) node[midway,above,navy] {$\mathbf{x}' \sim \mathbf{H}\mathbf{x}$};
+\draw[navy,very thick,fill=green!10] (7.5,0)--(12.0,0)--(12.0,3.4)--(7.5,3.4)--cycle;
+\coordinate (A) at (7.5,0); \coordinate (B) at (12,0); \coordinate (C) at (12,3.4); \coordinate (D) at (7.5,3.4);
+\foreach \p/\lab in {A/$P_1$,B/$P_2$,C/$P_3$,D/$P_4$}{\fill[green] (\p) circle (4pt);\node[navy,above=2pt] at (\p) {\lab};}
+\draw[step=0.5cm,blue!25] (7.5,0) grid (12.0,3.4);
+\draw[orange,very thick,-{Latex[length=3mm]}] (7.8,0.35)--(9.3,0.35) node[right,navy] {$X$};
+\draw[green,very thick,-{Latex[length=3mm]}] (7.8,0.35)--(7.8,1.8) node[above,navy] {$Y$};
+\node[navy,align=center] at (9.75,-0.75) {Plano rectificado\\con escala conocida};
+\node[navy,align=center] at (6.1,4.35) {Cuatro correspondencias no colineales permiten estimar la homografía};
+\end{tikzpicture}
+\end{document}

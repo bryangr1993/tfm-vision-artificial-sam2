@@ -1,0 +1,10 @@
+{
+  "method": "vision_clasica",
+  "selection": "fixed baseline; no training or validation selection",
+  "test_mean_iou": 0.9016023184963412,
+  "test_std_iou": 0.043920456267906825,
+  "test_mean_dice": 0.9477824347708808,
+  "test_mean_boundary_f1": 0.7728279076989714,
+  "test_mean_component_error": 0.0,
+  "test_mean_inference_seconds": 0.10204074999880201
+}
