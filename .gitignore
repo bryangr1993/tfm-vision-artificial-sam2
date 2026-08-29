@@ -53,6 +53,7 @@ resultados/wcs_repeatability_v8/rectified_recomputed/
 resultados/integracion_lote_v8/contours/
 output/pdf/*
 !output/pdf/TFM_Bryan_Guananga.pdf
+!output/pdf/TFM_Bryan_Guananga_FInal.pdf
 software/outputs_gui/
 datos/anotaciones/borrador_referencia_real/
 

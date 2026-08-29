@@ -27,7 +27,7 @@ La comparación sintética utiliza exclusivamente `asset_identity_v2`, formado p
 
 Los identificadores, nombres y hashes de los activos son disjuntos entre particiones. Las cuatro familias semánticas F1-F4 son estratos compartidos y están representadas en cada partición. No deben describirse como familias disjuntas. La auditoría también descarta cruces por hash de imagen o máscara.
 
-Random Forest compara diez configuraciones mediante cuatro pliegues agrupados por identidad. Después evalúa tres finalistas y siete umbrales sobre las doce hojas completas de validación. El candidato C07, con 19 variables y umbral 0,55, queda bloqueado antes de abrir la prueba. SAM 2 permanece preentrenado y selecciona un margen de caja del 5 % entre cuatro alternativas usando solo las doce hojas de validación.
+Random Forest compara diez configuraciones mediante cuatro pliegues que mantienen intacta cada cohorte de identidades gráficas. Después evalúa tres finalistas y siete umbrales sobre las doce hojas completas de validación. El candidato C07, con 19 variables y umbral 0,55, queda bloqueado antes de abrir la prueba. SAM 2 permanece preentrenado y selecciona un margen de caja del 5 % entre cuatro alternativas usando solo las doce hojas de validación.
 
 Los 32 PNG fuente no forman un conjunto de datos público. Su procedencia, hashes y restricción de redistribución se documentan en `datos/fuentes_toppers/README.md` y `datos/manifiesto/asset_registry_v2.csv`.
 
@@ -45,7 +45,7 @@ Random Forest obtuvo el mayor solapamiento en el banco sintético. La diferencia
 
 ## Concordancia en capturas reales
 
-La evaluación externa comprende trece adquisiciones de una sola lámina física. La referencia canónica se construyó con asistencia algorítmica a partir de la mediana de las capturas, cajas propuestas por el localizador clásico, GrabCut, Canny y morfología. No es una verdad terreno manual independiente.
+La evaluación externa comprende trece adquisiciones de una sola lámina física. La referencia canónica se construyó con asistencia algorítmica a partir de la mediana de las capturas, cajas propuestas por el localizador clásico, GrabCut, Canny y morfología. No es una verdad de terreno manual independiente.
 
 | Método | IoU de concordancia | Dice de concordancia | Boundary F1 de concordancia | Error abs. de componentes |
 |---|---:|---:|---:|---:|
@@ -93,7 +93,7 @@ Los checkpoints y modelos entrenados no se almacenan en el historial ordinario p
 python software/src/gui.py
 ```
 
-Con las capturas descritas en `datos/README.md`, puede iniciarse una demostración mediante:
+Tras incorporar una copia autorizada de las capturas descritas en `datos/README.md`, puede iniciarse una demostración mediante:
 
 ```powershell
 python software/src/gui.py --image datos/reales/raw/20.jpg --process
@@ -135,4 +135,4 @@ La evaluación de prueba de Random Forest se protege contra una segunda ejecuci�
 
 ## Memoria final
 
-El documento completo puede consultarse en [`output/pdf/TFM_Bryan_Guananga.pdf`](output/pdf/TFM_Bryan_Guananga.pdf).
+El documento completo puede consultarse en [`output/pdf/TFM_Bryan_Guananga_FInal.pdf`](output/pdf/TFM_Bryan_Guananga_FInal.pdf).

@@ -53,7 +53,7 @@ La ablación se realizó como diagnóstico sobre 24\,000 píxeles de validación
 \label{fig:rf_ablacion}
 \end{figure}
 
-A partir de este diagnóstico se mantuvieron las 19 variables: añadir coordenadas llevó el Jaccard de 0,9810 a 0,9800. El ensayo no permite atribuir la mejora a un tipo concreto de borde, sombra o desenfoque ni establecer un efecto general de las coordenadas.
+La representación de 19 variables ya estaba bloqueada y no se modificó. El diagnóstico fue coherente con no añadir coordenadas: al incorporarlas, el Jaccard pasó de 0,9810 a 0,9800. El ensayo no permite atribuir la diferencia a un tipo concreto de borde, sombra o desenfoque ni establecer un efecto general de las coordenadas.
 
 \section{Selección del margen de SAM 2}
 
@@ -172,7 +172,7 @@ SAM 2 operativo & 2,1736 & 2,1430 & 0,2161 \\
 \end{tabularx}
 \end{table}
 
-Para SAM 2 se cronometró la ruta completa, desde el localizador hasta el postprocesamiento, incluido el codificador de imagen y no solo la decodificación de las cajas. Su media en CPU fue de $2{,}1736$ segundos. Esto lo sitúa unas 15,9 veces por encima de la línea clásica y 5,9 veces por debajo de Random Forest. En este último método, buena parte de los $12{,}7163$ segundos se consume al calcular 19 variables para más de seis millones de píxeles.
+Para SAM 2 se cronometró la ruta completa, desde el localizador hasta el postprocesamiento, incluido el codificador de imagen y no solo la decodificación de las cajas. Su media en CPU fue de $2{,}1736$ segundos. Esto equivale a 15,9 veces el tiempo de la línea clásica, mientras Random Forest necesitó 5,9 veces el tiempo de SAM 2. En este último método, los $12{,}7163$ segundos comprenden el cálculo de las 19 variables para más de seis millones de píxeles, la predicción de probabilidades y el postprocesamiento. Como las etapas no se cronometraron por separado, el total no puede atribuirse a una sola de ellas.
 
 \section{Registro WCS y estabilidad entre capturas}
 

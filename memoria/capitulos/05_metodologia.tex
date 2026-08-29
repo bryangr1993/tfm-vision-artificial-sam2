@@ -1,7 +1,7 @@
 \chapter{Metodología}
 \label{cap:metodologia}
 
-La metodología partió de las dos preguntas planteadas en la introducción. La primera examina si los métodos de inteligencia artificial conservan las ocho instancias y generan máscaras a partir de las cuales puede obtenerse un DXF estructuralmente válido. La segunda observa cómo cambia su comportamiento al pasar de hojas sintéticas controladas a fotografías del taller. El ajuste se mantuvo separado de la evaluación final, con la hoja completa como unidad experimental, y los resultados desfavorables se conservaron íntegros en el análisis.
+La metodología partió de las dos preguntas de evaluación formuladas en la introducción. La primera examina si Random Forest y SAM 2 conservan las ocho instancias y, en la ruta operativa basada en SAM 2, si la máscara permite obtener un DXF estructuralmente válido. La segunda observa cómo cambia el comportamiento de ambos al pasar de hojas sintéticas controladas a fotografías del taller. Las decisiones de selección se mantuvieron separadas de la evaluación final, con la hoja completa como unidad experimental, y los resultados desfavorables se conservaron íntegros en el análisis.
 
 \section{Diseño general del estudio}
 
@@ -66,7 +66,7 @@ La Tabla~\ref{tab:particiones} resume la función de los cuatro conjuntos utiliz
 Entrenamiento & 16 & 24 & 192 & Ajuste y validación cruzada de Random Forest \\
 Validación & 8 & 12 & 96 & Selección de modelo, umbral y margen de caja \\
 Prueba & 8 & 12 & 96 & Evaluación final después del bloqueo \\
-Real externo & 8 diseños & 13 vistas & 104 observaciones & Concordancia y transferencia sobre una hoja física \\
+Real externo & 8 diseños & 13 vistas & 104 apariciones & Concordancia sobre una hoja física, sin unidades independientes \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -86,7 +86,7 @@ La auditoría previa a los experimentos comprobó 48 imágenes, 48 máscaras bin
 
 Como las trece fotografías corresponden a una misma hoja ya rectificada, se definió una referencia canónica común en el plano A4. Para cada coordenada y canal de color se tomó la mediana de los trece valores observados. Frente a la media, esta elección reduce la influencia de sombras localizadas, del cabezal y de otros elementos que no ocupan una posición estable.
 
-Sobre la imagen mediana se delimitaron ocho regiones mediante cajas obtenidas por el localizador clásico. Cada caja inicializó GrabCut, un método que alterna modelos de color de primer plano y fondo con una optimización por corte de grafo \cite{Rother2004}. Después se emplearon bordes Canny \cite{Canny1986} y operaciones morfológicas para cerrar discontinuidades. La máscara se revisó visualmente sobre la composición. Se comprobaron las ocho regiones, la exclusión de marcadores y WCS, los apéndices finos y la abertura inferior del arcoíris. Esta última es una concavidad conectada al fondo exterior, no un hueco topológico cerrado.
+Sobre la imagen mediana se delimitaron ocho regiones mediante cajas obtenidas por el localizador clásico aplicado a la captura 13 rectificada. Cada caja inicializó GrabCut, un método que alterna modelos de color de primer plano y fondo con una optimización por corte de grafo \cite{Rother2004}. Después se emplearon bordes Canny \cite{Canny1986} y operaciones morfológicas para cerrar discontinuidades. La máscara se revisó visualmente sobre la composición. Se comprobaron las ocho regiones, la exclusión de marcadores y WCS, los apéndices finos y la abertura inferior del arcoíris. Esta última es una concavidad conectada al fondo exterior, no un hueco topológico cerrado.
 
 \begin{figure}[htbp]
 \centering
@@ -192,9 +192,9 @@ Los histogramas de la Figura~\ref{fig:evidencia_hsv} describen lo ocurrido en va
 \midrule
 Color HSV & $S>45$ o $V<115$ & Separar cromatismo y trazos oscuros del papel \\
 Bordes Canny & 30 y 100 & Recuperar límites con poco contraste \\
-Cierre clásico & $7\times7$ px & Unir discontinuidades locales de hasta $0{,}7$ mm \\
+Cierre clásico & $7\times7$ px & Cerrar discontinuidades locales \\
 Residuo en máscara clásica & $\geq5000$ px & Eliminar componentes pequeñas antes de localizar \\
-Caja de prompt & $20000$--$600000$ px & Formar candidatos para SAM 2 \\
+Componente para caja de prompt & $20000$--$600000$ px & Formar candidatos para SAM 2 \\
 Componente SAM 2 & $\geq300$ px & Eliminar residuos después de inferencia \\
 Silueta exportable & $20000$--$600000$ px y aspecto $0{,}15$--$6$ & Rechazar ruido y fusiones anómalas \\
 Detalle interno & Excluido & Evitar que ojos, brillos o vacíos de la máscara se conviertan en cortes \\
@@ -236,7 +236,7 @@ Muestreo con reposición & activado \\
 \end{tabularx}
 \end{table}
 
-Los intervalos abarcan desde modelos pequeños hasta configuraciones de mayor capacidad. La profundidad y los mínimos de división actúan como regularizadores. Por su parte, el número de variables considerado en cada división modifica la diversidad de los árboles, mientras que el balanceo compensa el predominio del fondo en una hoja completa.
+Los intervalos abarcan desde modelos pequeños hasta configuraciones de mayor capacidad. La profundidad y los mínimos de división actúan como regularizadores, mientras que el número de variables considerado en cada división modifica la diversidad de los árboles. La ponderación de clases se mantuvo como hiperparámetro de la búsqueda. Como el muestreo ya aporta 1500 píxeles de objeto y 1500 de fondo por hoja, sus opciones actúan sobre esa muestra equilibrada y no compensan directamente la proporción del fondo en la hoja completa.
 
 El control C00 se definió por separado y no forma parte de los valores candidatos de la tabla. Utiliza 200 árboles, profundidad máxima 25, dos muestras mínimas para dividir, dos por hoja terminal, raíz cuadrada del número de variables por división, ponderación balanceada y muestreo con reposición. Su presencia permite comparar la búsqueda con una configuración de referencia fijada de antemano.
 
@@ -257,7 +257,7 @@ SAM 2 se usa con el checkpoint Hiera Tiny preentrenado y sin ajuste fino sobre l
 
 La selección del prompt se realizó sobre las doce hojas sintéticas de validación. Se compararon márgenes de 0\%, 3\%, 5\% y 10\% alrededor de las cajas operativas del localizador clásico, solicitando tres máscaras por prompt. La elección interna acepta como compatibles las candidatas cuya área se encuentra entre el 10 y el 120 por ciento del área de la caja, escoge entre ellas la de mayor confianza y, si ninguna cumple ese intervalo, conserva la de mayor confianza global. Estos límites se fijaron antes de la validación. Las máscaras aceptadas se unen, se someten a un cierre $3\times3$ y se eliminan de ellas los componentes menores de 300 píxeles.
 
-La misma puntuación de la Ecuación~\ref{eq:seleccion_rf} ordena los márgenes. Si hubiera empate, se prioriza Boundary F1 y, después, el margen menor. Solo tras bloquear la opción ganadora se evalúa la prueba. Como análisis diagnóstico se repite la inferencia con cajas ideales derivadas de la máscara de referencia. Esa variante mide cuánto limita el localizador, pero no interviene en la selección ni representa el uso real del programa.
+La misma puntuación de la Ecuación~\ref{eq:seleccion_rf} ordena los márgenes. Si hubiera empate, se prioriza Boundary F1 y, después, el margen menor. Solo tras bloquear la opción ganadora se evalúa la prueba. Como análisis diagnóstico se repite la inferencia con cajas ideales derivadas de la máscara de referencia. Esa variante mide cuánto limita el localizador, pero no interviene en la selección ni representa el uso real del programa. Para describir la variación de cada margen también se calcularon intervalos percentiles \textit{bootstrap} del 95 por ciento mediante 10\,000 remuestreos de las doce hojas de validación. Como esas hojas repiten las mismas ocho identidades, los intervalos son descriptivos y no modifican la regla de selección.
 
 \section{Vectorización y exportación DXF}
 
@@ -286,6 +286,8 @@ IoU, también denominado índice de Jaccard, vale uno cuando las máscaras coinc
 El coeficiente Dice expresa el mismo solapamiento con una transformación distinta. El F1 de contorno compara bordes dentro de una tolerancia de tres píxeles. El error de componentes es la diferencia absoluta entre el número de regiones válidas predichas y las ocho esperadas. Este último indicador conecta la calidad de la máscara con la posibilidad real de vectorizar.
 
 Los tiempos se midieron en las capturas rectificadas 13, 20, 28 y 38, precargadas a $2100\times2970$ píxeles. Se realizó una ejecución de calentamiento seguida de cinco repeticiones por imagen. Quedaron fuera la carga desde disco, la rectificación, la detección WCS y la inicialización de los modelos. Para la visión clásica se cronometró la llamada completa. En Random Forest se incluyeron el cálculo de las 19 variables, la probabilidad y el postprocesamiento. En SAM 2 se midieron el localizador de cajas, \texttt{set\_image} con el codificador, el decodificador por cajas y el postprocesamiento. Este alcance impide atribuir a SAM 2 únicamente el tiempo del decodificador. El tiempo mostrado por la interfaz es mayor porque comprende también las etapas que rodean la segmentación.
+
+La repetibilidad del WCS se estudió en las diez capturas con una marca válida. La dispersión del origen se calculó como la distancia radial de cada estimación respecto de la media, y la orientación se resumió mediante la desviación estándar del ángulo del eje X. Para las máscaras se compararon mediante IoU los 45 pares posibles entre esas diez capturas. Estas medidas describen la variación entre adquisiciones de una misma hoja, no exactitud metrológica ni variabilidad entre productos.
 
 En sintético se presentan media y desviación estándar sobre las doce hojas de prueba. En real se informa media y desviación para los tres métodos. Para la línea clásica y SAM 2 se añade un intervalo percentil \textit{bootstrap} del 95 por ciento para la media de IoU, obtenido mediante 10\,000 remuestreos con reposición sobre las trece capturas. Este intervalo describe la variación observada al remuestrear adquisiciones de la única hoja estudiada. No representa incertidumbre sobre una población de productos.
 

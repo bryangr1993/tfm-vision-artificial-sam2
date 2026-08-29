@@ -21,9 +21,9 @@ El fracaso en las capturas reales no invalida Random Forest para cualquier tarea
 
 \section{SAM 2 como componente de inteligencia artificial}
 
-Sin superar a la línea clásica en concordancia real, SAM 2 mantuvo estable el número de instancias y mostró una diferencia entre dominios mucho menor que Random Forest, aun sin haberse entrenado con las imágenes del proyecto. Este comportamiento es compatible con una representación preentrenada menos ligada al color exacto del generador. La comparación, sin embargo, no aísla ese efecto porque también cambian la arquitectura, los prompts y la supervisión.
+Sin superar a la línea clásica en concordancia real, SAM 2 mantuvo estable el número de instancias y mostró una diferencia numérica aparente entre dominios mucho menor que Random Forest, aun sin haberse entrenado con las imágenes del proyecto. Este comportamiento es compatible con una representación preentrenada menos ligada al color exacto del generador. La comparación, sin embargo, no aísla ese efecto porque también cambian la arquitectura, los prompts y la supervisión.
 
-La arquitectura sigue siendo híbrida porque SAM 2 recibe las cajas del localizador clásico. Para estimar cuánto dependía de ellas se compararon cajas ideales y operativas. Las diferencias de IoU fueron inferiores a una diezmilésima tanto en prueba como en real, lo que indica que las cajas disponibles bastaron en este banco. El error restante se relaciona principalmente con la máscara generada por SAM 2 y con su contorno.
+La arquitectura sigue siendo híbrida porque SAM 2 recibe las cajas del localizador clásico. Para estimar cuánto dependía de ellas se compararon cajas ideales y operativas. Las diferencias de IoU fueron inferiores a una diezmilésima tanto en prueba como en real. En este banco, la localización de las cajas no explica una parte apreciable de la diferencia observada, pero el ensayo no separa las contribuciones de la predicción, el postprocesamiento y la referencia.
 
 El contorno sí requiere atención. Aunque SAM 2 superó a la línea clásica en IoU sintético, quedó por debajo en Boundary F1, y esa desventaja de borde se repitió en real. Parte de la diferencia procede de pequeñas irregularidades y vacíos internos. Por ese motivo, el programa no convierte automáticamente todos los niveles de la máscara en rutas. Exportar solo la envolvente exterior evita que ojos o brillos impresos terminen como perforaciones.
 
@@ -49,7 +49,7 @@ El offset permanece en cero por la misma razón. Su aplicación matemática func
 
 El tiempo de la línea clásica es el menor porque opera con transformaciones locales. Random Forest debe calcular 19 variables para más de seis millones de píxeles y después evaluar cientos de árboles. SAM 2 codifica la imagen una vez y decodifica ocho cajas. En CPU no ofrece respuesta instantánea. La media de $2{,}17$ segundos permitió completar el flujo del prototipo, aunque su aceptabilidad para producción no se evaluó con operarios ni mediante un requisito temporal externo.
 
-La medición excluye la carga inicial del modelo y la lectura desde disco. En una sesión de trabajo, el checkpoint se carga una vez y el coste se amortiza. Una GPU reduciría la espera, aunque no corregiría por sí sola los errores de borde. Para producción importan tanto el tiempo como la posibilidad de inspeccionar la máscara y bloquear una exportación dudosa.
+La medición excluye la carga inicial del modelo y la lectura desde disco. En una sesión de trabajo, el checkpoint se carga una vez y el coste se amortiza. Una GPU podría reducir la espera, aunque no corregiría por sí sola los errores de borde. Para producción importan tanto el tiempo como la posibilidad de inspeccionar la máscara y bloquear una exportación dudosa.
 
 \section{Amenazas a la validez}
 
