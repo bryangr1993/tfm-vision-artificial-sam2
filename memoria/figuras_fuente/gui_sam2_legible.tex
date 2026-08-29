@@ -1,0 +1,24 @@
+\documentclass[tikz,border=8pt]{standalone}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{graphicx}
+\usetikzlibrary{positioning}
+\definecolor{navy}{HTML}{15324B}
+\tikzset{
+  panel/.style={draw=navy,rounded corners=3pt,very thick,inner sep=3pt,fill=white},
+  title/.style={font=\sffamily\fontsize{9.6}{10.8}\selectfont\bfseries,
+    text=navy,align=center}
+}
+\begin{document}
+\begin{tikzpicture}[node distance=0.65cm]
+  \node[panel] (status) {\includegraphics[
+    width=7.6cm
+  ]{figuras/interfaz_final/gui_final_detalle_estado.png}};
+  \node[panel,right=of status] (segmentation) {\includegraphics[
+    width=5.35cm
+  ]{figuras/interfaz_final/gui_final_detalle_sam2.png}};
+  \node[title,above=0.18cm of status] {Estado operativo y habilitación del DXF};
+  \node[title,above=0.18cm of segmentation] {Salida de SAM 2};
+\end{tikzpicture}
+\end{document}

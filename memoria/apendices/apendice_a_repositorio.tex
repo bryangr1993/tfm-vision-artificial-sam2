@@ -4,23 +4,25 @@
 \setcounter{section}{0}
 \renewcommand{\thesection}{A.\arabic{section}}
 
-Este apéndice describe cómo reconstruir las evaluaciones y ejecutar la herramienta. El repositorio entregado conserva código, configuraciones, métricas y figuras. Los archivos de modelos de gran tamaño se verifican por nombre, tamaño y SHA-256. Las rutas que contienen datos o checkpoints pueden ajustarse en \texttt{software/config/default.yaml}.
+Este anexo reúne la información necesaria para auditar los resultados, reconstruir los experimentos cuando se dispone de los datos de origen y ejecutar la aplicación. El repositorio conserva el código, las configuraciones, los manifiestos, las métricas y las figuras. Las capturas del taller y los activos gráficos empleados para crear el conjunto sintético no se publican, ya que contienen material de trabajo facilitado para este proyecto. Esta limitación no afecta a la inspección de los resultados conservados, pero impide regenerar las imágenes desde un clon público sin incorporar primero esos archivos.
 
 \section{Estructura principal}
 
 \begin{description}
-    \item[\texttt{memoria/}] Fuentes \LaTeX, bibliografía y figuras de la memoria.
-    \item[\texttt{software/}] Aplicación, interfaz gráfica, configuración y pruebas.
-    \item[\texttt{datos/}] Manifiesto, particiones, anotaciones y capturas requeridas por los experimentos.
-    \item[\texttt{experimentos/}] Scripts de calidad, Random Forest, SAM 2 y comparación.
-    \item[\texttt{resultados/}] Métricas CSV/JSON, predicciones, modelos y evidencias de integración.
-    \item[\texttt{documentacion/}] Protocolo experimental, calidad de datos y validación técnica.
-    \item[\texttt{output/pdf/}] Memoria final compilada.
+    \item[\texttt{memoria/}] Fuentes \LaTeX, bibliografía y material gráfico.
+    \item[\texttt{software/}] Aplicación, interfaz, configuración y pruebas automáticas.
+    \item[\texttt{datos/}] Manifiestos y, en la copia de trabajo autorizada, imágenes y anotaciones.
+    \item[\texttt{experimentos/}] Preparación de datos, evaluación de segmentadores, registro WCS e integración.
+    \item[\texttt{resultados/}] Métricas CSV y JSON, figuras, máscaras de salida y evidencias DXF.
+    \item[\texttt{documentacion/}] Protocolo, controles de calidad y guía de las evidencias cuantitativas.
+    \item[\texttt{output/pdf/}] Memoria compilada.
 \end{description}
 
-\section{Preparación del entorno}
+El archivo \path{datos/manifiesto/asset_registry_v2.csv} identifica los 32 activos fuente. \path{datos/manifiesto/datasets_asset_identity_v2.csv} describe las 48 hojas generadas y \path{resultados/metricas/dataset_identity_v2_quality.json} registra las comprobaciones de independencia. El SHA-256 de \path{datos/manifiesto/datasets_asset_identity_v2.csv}, manifiesto utilizado en la evaluación, es \texttt{\seqsplit{d850a74911feb592c33c7fc66e686d3093d34a33036742f981d1c2ab232c10dc}}. La guía \path{resultados/metricas/README.md} identifica los artefactos canónicos del protocolo IDV2 y separa de forma explícita los resultados históricos que permanecen en la carpeta por trazabilidad.
 
-En Windows PowerShell, el entorno base puede prepararse con:
+\section{Entorno de ejecución}
+
+El entorno utilizado en la evaluación final fue Windows con Python 3.12.10, PyTorch 2.13.0+cpu, OpenCV 4.14.0 y scikit-learn 1.9.0, versiones que quedan registradas en los resúmenes de ejecución. Los archivos de requisitos instalan un entorno compatible, aunque no constituyen por sí solos un bloqueo exacto de todas las dependencias transitivas. La preparación se realiza desde la raíz del repositorio:
 
 \begin{verbatim}
 python -m venv .venv
@@ -30,83 +32,99 @@ pip install -r requirements-core.txt
 pip install -r requirements-ai.txt
 \end{verbatim}
 
-La instalación de SAM 2 puede depender de las versiones de Python y PyTorch disponibles. La evaluación final se ejecutó en CPU con Python 3.14.0, PyTorch 2.12.1+cpu, OpenCV 4.13.0 y scikit-learn 1.9.0. Estos datos también quedan almacenados en los resúmenes JSON. De forma adicional, la cadena completa se reconstruyó en un entorno limpio con Python 3.12 y PyTorch 2.13.0. Esta comprobación independiente procesó la captura 20, recuperó los ocho contornos y generó un DXF válido.
+La dependencia \texttt{sam-2} está fijada a una revisión concreta del repositorio oficial de Meta en \path{requirements-ai.txt}. De esta forma, la instalación no depende de la versión más reciente disponible en el momento de repetir el experimento. El checkpoint esperado se guarda como \path{resultados/modelos/sam2_hiera_tiny.pt}.
 
-\section{Modelos utilizados}
+\section{Modelos y control de integridad}
+
+El SHA-256 es una huella criptográfica de 256 bits que se representa mediante 64 caracteres hexadecimales. No es código ejecutable ni contiene instrucciones. Se calcula a partir del contenido completo de un archivo y permite comprobar que se utiliza exactamente el mismo binario, ya que cualquier modificación produce una huella distinta.
 
 \begin{table}[htbp]
 \centering
 \footnotesize
-\caption{Identificación de modelos y checkpoints.}
+\caption{Identificación de los modelos utilizados en los experimentos finales.}
 \label{tab:checksums_modelos}
-\begin{tabularx}{\textwidth}{p{3.5cm}p{2.0cm}Y}
+\begin{tabularx}{\textwidth}{p{3.3cm}p{2.2cm}Y}
 \toprule
 \textbf{Artefacto} & \textbf{Tamaño} & \textbf{SHA-256} \\
 \midrule
-Checkpoint SAM 2 Hiera Tiny & 155,906,050 B & \ttfamily\seqsplit{65B50056E05BCB13694174F51BB6DA89C894B57B75CCDF0BA6352C597C5D1125} \\
-Random Forest seleccionado, sin aumentación & 60,111,985 B & \ttfamily\seqsplit{B6141FB7DB8320D9A33155F38BF0EFE1AC6FAE15195462548B1D50DDA5627836} \\
-Control Random Forest con aumentación & 233,889,745 B & \ttfamily\seqsplit{4B8D8ED8EE2D7E51C7F93AC50A8E9035AFE1D0BE58462A81E9DB18902E7C3911} \\
+SAM 2 Hiera Tiny & 155.906.050 B & \ttfamily\seqsplit{65B50056E05BCB13694174F51BB6DA89C894B57B75CCDF0BA6352C597C5D1125} \\
+Random Forest seleccionado & 3.580.636 B & \ttfamily\seqsplit{4D2B085DA6CD81D91D83DDB2A451A49C7D54E3EA829E856DF0480CDD4EF06A5A} \\
+Random Forest de control & 3.564.870 B & \ttfamily\seqsplit{9BB195DF4A0338BBDB58EAAD1C83B89B7634F3E7EEAF3750E9420924B9CB1122} \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-La fuente oficial del checkpoint SAM 2 es el repositorio de Meta. Deben respetarse su licencia y las condiciones del proyecto original. Los modelos Random Forest se generan con los scripts y datos de esta entrega. No es necesario conservarlos si se prefiere reconstruirlos.
+Los tamaños y las huellas de la tabla se recalcularon sobre los tres archivos conservados en \path{resultados/modelos/} y coincidieron carácter por carácter con los valores mostrados. El checkpoint de SAM 2 procede del proyecto oficial de Meta y queda sujeto a su licencia, mientras los dos modelos Random Forest pueden regenerarse mediante el protocolo de selección. El archivo \path{resultados/metricas/rf_idv2_selection_locked.json} fija el candidato C07, el umbral 0,55, los hiperparámetros y los hashes usados antes de abrir el conjunto de prueba.
 
-\section{Comandos de reproducción}
+\section{Secuencia de reproducción}
 
-Los comandos siguientes se ejecutan desde la raíz del repositorio:
+Tras disponer de un directorio autorizado que contenga los 32 activos fuente, la preparación y auditoría del conjunto se ejecutan con:
 
 \begin{verbatim}
-python experimentos/construir_manifiesto.py
+python experimentos/datos/prepare_source_assets.py `
+  --source-dir RUTA_AUTORIZADA
+python experimentos/datos/generate_identity_disjoint_dataset.py
+python experimentos/datos/audit_identity_disjoint_dataset.py
+python experimentos/datos/test_identity_disjoint_dataset.py
+\end{verbatim}
 
-python experimentos/comparacion/crear_referencia_real_asistida.py
+El entrenamiento separa deliberadamente selección y prueba. En una reproducción limpia se usa el orden siguiente:
 
-python experimentos/random_forest/optimize_rf.py
-python experimentos/random_forest/refine_rf_on_validation.py
-python experimentos/random_forest/consolidate_rf_selection.py
+\begin{verbatim}
+python experimentos/random_forest/train_rf_identity_v2.py select
+python experimentos/random_forest/train_rf_identity_v2.py ablate
+python experimentos/random_forest/train_rf_identity_v2.py test
+python experimentos/random_forest/evaluate_rf_identity_v2_real.py
+python experimentos/random_forest/analyze_rf_identity_v2.py
+\end{verbatim}
 
-python experimentos/sam2/evaluate_sam2.py
-python experimentos/sam2/evaluate_sam2_real.py
+El comando \texttt{select} trabaja con entrenamiento y validación, mientras \texttt{test} comprueba los hashes del bloqueo y se niega a sobrescribir una evaluación ya realizada. Esta separación evita que el conjunto de prueba intervenga en la elección del modelo.
 
-python experimentos/comparacion/evaluate_classical_synthetic.py
-python experimentos/comparacion/evaluate_classical_rf_real.py
-python experimentos/comparacion/generar_figuras.py
+La evaluación de SAM 2, la línea base y la cadena geométrica se reconstruye con:
 
+\begin{verbatim}
+python experimentos/comparacion/validate_real_reference.py
+python experimentos/comparacion/evaluate_classical_identity_v2.py
+python experimentos/sam2/select_prompt_margin_identity_v2.py --device cpu
+python experimentos/comparacion/benchmark_segmentation_runtime.py `
+  --device cpu
+python experimentos/comparacion/benchmark_idv2_final_runtime.py
+python experimentos/geometria/evaluate_wcs_repeatability.py
+python experimentos/geometria/generate_wcs_detection_stages.py
+python experimentos/comparacion/run_integration_batch.py --device cpu
+python experimentos/comparacion/generate_final_idv2_figures.py
+python experimentos/comparacion/generate_protocol_figures.py
+python documentacion/regenerar_figuras_legibles_adicionales.py
+python experimentos/comparacion/verify_protocol_package.py
 python -m unittest discover software/tests -v
 \end{verbatim}
 
-La búsqueda de Random Forest es la etapa de mayor duración. Los archivos finales que justifican la selección contienen:
+SAM 2 se utiliza preentrenado y sin ajuste fino. La selección se limita al margen de las cajas propuestas por el localizador y se resuelve en validación. Las cifras reales se calculan después del bloqueo y expresan concordancia con una referencia canónica asistida, no exactitud frente a una verdad de terreno independiente.
 
-\begin{itemize}
-    \item el historial de la búsqueda de hiperparámetros.
-    \item la comparación de modelos y umbrales sobre validación.
-    \item la selección consolidada del Random Forest utilizado en prueba.
-\end{itemize}
+\section{Aplicación y pruebas}
 
-En SAM 2, la estrategia se registra en \path{sam2_final_selection.json}.
-
-\section{Ejecución de la herramienta}
-
-La interfaz puede abrirse con:
+La interfaz se abre con:
 
 \begin{verbatim}
 python software/src/gui.py
 \end{verbatim}
 
-Para una demostración reproducible puede precargarse y procesarse una imagen:
+La configuración efectiva se encuentra en \path{software/config/default.yaml}. La ruta operativa usa SAM 2 para producir la máscara que llega a la vectorización. Si falta el checkpoint o el modelo no puede inicializarse, la aplicación informa el error y no sustituye la salida por otra técnica. La exportación también permanece bloqueada cuando no se ha procesado una imagen, el WCS no es válido o no existen trayectorias.
+
+Las pruebas automáticas se ejecutan con:
 
 \begin{verbatim}
-python software/src/gui.py --image datos/reales/raw/20.jpg --process
+python -m unittest discover software/tests -v
 \end{verbatim}
 
-La interfaz no vuelve de forma silenciosa al método clásico. Si el checkpoint de SAM 2 no existe o no puede inicializarse, la operación falla con un mensaje. La exportación DXF permanece deshabilitada hasta detectar un WCS válido.
+Estas pruebas cubren la configuración, los estados de la aplicación, la detección WCS, la extracción de siluetas exteriores y la escritura y reapertura del DXF. Son controles de software y geometría que no sustituyen una validación física del corte.
 
-\section{Publicación}
+\section{Compilación y disponibilidad}
 
-El código fuente, la memoria compilada y los resultados reproducibles están disponibles en el siguiente repositorio público:
+La memoria puede compilarse desde \path{memoria/} con \texttt{pdflatex}, \texttt{bibtex} y pasadas sucesivas de \texttt{pdflatex} hasta estabilizar las referencias cruzadas. El repositorio público que contiene el código, el PDF y las evidencias está disponible en:
 
 \begin{center}
 \small\url{https://github.com/bryangr1993/tfm-vision-artificial-sam2}
 \end{center}
 
-Los checkpoints y modelos pesados no forman parte del repositorio ordinario debido a su tamaño. Pueden distribuirse mediante una publicación de GitHub o un almacenamiento externo, siempre acompañados por los checksums de la Tabla~\ref{tab:checksums_modelos}.
+Los modelos y archivos no redistribuibles se mantienen fuera del historial ordinario. La Tabla~\ref{tab:checksums_modelos} permite comprobar que una copia local utiliza exactamente los artefactos evaluados.

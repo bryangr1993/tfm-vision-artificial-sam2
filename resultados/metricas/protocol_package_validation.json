@@ -1,0 +1,903 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "check": "identity_v2_quality_passed",
+      "passed": true,
+      "evidence": [
+        {
+          "check": "sheet_count_by_split",
+          "passed": true,
+          "severity": "critical",
+          "evidence": {
+            "train": 24,
+            "val": 12,
+            "test": 12
+          }
+        },
+        {
+          "check": "unique_sample_id",
+          "passed": true,
+          "severity": "critical",
+          "evidence": 48
+        },
+        {
+          "check": "split_protocol_label",
+          "passed": true,
+          "severity": "critical",
+          "evidence": [
+            "asset_identity_disjoint"
+          ]
+        },
+        {
+          "check": "asset_id_cross_split",
+          "passed": true,
+          "severity": "critical",
+          "evidence": {
+            "train__val": [],
+            "train__test": [],
+            "val__test": []
+          }
+        },
+        {
+          "check": "asset_hash_cross_split",
+          "passed": true,
+          "severity": "critical",
+          "evidence": {
+            "train__val": [],
+            "train__test": [],
+            "val__test": []
+          }
+        },
+        {
+          "check": "source_filename_cross_split",
+          "passed": true,
+          "severity": "critical",
+          "evidence": {
+            "train__val": [],
+            "train__test": [],
+            "val__test": []
+          }
+        },
+        {
+          "check": "semantic_family_present_in_each_split",
+          "passed": true,
+          "severity": "critical",
+          "evidence": {
+            "train": [
+              "F1",
+              "F2",
+              "F3",
+              "F4"
+            ],
+            "val": [
+              "F1",
+              "F2",
+              "F3",
+              "F4"
+            ],
+            "test": [
+              "F1",
+              "F2",
+              "F3",
+              "F4"
+            ]
+          }
+        },
+        {
+          "check": "semantic_families_intentionally_not_disjoint",
+          "passed": true,
+          "severity": "info",
+          "evidence": "Las familias son estratos compartidos; la identidad de activo es la unidad disjunta."
+        },
+        {
+          "check": "asset_registry_unique_hash",
+          "passed": true,
+          "severity": "critical",
+          "evidence": 32
+        },
+        {
+          "check": "all_paths_exist",
+          "passed": true,
+          "severity": "critical",
+          "evidence": []
+        },
+        {
+          "check": "dimensions_2100x2970",
+          "passed": true,
+          "severity": "critical",
+          "evidence": []
+        },
+        {
+          "check": "binary_and_instance_mask_validity",
+          "passed": true,
+          "severity": "critical",
+          "evidence": []
+        },
+        {
+          "check": "metadata_asset_authorization",
+          "passed": true,
+          "severity": "critical",
+          "evidence": []
+        },
+        {
+          "check": "image_hash_cross_split",
+          "passed": true,
+          "severity": "critical",
+          "evidence": {
+            "train__val": [],
+            "train__test": [],
+            "val__test": []
+          }
+        },
+        {
+          "check": "mask_hash_cross_split",
+          "passed": true,
+          "severity": "critical",
+          "evidence": {
+            "train__val": [],
+            "train__test": [],
+            "val__test": []
+          }
+        },
+        {
+          "check": "all_allocated_assets_used",
+          "passed": true,
+          "severity": "critical",
+          "evidence": {
+            "train": [
+              "A01",
+              "A04",
+              "A05",
+              "A08",
+              "A10",
+              "A12",
+              "A13",
+              "A16",
+              "A19",
+              "A21",
+              "A22",
+              "A23",
+              "A25",
+              "A30",
+              "A31",
+              "A32"
+            ],
+            "val": [
+              "A02",
+              "A07",
+              "A09",
+              "A14",
+              "A20",
+              "A24",
+              "A27",
+              "A29"
+            ],
+            "test": [
+              "A03",
+              "A06",
+              "A11",
+              "A15",
+              "A17",
+              "A18",
+              "A26",
+              "A28"
+            ]
+          }
+        },
+        {
+          "check": "train_cv_groups_asset_disjoint",
+          "passed": true,
+          "severity": "critical",
+          "evidence": {
+            "G1": [
+              "A08",
+              "A10",
+              "A22",
+              "A31"
+            ],
+            "G2": [
+              "A01",
+              "A16",
+              "A23",
+              "A25"
+            ],
+            "G3": [
+              "A05",
+              "A12",
+              "A19",
+              "A30"
+            ],
+            "G4": [
+              "A04",
+              "A13",
+              "A21",
+              "A32"
+            ]
+          }
+        },
+        {
+          "check": "condition_coverage",
+          "passed": true,
+          "severity": "critical",
+          "evidence": {
+            "train": [
+              "C1",
+              "C2",
+              "C3",
+              "C4",
+              "C5",
+              "C6"
+            ],
+            "val": [
+              "C1",
+              "C2",
+              "C3",
+              "C4",
+              "C5",
+              "C6"
+            ],
+            "test": [
+              "C1",
+              "C2",
+              "C3",
+              "C4",
+              "C5",
+              "C6"
+            ]
+          }
+        },
+        {
+          "check": "layout_coverage",
+          "passed": true,
+          "severity": "critical",
+          "evidence": {
+            "train": [
+              "L1",
+              "L2"
+            ],
+            "val": [
+              "L1",
+              "L2"
+            ],
+            "test": [
+              "L1",
+              "L2"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "check": "identity_v2_split_counts",
+      "passed": true,
+      "evidence": {
+        "train": 24,
+        "val": 12,
+        "test": 12
+      }
+    },
+    {
+      "check": "identity_v2_no_critical_failures",
+      "passed": true,
+      "evidence": 0
+    },
+    {
+      "check": "sam_margin_candidates_complete",
+      "passed": true,
+      "evidence": [
+        0.0,
+        0.03,
+        0.05,
+        0.1
+      ]
+    },
+    {
+      "check": "sam_margin_selected_on_validation_only",
+      "passed": true,
+      "evidence": {
+        "partition": "val only",
+        "n_validation_sheets": 12
+      }
+    },
+    {
+      "check": "sam_selected_margin_is_validation_winner",
+      "passed": true,
+      "evidence": {
+        "selected": 0.05,
+        "winner_by_score": {
+          "box_margin_fraction": 0.05,
+          "n_validation_sheets": 12,
+          "mean_validation_iou": 0.9231556680747209,
+          "std_validation_iou": 0.0031849767526459993,
+          "iou_bootstrap_95_ci_low": 0.9217241827832344,
+          "iou_bootstrap_95_ci_high": 0.9250623400730767,
+          "mean_validation_dice": 0.9600399766919329,
+          "mean_validation_boundary_f1": 0.7663333305404435,
+          "mean_component_error": 0.0,
+          "selection_score": 0.9231556680747209,
+          "mean_prompt_count": 8.0
+        }
+      }
+    },
+    {
+      "check": "sam_locked_test_evaluated_once_at_selected_margin",
+      "passed": true,
+      "evidence": {
+        "n_test": 12,
+        "policy": "The test partition was evaluated only after locking the margin on validation; no alternative margin was evaluated on test."
+      }
+    },
+    {
+      "check": "sam_manifest_hash_matches",
+      "passed": true,
+      "evidence": {
+        "path": "datos/manifiesto/datasets_asset_identity_v2.csv",
+        "recorded_sha256": "d850a74911feb592c33c7fc66e686d3093d34a33036742f981d1c2ab232c10dc"
+      }
+    },
+    {
+      "check": "reference_is_explicitly_assisted",
+      "passed": true,
+      "evidence": {
+        "assessment": "needs_independent_manual_review",
+        "copies": 13,
+        "safe_description": "Algorithmically assisted canonical reference based on 13 rectified views, classical-derived boxes, GrabCut, edge detection and morphology; reviewed visually by one author."
+      }
+    },
+    {
+      "check": "rainbow_opening_supported_by_mask",
+      "passed": true,
+      "evidence": {
+        "supported": true,
+        "interpretation": "border-connected concavity, not a closed topological hole",
+        "exterior_background_fraction_in_central_lower_roi": 0.42955894989291166,
+        "component_label": 2,
+        "component_bbox_px": [
+          1092,
+          203,
+          790,
+          506
+        ],
+        "inspection_roi_px": [
+          1368,
+          380,
+          1605,
+          709
+        ]
+      }
+    },
+    {
+      "check": "runtime_repeated_balanced_design",
+      "passed": true,
+      "evidence": {
+        "vision_clasica": 20,
+        "random_forest_identity_v2": 20,
+        "sam2_operativo_hibrido": 20
+      }
+    },
+    {
+      "check": "runtime_sam_includes_encoder",
+      "passed": true,
+      "evidence": "classical prompt localization + set_image/encoder + box decoder + postprocess"
+    },
+    {
+      "check": "runtime_rf_identity_v2_contract",
+      "passed": true,
+      "evidence": {
+        "model": "resultados/modelos/random_forest_identity_v2_selected.joblib",
+        "feature_count": 19,
+        "threshold": 0.55
+      }
+    },
+    {
+      "check": "wcs_positive_and_negative_controls",
+      "passed": true,
+      "evidence": {
+        "expected_wcs_captures": 10,
+        "detected_expected_wcs": 10,
+        "expected_no_wcs_captures": 3,
+        "correctly_rejected_no_wcs": 3,
+        "all_classifications_correct": true,
+        "mean_origin_x_mm_from_sheet": 22.26451402510341,
+        "mean_origin_y_mm_from_sheet": 9.522227426338388,
+        "origin_radial_deviation_mean_mm": 0.19526062206265066,
+        "origin_radial_deviation_max_mm": 0.38992537769491664,
+        "axis_x_angle_mean_deg": -0.6428715283181343,
+        "axis_x_angle_std_deg": 0.08509924788176597,
+        "interpretation": "Capture-to-capture geometric dispersion after recalculating markers and homography. No independent metrological ground truth was available."
+      }
+    },
+    {
+      "check": "contour_stability_kept_separate_and_complete",
+      "passed": true,
+      "evidence": {
+        "Random Forest IDV2": {
+          "method": "Random Forest IDV2",
+          "n_captures": 10,
+          "n_capture_pairs": 45,
+          "mean_pairwise_iou": 0.9883472415969703,
+          "std_pairwise_iou": 0.016886340945024503,
+          "mean_pairwise_boundary_f1": 0.2528601682224744,
+          "std_foreground_area_px": 81657.45292004208,
+          "mean_foreground_fraction": 0.9939104537437871,
+          "fraction_captures_with_8_components": 0.0,
+          "all_captures_have_8_components": false
+        },
+        "SAM 2 operativo": {
+          "method": "SAM 2 operativo",
+          "n_captures": 10,
+          "n_capture_pairs": 45,
+          "mean_pairwise_iou": 0.9630656372584313,
+          "std_pairwise_iou": 0.015901812649448666,
+          "mean_pairwise_boundary_f1": 0.7319547294856955,
+          "std_foreground_area_px": 9198.290841237844,
+          "mean_foreground_fraction": 0.2872897546897547,
+          "fraction_captures_with_8_components": 1.0,
+          "all_captures_have_8_components": true
+        },
+        "Visión clásica": {
+          "method": "Visión clásica",
+          "n_captures": 10,
+          "n_capture_pairs": 45,
+          "mean_pairwise_iou": 0.9644453823823279,
+          "std_pairwise_iou": 0.019159367035720843,
+          "mean_pairwise_boundary_f1": 0.7699083459707364,
+          "std_foreground_area_px": 11989.602793902539,
+          "mean_foreground_fraction": 0.28862251082251084,
+          "fraction_captures_with_8_components": 1.0,
+          "all_captures_have_8_components": true
+        }
+      }
+    },
+    {
+      "check": "wcs_detection_stages_match_current_detector",
+      "passed": true,
+      "evidence": {
+        "sample_id": "real_20",
+        "status": "SUCCESS",
+        "figure": "resultados/figuras_protocolo_v8/wcs_detection_stages_v8.png",
+        "detector_sha256": "8de5baa097fc006b881cb8cd2811ebbdd1d47566c1816d4b08c7e079d6bdf6eb"
+      }
+    },
+    {
+      "check": "integration_all_thirteen_captures_pass",
+      "passed": true,
+      "evidence": {
+        "all_checks_pass": true,
+        "n_captures": 13
+      }
+    },
+    {
+      "check": "integration_external_silhouette_policy",
+      "passed": true,
+      "evidence": {
+        "policy": "external silhouettes only: 8 outer paths, internal printed details excluded",
+        "holes": {
+          "real_13": 0,
+          "real_15": 0,
+          "real_17": 0,
+          "real_20": 0,
+          "real_22": 0,
+          "real_24": 0,
+          "real_26": 0,
+          "real_28": 0,
+          "real_30": 0,
+          "real_32": 0,
+          "real_34": 0,
+          "real_36": 0,
+          "real_38": 0
+        }
+      }
+    },
+    {
+      "check": "integration_ten_structural_dxf_and_three_blocked",
+      "passed": true,
+      "evidence": {
+        "real_20": {
+          "roundtrip_readable": true,
+          "outer_polyline_count": 8,
+          "hole_polyline_count": 0,
+          "polyline_count": 8,
+          "polyline_count_matches_contours": true,
+          "all_polylines_closed": true,
+          "all_coordinates_finite": true,
+          "bounds_mm": [
+            -3.6488483102682494,
+            9.651786714214563,
+            165.00019861359596,
+            253.65834825183364
+          ],
+          "bounds_plausible_for_a4_context": true,
+          "structurally_valid": true,
+          "error": ""
+        },
+        "real_22": {
+          "roundtrip_readable": true,
+          "outer_polyline_count": 8,
+          "hole_polyline_count": 0,
+          "polyline_count": 8,
+          "polyline_count_matches_contours": true,
+          "all_polylines_closed": true,
+          "all_coordinates_finite": true,
+          "bounds_mm": [
+            -3.7065440530568097,
+            9.897966090879926,
+            165.15216681285295,
+            253.96130869646422
+          ],
+          "bounds_plausible_for_a4_context": true,
+          "structurally_valid": true,
+          "error": ""
+        },
+        "real_24": {
+          "roundtrip_readable": true,
+          "outer_polyline_count": 8,
+          "hole_polyline_count": 0,
+          "polyline_count": 8,
+          "polyline_count_matches_contours": true,
+          "all_polylines_closed": true,
+          "all_coordinates_finite": true,
+          "bounds_mm": [
+            -3.803742258456407,
+            9.782086506696256,
+            165.06780851376408,
+            253.74956428886668
+          ],
+          "bounds_plausible_for_a4_context": true,
+          "structurally_valid": true,
+          "error": ""
+        },
+        "real_26": {
+          "roundtrip_readable": true,
+          "outer_polyline_count": 8,
+          "hole_polyline_count": 0,
+          "polyline_count": 8,
+          "polyline_count_matches_contours": true,
+          "all_polylines_closed": true,
+          "all_coordinates_finite": true,
+          "bounds_mm": [
+            -3.711145144451443,
+            9.677826789422966,
+            165.3105259173273,
+            253.94140324436654
+          ],
+          "bounds_plausible_for_a4_context": true,
+          "structurally_valid": true,
+          "error": ""
+        },
+        "real_28": {
+          "roundtrip_readable": true,
+          "outer_polyline_count": 8,
+          "hole_polyline_count": 0,
+          "polyline_count": 8,
+          "polyline_count_matches_contours": true,
+          "all_polylines_closed": true,
+          "all_coordinates_finite": true,
+          "bounds_mm": [
+            -3.476451356738729,
+            9.671281747639934,
+            165.38439125514523,
+            253.77394351048284
+          ],
+          "bounds_plausible_for_a4_context": true,
+          "structurally_valid": true,
+          "error": ""
+        },
+        "real_30": {
+          "roundtrip_readable": true,
+          "outer_polyline_count": 8,
+          "hole_polyline_count": 0,
+          "polyline_count": 8,
+          "polyline_count_matches_contours": true,
+          "all_polylines_closed": true,
+          "all_coordinates_finite": true,
+          "bounds_mm": [
+            -3.643289321089663,
+            9.680152565028923,
+            165.2844496386063,
+            253.5131581856147
+          ],
+          "bounds_plausible_for_a4_context": true,
+          "structurally_valid": true,
+          "error": ""
+        },
+        "real_32": {
+          "roundtrip_readable": true,
+          "outer_polyline_count": 8,
+          "hole_polyline_count": 0,
+          "polyline_count": 8,
+          "polyline_count_matches_contours": true,
+          "all_polylines_closed": true,
+          "all_coordinates_finite": true,
+          "bounds_mm": [
+            -3.685202471438663,
+            9.659430917629901,
+            165.18161754401507,
+            253.53225538199445
+          ],
+          "bounds_plausible_for_a4_context": true,
+          "structurally_valid": true,
+          "error": ""
+        },
+        "real_34": {
+          "roundtrip_readable": true,
+          "outer_polyline_count": 8,
+          "hole_polyline_count": 0,
+          "polyline_count": 8,
+          "polyline_count_matches_contours": true,
+          "all_polylines_closed": true,
+          "all_coordinates_finite": true,
+          "bounds_mm": [
+            -3.1998463918529736,
+            9.608523664521284,
+            165.56309005432965,
+            253.36020520224957
+          ],
+          "bounds_plausible_for_a4_context": true,
+          "structurally_valid": true,
+          "error": ""
+        },
+        "real_36": {
+          "roundtrip_readable": true,
+          "outer_polyline_count": 8,
+          "hole_polyline_count": 0,
+          "polyline_count": 8,
+          "polyline_count_matches_contours": true,
+          "all_polylines_closed": true,
+          "all_coordinates_finite": true,
+          "bounds_mm": [
+            -4.097692711022324,
+            9.376390806776875,
+            165.72969520154135,
+            254.09011080098895
+          ],
+          "bounds_plausible_for_a4_context": true,
+          "structurally_valid": true,
+          "error": ""
+        },
+        "real_38": {
+          "roundtrip_readable": true,
+          "outer_polyline_count": 8,
+          "hole_polyline_count": 0,
+          "polyline_count": 8,
+          "polyline_count_matches_contours": true,
+          "all_polylines_closed": true,
+          "all_coordinates_finite": true,
+          "bounds_mm": [
+            -3.079779639642356,
+            9.37745073169458,
+            165.86956715999273,
+            253.83692002255128
+          ],
+          "bounds_plausible_for_a4_context": true,
+          "structurally_valid": true,
+          "error": ""
+        }
+      }
+    },
+    {
+      "check": "all_core_artifacts_present",
+      "passed": true,
+      "evidence": []
+    }
+  ],
+  "limitations": [
+    "SAM 2 and the other methods were benchmarked on CPU because CUDA was unavailable.",
+    "The real reference is an assisted canonical preannotation and still requires independent manual review.",
+    "Real agreement covers thirteen captures of one physical sheet, not thirteen independent designs.",
+    "WCS values measure capture-to-capture geometric dispersion without independent metrological ground truth.",
+    "DXF validation is a structural round-trip and does not replace RDWorks import or a physical laser cut."
+  ],
+  "artifact_count": 52,
+  "artifacts": {
+    "datos/manifiesto/datasets_asset_identity_v2.csv": {
+      "bytes": 58055,
+      "sha256": "d850a74911feb592c33c7fc66e686d3093d34a33036742f981d1c2ab232c10dc"
+    },
+    "experimentos/PROTOCOLO_SAM2_WCS.md": {
+      "bytes": 7775,
+      "sha256": "1ffdbc2e42d14732c6d4d5c9b0dff15d7d2fefc778e40cf5d3f7ae2e3333de77"
+    },
+    "experimentos/comparacion/benchmark_segmentation_runtime.py": {
+      "bytes": 10519,
+      "sha256": "e1c2af95a3ae14db12821211005564997f914e44f62ee9056035a384171493b6"
+    },
+    "experimentos/comparacion/generate_protocol_figures.py": {
+      "bytes": 5891,
+      "sha256": "9c02b7af5c83559670ffd631de2a17177f3e189a911b43a3931a248c92f466a2"
+    },
+    "experimentos/comparacion/run_integration_batch.py": {
+      "bytes": 17042,
+      "sha256": "f889a48a894045fd1433ec50ee27d5b0fce79078e8faf5965f14b39529f3cd2a"
+    },
+    "experimentos/comparacion/validate_real_reference.py": {
+      "bytes": 11280,
+      "sha256": "99595f580c4555ab72a7c17038c9048ea1fbed356b17e885e5643be0c5cc4904"
+    },
+    "experimentos/comparacion/verify_protocol_package.py": {
+      "bytes": 13675,
+      "sha256": "b0cd04a8eacc2f30ba3613d6c715cd29dd69f9790faf4de99c8df0005c25b504"
+    },
+    "experimentos/geometria/evaluate_wcs_repeatability.py": {
+      "bytes": 17343,
+      "sha256": "fab050573d758054c29944f872c35d1e89d0d45e1c65af1ba2bc78b47f727042"
+    },
+    "experimentos/geometria/generate_wcs_detection_stages.py": {
+      "bytes": 9930,
+      "sha256": "548819cb7acfe2821f1113ecc7410cc30cb98ea13b0f950d9b375a327108cf21"
+    },
+    "experimentos/sam2/protocol_common.py": {
+      "bytes": 9419,
+      "sha256": "4fa648fd4bc1368910e6c7b11bfec3684fde5c2b2e1841140b3d6ca9ecbed739"
+    },
+    "experimentos/sam2/select_prompt_margin_identity_v2.py": {
+      "bytes": 17920,
+      "sha256": "14c524dfad66f13ad2c355d3ea329f97e83bf8d533d67b01fa764397252c4fc3"
+    },
+    "resultados/INFORME_PROTOCOLO_SAM2_WCS.md": {
+      "bytes": 11357,
+      "sha256": "61b951fc0e6ac888555dc44c33705cf91b26a798e4aa5aca38ba8813f107b8f1"
+    },
+    "resultados/figuras_protocolo_v8/contour_pairwise_stability_v8.png": {
+      "bytes": 131259,
+      "sha256": "432421215e7cb778db21fb11fbb971a89f0ebfcd39981226775dc0d36c7333f9"
+    },
+    "resultados/figuras_protocolo_v8/integration_batch_status_v8.png": {
+      "bytes": 172911,
+      "sha256": "c263add23d28c80aacee4da312cceb97b7e6caa353669e8f0a4f3fad4b10498c"
+    },
+    "resultados/figuras_protocolo_v8/real_reference_provenance_v8.png": {
+      "bytes": 1944708,
+      "sha256": "37318b5b044ce653b3dd5c330b77c3dbe7336830240f8710aa2b38f033950a5d"
+    },
+    "resultados/figuras_protocolo_v8/sam2_margin_selection_idv2.png": {
+      "bytes": 98043,
+      "sha256": "71ef3147db8ee9d40eed177bd68a005d8ca8ac6497dcc17f08b99d8ab862c960"
+    },
+    "resultados/figuras_protocolo_v8/sam2_prompt_source_comparison_v8.png": {
+      "bytes": 71782,
+      "sha256": "fa3b4de9500443317fbde4a3cfdaadc31cd61fbd73cad9ae0d17dee680ecbefc"
+    },
+    "resultados/figuras_protocolo_v8/sam2_runtime_stages_v8.png": {
+      "bytes": 66659,
+      "sha256": "3954aab230d2629dd24fd60406dd93afbd3c24483cc4d58eb0fe460c1433581a"
+    },
+    "resultados/figuras_protocolo_v8/segmentation_runtime_comparison_v8.png": {
+      "bytes": 57537,
+      "sha256": "03ddb1952fc7b0a8afd5b476bab8fa04460d01dedae7a10bbb600d0288b7d26b"
+    },
+    "resultados/figuras_protocolo_v8/wcs_detection_stages_v8.png": {
+      "bytes": 614379,
+      "sha256": "ac06f70ec708281a53937657bd7308c2ca28d3d8b0f33d8f4ae1f349a6356cf4"
+    },
+    "resultados/figuras_protocolo_v8/wcs_origin_repeatability_v8.png": {
+      "bytes": 89624,
+      "sha256": "6774fefec0cbc4b212c63dfab0bac88f8eee1cfe8780dc43e939171d7fcb0244"
+    },
+    "resultados/integracion_lote_v8/dxf/real_20_sam2_operational.dxf": {
+      "bytes": 65410,
+      "sha256": "f9da992000b4d0ab447f559768053ae96a8d7544510d76dad017b83f8cdf6642"
+    },
+    "resultados/integracion_lote_v8/dxf/real_22_sam2_operational.dxf": {
+      "bytes": 64124,
+      "sha256": "6179ac32452f98dc3e49fb8e239760ec4e44693543856a171a157d0ce8c19891"
+    },
+    "resultados/integracion_lote_v8/dxf/real_24_sam2_operational.dxf": {
+      "bytes": 65127,
+      "sha256": "5823b4092faf513aec3f9e96124b6b20d04a647d23a0d80a740fd9ee4870cd3c"
+    },
+    "resultados/integracion_lote_v8/dxf/real_26_sam2_operational.dxf": {
+      "bytes": 65484,
+      "sha256": "6e703231565fb0b578cc91e32e84ad9ab4871282f68b65e8e2b3158371f16e97"
+    },
+    "resultados/integracion_lote_v8/dxf/real_28_sam2_operational.dxf": {
+      "bytes": 64625,
+      "sha256": "e4dc4c2a50ed70a72f0a35eb617d850751064541106be6fc85dbe1b925be630f"
+    },
+    "resultados/integracion_lote_v8/dxf/real_30_sam2_operational.dxf": {
+      "bytes": 64036,
+      "sha256": "971db06763ea90aa434ffb62f98a2fc51a48dbda5de049ccd35eff8a2c903010"
+    },
+    "resultados/integracion_lote_v8/dxf/real_32_sam2_operational.dxf": {
+      "bytes": 66091,
+      "sha256": "51f228960d18e9237f92f2777a8bb0bd2562b6c7225472530b95c2e7d354b4c6"
+    },
+    "resultados/integracion_lote_v8/dxf/real_34_sam2_operational.dxf": {
+      "bytes": 63522,
+      "sha256": "be0a37cf9a35ee4fd4c4b08035cf27a40e17c1dfd688a58141f75a83ae6fcbd5"
+    },
+    "resultados/integracion_lote_v8/dxf/real_36_sam2_operational.dxf": {
+      "bytes": 63786,
+      "sha256": "51152a60327dac86530a698623653a4a0d448f142600a724a3f23f94676f90fd"
+    },
+    "resultados/integracion_lote_v8/dxf/real_38_sam2_operational.dxf": {
+      "bytes": 63970,
+      "sha256": "6b55eea41512ef2eeebe12d88667cb0198bac3ed790be72c3a685f43a5896db8"
+    },
+    "resultados/metricas/contour_pairwise_stability_v8.csv": {
+      "bytes": 13055,
+      "sha256": "d9357ffb9d398b1146f673e51f5647b8da5a120f274a67057548cfc3de97fe9c"
+    },
+    "resultados/metricas/contour_stability_per_capture_v8.csv": {
+      "bytes": 2908,
+      "sha256": "e9369db31ae8c76774c4ba85f85164390cebc0a0c25b94d8526c27b32f23a76c"
+    },
+    "resultados/metricas/dataset_identity_v2_quality.json": {
+      "bytes": 5585,
+      "sha256": "e74c997a777a2441098f583476e24d3a56ab90f17e4ef0b881f188f02860d560"
+    },
+    "resultados/metricas/integration_batch_summary_v8.json": {
+      "bytes": 6920,
+      "sha256": "6006f28f8cf4579f0dd6f6f9d217a4f77eb54296bcce457be23a70ab3cae4902"
+    },
+    "resultados/metricas/integration_batch_v8.csv": {
+      "bytes": 4365,
+      "sha256": "d0a12e7e2633bdd881cfdb25bad51cbcf73488c264820adb61c4e10cdd26f8e7"
+    },
+    "resultados/metricas/real_reference_validation_v8.json": {
+      "bytes": 3883,
+      "sha256": "472b26a9c0e279ae61076e8d7a2ff8ebcd0f24f7e495fa0c786683a6d61c194b"
+    },
+    "resultados/metricas/sam2_idv2_locked_real_prompt_scenarios.csv": {
+      "bytes": 8153,
+      "sha256": "6ebe2e6a98e51d8e56398f999475227f9d52c1b58594823dd706d7eafc24aba4"
+    },
+    "resultados/metricas/sam2_idv2_locked_scenario_summary.csv": {
+      "bytes": 729,
+      "sha256": "cbf821acddb6f1fceea859de822b1b45c86284386385d915f8f9886f9ed59e5a"
+    },
+    "resultados/metricas/sam2_idv2_locked_test_operational_metrics.csv": {
+      "bytes": 3967,
+      "sha256": "a1f3924f41cff0b04df38176b7a98ea8ab2f4312041d5d33f1af9c1eccb98975"
+    },
+    "resultados/metricas/sam2_idv2_locked_test_prompt_scenarios.csv": {
+      "bytes": 7264,
+      "sha256": "291d43aceaea68c1492465bd79c3ebf24343efb1d983f1cfdcd6660bc968d77f"
+    },
+    "resultados/metricas/sam2_idv2_margin_validation_metrics.csv": {
+      "bytes": 14085,
+      "sha256": "fb627e60527bcd584c73dba246f494cd1728bb0742b6d7d51d5cf13ed5a12323"
+    },
+    "resultados/metricas/sam2_idv2_margin_validation_summary.csv": {
+      "bytes": 838,
+      "sha256": "898b77cbd8d0deeb2f57f22edeb657298d4e465f9201ae639044e2b8246a4e43"
+    },
+    "resultados/metricas/sam2_idv2_prompt_selection.json": {
+      "bytes": 6600,
+      "sha256": "9b26689a00003378db4ba60de94f5b114b6ffd1bf1d9df91add9a05f5f0fcaf5"
+    },
+    "resultados/metricas/segmentation_runtime_runs_v8.csv": {
+      "bytes": 6214,
+      "sha256": "1c9dc0f3a0bb0642c99763baae90bb39bafc55b89520d7922f5594e3f280664f"
+    },
+    "resultados/metricas/segmentation_runtime_summary_v8.csv": {
+      "bytes": 604,
+      "sha256": "edee9497e4215e00f6547b3ae26b93fde83cbedceaeef8011b19295b1e818f46"
+    },
+    "resultados/metricas/segmentation_runtime_summary_v8.json": {
+      "bytes": 2859,
+      "sha256": "686a1d625c353cb329a2ea3a03a8c7aff5ccaf2e4e6895fd0dd876ffb1c51f91"
+    },
+    "resultados/metricas/wcs_contour_repeatability_summary_v8.json": {
+      "bytes": 3055,
+      "sha256": "2a4e3e78321e5b18331d501b45741894bdd21d9e25a99fbd40a0c8240feb1c72"
+    },
+    "resultados/metricas/wcs_detection_stages_v8.json": {
+      "bytes": 1861,
+      "sha256": "140a596f4e75268c027c33dff15119dd4364e118e78b24f37f0a2a5686a862ee"
+    },
+    "resultados/metricas/wcs_registration_per_capture_v8.csv": {
+      "bytes": 1793,
+      "sha256": "975db1aab2ba5ff55c4f249ffce989c20c3a5387101c85103830764409009e92"
+    },
+    "resultados/referencia_real_validacion_v8/manual_review_checklist.md": {
+      "bytes": 527,
+      "sha256": "5a5fb86ff4e177cf0e2cfed3f00a1f881d6b64d2e178a308f58a89fc1976e588"
+    },
+    "resultados/referencia_real_validacion_v8/real_reference_manual_review.png": {
+      "bytes": 1944708,
+      "sha256": "37318b5b044ce653b3dd5c330b77c3dbe7336830240f8710aa2b38f033950a5d"
+    }
+  }
+}

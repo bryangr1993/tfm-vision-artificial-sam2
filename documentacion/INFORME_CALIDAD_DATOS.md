@@ -1,39 +1,48 @@
 # Informe de calidad de datos
 
-## Dataset y granularidad
+## Corpus y granularidad
 
-El manifiesto contiene **61 láminas**. La unidad de análisis y partición es una lámina completa. Hay **48 muestras sintéticas** y **13 capturas reales rectificadas**.
+El corpus sintético vigente es `asset_identity_v2`. La unidad de análisis y partición es una hoja A4 completa con ocho instancias. Contiene 32 identidades de activo y 48 hojas: 24 de entrenamiento, 12 de validación y 12 de prueba.
 
-Las particiones sintéticas son: entrenamiento **36**, validación **6** y prueba **6**. Las **13** imágenes reales forman un conjunto de evaluación externo al entrenamiento sintético.
+Las trece capturas reales forman una evaluación externa separada. Corresponden a adquisiciones repetidas de una sola lámina física y no se cuentan como trece diseños independientes.
+
+## Regla de independencia
+
+La partición se fija antes de generar las hojas y aplica la regla `asset_identity_disjoint`:
+
+- cruces por identificador de activo: 0.
+- cruces por nombre de archivo fuente: 0.
+- cruces por hash de activo: 0.
+- cruces por hash de imagen: 0.
+- cruces por hash de máscara: 0.
+
+Las familias F1-F4 no son disjuntas. Funcionan como estratos compartidos y están representadas en entrenamiento, validación y prueba.
 
 ## Controles ejecutados
 
-- existencia de imágenes, referencias y metadatos declarados;
-- coincidencia de dimensiones entre imagen y máscara;
-- valores binarios en las máscaras disponibles;
-- unicidad del contenido de las imágenes mediante SHA-256;
-- separación por identificador de lámina;
-- disponibilidad de una verdad terreno real independiente.
+| Comprobación | Resultado |
+|---|---:|
+| Hojas con rutas obligatorias ausentes | 0 |
+| Pares imagen-máscara con dimensiones incompatibles | 0 |
+| Máscaras binarias o de instancia inválidas | 0 |
+| Activos sin asignación o sin uso | 0 |
+| Fallos críticos de la puerta de calidad | 0 |
+| Pruebas automáticas superadas | 3 de 3 |
 
-## Hallazgos
+La regeneración completa produjo el mismo SHA-256 del manifiesto antes y después: `d850a74911feb592c33c7fc66e686d3093d34a33036742f981d1c2ab232c10dc`.
 
-| Comprobación | Resultado | Riesgo |
-|---|---:|---|
-| Rutas obligatorias ausentes | 0 | Bajo |
-| Pares imagen-máscara con dimensiones distintas | 0 | Bajo |
-| Máscaras no binarias | 0 | Bajo |
-| Imágenes duplicadas por contenido | 0 grupos | Bajo |
-| Anotaciones reales pendientes de revisión | 0 | Bajo |
+## Referencia real
 
-La referencia real canónica está disponible y superó el control visual. Se construyó sobre la mediana de las trece capturas rectificadas de una misma lámina, sin usar como etiquetas las salidas clásicas ni las de SAM 2.
+La referencia canónica se construyó con asistencia algorítmica mediante la mediana de trece capturas rectificadas, cajas del localizador clásico, GrabCut, detección de bordes y morfología. No copia directamente las máscaras clásicas, pero depende de sus cajas y no dispone de una anotación manual independiente documentada.
 
-## Remediación
+Por ello, las métricas reales describen concordancia. No deben denominarse exactitud ni usarse para afirmar generalización a nuevos diseños físicos. La auditoría conserva como acción pendiente una anotación manual separada con registro de autor y cambios.
 
-No quedan acciones de remediación abiertas sobre las referencias. La naturaleza asistida de la anotación y el uso de una sola lámina física se declararán como limitaciones del conjunto real. Los experimentos bloquean el conjunto sintético de prueba durante la selección de hiperparámetros y de prompts. El manifiesto y este informe se regeneran después de cada cambio de anotación.
+## Evidencia reproducible
 
-## Detalle de incidencias
+- Manifiesto: `datos/manifiesto/datasets_asset_identity_v2.csv`.
+- Puerta de calidad: `resultados/metricas/dataset_identity_v2_quality.json`.
+- Regeneración y pruebas: `resultados/metricas/dataset_identity_v2_reproducibility.json`.
+- Auditoría de la referencia real: `resultados/metricas/real_reference_validation_v8.json`.
+- Informe ampliado: `documentacion/INFORME_CALIDAD_DATOS_IDV2.md`.
 
-- Rutas ausentes: ninguna.
-- Dimensiones incompatibles: ninguna.
-- Valores de máscara no binarios: ninguno.
-- Duplicados: ninguno.
+Las cifras del corpus sintético que no procedan de `asset_identity_v2` quedan fuera del protocolo vigente.

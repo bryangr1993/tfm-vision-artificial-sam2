@@ -1,0 +1,65 @@
+{
+  "protocol_version": "wcs_and_contour_repeatability_v8",
+  "registration": {
+    "expected_wcs_captures": 10,
+    "detected_expected_wcs": 10,
+    "expected_no_wcs_captures": 3,
+    "correctly_rejected_no_wcs": 3,
+    "all_classifications_correct": true,
+    "mean_origin_x_mm_from_sheet": 22.26451402510341,
+    "mean_origin_y_mm_from_sheet": 9.522227426338388,
+    "origin_radial_deviation_mean_mm": 0.19526062206265066,
+    "origin_radial_deviation_max_mm": 0.38992537769491664,
+    "axis_x_angle_mean_deg": -0.6428715283181343,
+    "axis_x_angle_std_deg": 0.08509924788176597,
+    "interpretation": "Capture-to-capture geometric dispersion after recalculating markers and homography. No independent metrological ground truth was available."
+  },
+  "contour_stability": [
+    {
+      "method": "Random Forest IDV2",
+      "n_captures": 10,
+      "n_capture_pairs": 45,
+      "mean_pairwise_iou": 0.9883472415969703,
+      "std_pairwise_iou": 0.016886340945024503,
+      "mean_pairwise_boundary_f1": 0.2528601682224744,
+      "std_foreground_area_px": 81657.45292004208,
+      "mean_foreground_fraction": 0.9939104537437871,
+      "fraction_captures_with_8_components": 0.0,
+      "all_captures_have_8_components": false
+    },
+    {
+      "method": "SAM 2 operativo",
+      "n_captures": 10,
+      "n_capture_pairs": 45,
+      "mean_pairwise_iou": 0.9630656372584313,
+      "std_pairwise_iou": 0.015901812649448666,
+      "mean_pairwise_boundary_f1": 0.7319547294856955,
+      "std_foreground_area_px": 9198.290841237844,
+      "mean_foreground_fraction": 0.2872897546897547,
+      "fraction_captures_with_8_components": 1.0,
+      "all_captures_have_8_components": true
+    },
+    {
+      "method": "Visión clásica",
+      "n_captures": 10,
+      "n_capture_pairs": 45,
+      "mean_pairwise_iou": 0.9644453823823279,
+      "std_pairwise_iou": 0.019159367035720843,
+      "mean_pairwise_boundary_f1": 0.7699083459707364,
+      "std_foreground_area_px": 11989.602793902539,
+      "mean_foreground_fraction": 0.28862251082251084,
+      "fraction_captures_with_8_components": 1.0,
+      "all_captures_have_8_components": true
+    }
+  ],
+  "separation_note": "WCS origin/axis dispersion and segmentation contour stability are reported as different phenomena; neither is used as a proxy for the other.",
+  "provenance": {
+    "manifest_sha256": "d9a0fcf1aeb3c1b7e53957117fb04a4126fbbf49f1d12d74f16f64f2443fcc3a",
+    "detect_markers_sha256": "4709b7016617a991fedfa467c50afa195aeccec27b2b59e3db10468f841b3413",
+    "rectify_sheet_sha256": "3755bddeb640dc76fea7b714eff189dd82724154297b6567385a29a70fc5eccd",
+    "detect_wcs_l_sha256": "8de5baa097fc006b881cb8cd2811ebbdd1d47566c1816d4b08c7e079d6bdf6eb",
+    "sam2_selection_sha256": "9b26689a00003378db4ba60de94f5b114b6ffd1bf1d9df91add9a05f5f0fcaf5",
+    "rf_model_sha256": "4d2b085da6cd81d91d83ddb2a451a49c7d54e3ea829e856df0480cdd4ef06a5a",
+    "rf_selection_sha256": "6d6f14050b5a87de8400954dc304b35a9508a8f6333eca82675163948f3d1731"
+  }
+}

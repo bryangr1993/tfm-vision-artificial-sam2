@@ -1,0 +1,58 @@
+\chapter{Conclusiones y trabajo futuro}
+\label{cap:conclusiones}
+
+\section{Conclusiones}
+
+La interfaz desarrollada reúne en una sola ruta el registro de la hoja impresa, la segmentación de sus ocho diseños con SAM 2 y la conversión de las siluetas exteriores en trayectorias DXF referidas al WCS del láser. El cambio de proceso que la sustenta es concreto: la hoja completa se adhiere primero al soporte y el corte se calcula sobre la posición real de la impresión.
+
+La participación de la inteligencia artificial puede seguirse hasta la salida. SAM 2 produjo la máscara que recibió el extractor de contornos tanto en la interfaz como en la ejecución por lote. Sobre doce hojas sintéticas con identidades no vistas obtuvo un IoU de $0{,}9231$ y en las trece adquisiciones de una hoja real alcanzó una concordancia de $0{,}9536$, conservando las ocho instancias en todas ellas.
+
+El orden de los métodos cambió con el dominio: la línea clásica alcanzó la mayor concordancia real, $0{,}9787$, en un montaje acotado de fondo claro, marcadores conocidos y reglas adaptadas al proceso. Random Forest, en cambio, obtuvo el mejor IoU sintético, $0{,}9879$, después de la búsqueda agrupada y de la selección sobre hojas completas, pero descendió a $0{,}2881$ en real y no conservó los ocho componentes en ninguna captura, con una diferencia descriptiva entre ambos dominios de $0{,}6999$. Estas cifras no invalidan el uso operativo de SAM 2 ni permiten una clasificación poblacional, porque el conjunto sintético dispone de etiquetas exactas y el real utiliza una referencia asistida. Sí documentan que una técnica específica puede aventajar a un modelo general en una escena controlada y que un aprendizaje eficaz en sintético puede no transferirse al taller.
+
+En la parte geométrica, el WCS se clasificó correctamente en las trece capturas. La desviación radial media del origen fue de $0{,}195\,\text{mm}$ y la desviación estándar del ángulo del eje X, de $0{,}085$ grados. Los diez DXF autorizados se reabrieron con ocho polilíneas exteriores válidas, mientras las tres imágenes sin WCS utilizable quedaron bloqueadas. Se demostró así consistencia computacional, no todavía el error físico de corte.
+
+La revisión de las máscaras llevó además a una decisión de seguridad. Sus vacíos internos correspondían a ojos, brillos o pequeñas imperfecciones y no a perforaciones deseadas. Por eso, la aplicación exporta por defecto únicamente la silueta exterior. El soporte de huecos permanece como una opción explícita para otras piezas, fuera del flujo validado aquí.
+
+\section{Cumplimiento de los objetivos}
+
+El objetivo general se considera cumplido dentro del alcance definido para el software y la evaluación experimental. La herramienta usa SAM 2 como segmentador operativo, conserva la referencia física y entrega un DXF estructuralmente validado cuando existe un WCS inequívoco. La Tabla~\ref{tab:cumplimiento_objetivos} relaciona cada objetivo específico con su evidencia.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Trazabilidad de los objetivos específicos y su evidencia.}
+\label{tab:cumplimiento_objetivos}
+\begin{tabularx}{\textwidth}{p{1.7cm}Y}
+\toprule
+\textbf{Objetivo} & \textbf{Evidencia principal} \\
+\midrule
+OE1 & Montaje con teléfono, soporte removible, hoja A4 y trece capturas bajo cambios de sombra y posición. \\
+OE2 & Cuatro marcadores detectados en trece capturas, rectificación A4 y clasificación WCS correcta en diez casos positivos y tres negativos. \\
+OE3 & 32 activos y 48 hojas con separación de identidades 16/8/8, auditoría de hashes y cero solapamientos. \\
+OE4 & Diez configuraciones, cuatro pliegues agrupados, selección sobre doce hojas y bloqueo de C07 con umbral 0,55. \\
+OE5 & Selección del margen del 5 por ciento en validación, prueba sintética, concordancia real e integración de SAM 2 en la interfaz. \\
+OE6 & Extracción de ocho siluetas exteriores, transformación a milímetros y exportación DXF condicionada al WCS. \\
+OE7 & Comparación mediante IoU, Dice, F1 de contorno, componentes y tiempo, con límites de la referencia real declarados. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Queda fuera de lo demostrado cualquier reducción de reprocesos: para sostenerla harían falta piezas cortadas, mediciones físicas y una comparación con el proceso manual. Tampoco puede afirmarse generalización a otros productos, ya que las capturas reales proceden de una sola hoja.
+
+\section{Aportes}
+
+Una aportación central es la arquitectura híbrida: la visión clásica resuelve el registro y la localización aproximada, mientras SAM 2 genera la máscara operativa. La interfaz hace visible esta separación y las pruebas impiden una sustitución silenciosa.
+
+El protocolo de evaluación parte de la unidad de datos. Las identidades gráficas son disjuntas entre entrenamiento, validación y prueba. Para Random Forest quedaron documentadas las 19 variables, la búsqueda de hiperparámetros, la validación agrupada, la selección por hoja y el bloqueo verificable.
+
+La comparación distingue el solapamiento, el borde, los componentes y la transferencia. Los resultados muestran tres comportamientos: la especialización sintética de Random Forest, la eficacia específica de la línea clásica y la estabilidad de SAM 2 en el número de componentes, con una brecha aparente menor entre las cifras de ambos dominios.
+
+La cadena de salida añade una protección operativa. La escala tiene un único valor validado, la ausencia o ambigüedad del WCS bloquea la exportación y el DXF se escribe de forma atómica antes de reabrirse. Las 23 pruebas automatizadas documentan estos contratos.
+
+\section{Trabajo futuro}
+
+La evaluación en dominio real se apoya en una sola hoja, y esa restricción es la limitación experimental más importante. Una ampliación útil debería reunir varias hojas, diseños no observados, cámaras, materiales e iluminaciones, con máscaras anotadas manualmente y revisadas por más de una persona. Ese banco permitiría estimar la generalización, revisar la aparente ventaja clásica y estudiar un detector ligero, adaptadores o el ajuste fino de SAM 2 sin reutilizar la evaluación. Para Random Forest, el paso razonable consiste en incorporar ejemplos fotográficos y comprobar si las variables dejan de confundir el papel con el primer plano, no en ampliar la búsqueda de forma indiscriminada.
+
+Pasar del software al material exigirá cortar MDF y acrílico, medir la distancia entre el borde impreso y el mecanizado, comprobar la escala en distintos puntos y estimar el ancho del haz. Esos ensayos permitirán fijar el offset y relacionar las métricas de imagen con la calidad que percibe el cliente. Si aparecen errores sistemáticos, una calibración intrínseca del teléfono podrá corregir la distorsión antes de la homografía, y una marca WCS de brazos más largos o varias referencias distribuidas podrán reducir la sensibilidad angular lejos del origen.
+
+Acercar el prototipo al uso cotidiano requerirá un instalador, una comprobación guiada del checkpoint, aceleración por GPU, registro de lotes y automatización de la lectura y del procesamiento por lote. Una integración más directa con RDWorks solo debería abordarse después de validar físicamente la salida y conservar una revisión antes de enviar la orden de corte. Cualquier ampliación deberá mantener los bloqueos actuales y la inspección visual previa.

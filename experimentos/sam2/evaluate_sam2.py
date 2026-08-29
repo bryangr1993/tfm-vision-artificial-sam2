@@ -105,10 +105,10 @@ def postprocess(mask: np.ndarray) -> np.ndarray:
 
 def predict_strategy(predictor, image, prompts, strategy):
     settings = STRATEGIES[strategy]
+    start = time.perf_counter()
     predictor.set_image(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
     accumulated = np.zeros(image.shape[:2], dtype=np.uint8)
     scores = []
-    start = time.perf_counter()
     for prompt in prompts:
         original_box = np.asarray(prompt["bbox"], dtype=np.float32)
         box = pad_box(original_box, image.shape, settings["margin"])
@@ -122,7 +122,10 @@ def predict_strategy(predictor, image, prompts, strategy):
             )
             kwargs["point_labels"] = np.asarray([1, 0, 0, 0, 0], dtype=np.int32)
         masks, predicted_scores, _ = predictor.predict(**kwargs)
-        box_area = max(1, int((original_box[2] - original_box[0]) * (original_box[3] - original_box[1])))
+        # El producto selecciona la multimáscara con respecto al área de la caja
+        # ya ampliada. Mantener la misma base evita una divergencia silenciosa
+        # entre el experimento y la aplicación.
+        box_area = max(1, int((box[2] - box[0]) * (box[3] - box[1])))
         selected, score = SAM2Segmenter._select_mask(masks, predicted_scores, box_area)
         accumulated[selected.astype(bool)] = 255
         scores.append(score)

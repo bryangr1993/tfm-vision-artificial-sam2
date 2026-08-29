@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import datetime
+import importlib.util
 import json
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
@@ -24,13 +25,20 @@ from load_images import load_image
 from detect_markers import detect_markers
 from rectify_sheet import rectify_sheet
 from detect_wcs_l import detect_wcs_l
-from export_dxf import simplify_and_transform_contour, apply_offset_shapely, SHAPELY_AVAILABLE
+from export_dxf import (
+    SHAPELY_AVAILABLE,
+    apply_offset_shapely,
+    export_to_dxf,
+    simplify_and_transform_contour,
+)
 from ai_pipeline import build_operational_pipeline, segment_and_extract_with_ai
+from application_state import can_export_dxf
+from configuration import load_app_config, validate_operational_scale
 from segmenters import SAM2UnavailableError
-import ezdxf
 
 class InnokeyApp:
     def __init__(self, root):
+        self.config = load_app_config()
         self.root = root
         self.root.title("Innokey - Registro Geométrico y Vectorización (TFM)")
         self.root.geometry("1300x820")
@@ -73,6 +81,8 @@ class InnokeyApp:
         self.contours = None
         self.report = None
         self.elapsed_time = 0.0
+        self.last_dxf_path = None
+        self.last_dxf_validated = False
         self.base_output_dir = os.path.join(os.path.dirname(src_path), "outputs_gui")
         
         # Referencias de imágenes para Tkinter
@@ -120,14 +130,16 @@ class InnokeyApp:
         # Escala px/mm
         lbl_scale = ttk.Label(grp_params, text="Escala (px/mm):")
         lbl_scale.grid(row=0, column=0, sticky=tk.W, pady=4)
-        self.var_scale = tk.DoubleVar(value=10.0)
-        self.ent_scale = ttk.Spinbox(grp_params, from_=1.0, to=50.0, increment=1.0, textvariable=self.var_scale, width=10)
+        self.var_scale = tk.DoubleVar(value=self.config.geometry.pixels_per_mm)
+        self.ent_scale = ttk.Entry(
+            grp_params, textvariable=self.var_scale, width=10, state="readonly"
+        )
         self.ent_scale.grid(row=0, column=1, sticky=tk.E, pady=4, padx=5)
         
         # Offset de corte (mm)
         lbl_offset = ttk.Label(grp_params, text="Offset corte (mm):")
         lbl_offset.grid(row=1, column=0, sticky=tk.W, pady=4)
-        self.var_offset = tk.DoubleVar(value=0.0)
+        self.var_offset = tk.DoubleVar(value=self.config.export.offset_mm)
         self.ent_offset = ttk.Spinbox(grp_params, from_=0.0, to=10.0, increment=0.1, textvariable=self.var_offset, width=10)
         self.ent_offset.grid(row=1, column=1, sticky=tk.E, pady=4, padx=5)
         
@@ -142,14 +154,45 @@ class InnokeyApp:
         # Dirección eje Y
         lbl_dir = ttk.Label(grp_params, text="Sentido Eje Y:")
         lbl_dir.grid(row=3, column=0, sticky=tk.W, pady=4)
-        self.var_ydir = tk.StringVar(value="Abajo (down)")
+        default_y_label = (
+            "Abajo (down)"
+            if self.config.export.wcs_y_direction == "down"
+            else "Arriba (up)"
+        )
+        self.var_ydir = tk.StringVar(value=default_y_label)
         self.cb_ydir = ttk.Combobox(grp_params, values=["Abajo (down)", "Arriba (up)"], textvariable=self.var_ydir, state="readonly", width=12)
         self.cb_ydir.grid(row=3, column=1, sticky=tk.E, pady=4, padx=5)
         
         # Checkbox Marca WCS auxiliar
-        self.var_inc_wcs = tk.BooleanVar(value=True)
+        self.var_inc_wcs = tk.BooleanVar(value=self.config.export.include_wcs_reference)
         self.chk_wcs = ttk.Checkbutton(grp_params, text="Incluir marca WCS auxiliar", variable=self.var_inc_wcs)
         self.chk_wcs.grid(row=4, column=0, columnspan=2, sticky=tk.W, pady=(8, 2))
+
+        checkpoint_exists = self.config.sam2.checkpoint.is_file()
+        self.sam2_runtime_dependencies_detected = all(
+            importlib.util.find_spec(module_name) is not None
+            for module_name in ("torch", "sam2")
+        )
+        ttk.Label(grp_params, text="Checkpoint IA:").grid(
+            row=5, column=0, sticky=tk.NW, pady=(8, 2)
+        )
+        self.lbl_checkpoint = ttk.Label(
+            grp_params,
+            text=(
+                f"{self.config.sam2.checkpoint.name}: "
+                f"{'presente' if checkpoint_exists else 'no encontrado'}; "
+                "dependencias IA: "
+                f"{'detectadas' if self.sam2_runtime_dependencies_detected else 'no detectadas'}"
+            ),
+            foreground=(
+                self.accent_green
+                if checkpoint_exists and self.sam2_runtime_dependencies_detected
+                else self.accent_amber
+            ),
+            wraplength=145,
+            justify=tk.LEFT,
+        )
+        self.lbl_checkpoint.grid(row=5, column=1, sticky=tk.W, pady=(8, 2), padx=5)
         
         # --- Botón Ejecutar Procesamiento ---
         self.btn_process = ttk.Button(sidebar, text="PROCESAR IMAGEN", style="Action.TButton", command=self.process_image, state=tk.DISABLED)
@@ -253,6 +296,8 @@ class InnokeyApp:
             return False
             
         self.processed = False
+        self.last_dxf_path = None
+        self.last_dxf_validated = False
         self.btn_process.config(state=tk.NORMAL)
         self.btn_export.config(state=tk.DISABLED)
         
@@ -355,7 +400,11 @@ class InnokeyApp:
     def process_image(self):
         if not self.img_path:
             return
-            
+
+        self.processed = False
+        self.last_dxf_path = None
+        self.last_dxf_validated = False
+        self.btn_export.config(state=tk.DISABLED)
         self.root.config(cursor="watch")
         self.btn_process.config(text="PROCESANDO...", state=tk.DISABLED)
         self.btn_load.config(state=tk.DISABLED)
@@ -373,6 +422,12 @@ class InnokeyApp:
         ydir_val = "down" if "down" in self.var_ydir.get() else "up"
         
         try:
+            validate_operational_scale(scale_val)
+            if offset_val > 0 and not SHAPELY_AVAILABLE:
+                raise RuntimeError(
+                    "El offset solicitado requiere Shapely. Instale "
+                    "requirements-core.txt o seleccione 0 mm."
+                )
             # 1. Cargar imagen original con rotación manual elegida
             rot_str = self.var_rotate.get()
             rot_val = 0
@@ -402,11 +457,26 @@ class InnokeyApp:
                 return
                 
             # 3. Rectificación por homografía
-            sheet_w, sheet_h = 210.0, 297.0
-            self.rectified, M = rectify_sheet(img, self.markers, out_dir, base_name, sheet_size=(sheet_w, sheet_h), scale=scale_val, marker_margin=10.0)
+            sheet_w = self.config.geometry.sheet_width_mm
+            sheet_h = self.config.geometry.sheet_height_mm
+            marker_margin = self.config.geometry.marker_margin_mm
+            self.rectified, M = rectify_sheet(
+                img,
+                self.markers,
+                out_dir,
+                base_name,
+                sheet_size=(sheet_w, sheet_h),
+                scale=scale_val,
+                marker_margin=marker_margin,
+            )
             
             # 4. Detección de la marca WCS en L
-            self.wcs_info = detect_wcs_l(self.rectified, debug_dir=None, scale=scale_val)
+            self.wcs_info = detect_wcs_l(
+                self.rectified,
+                debug_dir=None,
+                scale=scale_val,
+                marker_margin=marker_margin,
+            )
             
             # Guardar versión rectificada con ejes WCS si corresponde
             rectified_w_wcs = self.rectified.copy()
@@ -428,7 +498,14 @@ class InnokeyApp:
             
             # 5 y 6. Localización clásica, segmentación SAM 2 y contornos
             if self.ai_pipeline is None:
-                self.ai_pipeline = build_operational_pipeline()
+                self.ai_pipeline = build_operational_pipeline(
+                    checkpoint=self.config.sam2.checkpoint,
+                    model_config=self.config.sam2.model_config,
+                    device=self.config.device,
+                    box_margin_fraction=self.config.sam2.box_margin_fraction,
+                    multimask_output=self.config.sam2.multimask_output,
+                    min_component_area_px=self.config.sam2.min_component_area_px,
+                )
             self.segmentation_result, self.contours, self.report = segment_and_extract_with_ai(
                 self.ai_pipeline,
                 self.rectified,
@@ -453,8 +530,13 @@ class InnokeyApp:
                 modo="SAM 2 + WCS" if wcs_success else "SAM 2 · ANÁLISIS"
             )
             
-            # Activar botones
-            self.btn_export.config(state=tk.NORMAL)
+            # Activar exportación únicamente si hay procesamiento, contornos y WCS.
+            export_allowed = can_export_dxf(
+                processed=self.processed,
+                wcs_info=self.wcs_info,
+                contours=self.contours,
+            )
+            self.btn_export.config(state=tk.NORMAL if export_allowed else tk.DISABLED)
             
             # Renderizar vistas en las pestañas
             # Original marcada
@@ -473,19 +555,34 @@ class InnokeyApp:
             
             # 9. Guardar reporte de procesamiento y vector por defecto en la carpeta
             default_dxf_path = os.path.join(out_dir, f"toppers_{base_name}.dxf")
-            self.save_dxf_logic(default_dxf_path, scale_val, offset_val, ydir_val, self.var_inc_wcs.get())
+            if export_allowed:
+                self.last_dxf_validated = self.save_dxf_logic(
+                    default_dxf_path,
+                    scale_val,
+                    offset_val,
+                    ydir_val,
+                    self.var_inc_wcs.get(),
+                )
+                if self.last_dxf_validated:
+                    self.last_dxf_path = default_dxf_path
+                else:
+                    self.btn_export.config(state=tk.DISABLED)
             self.save_json_report(out_dir, base_name, scale_val, offset_val, ydir_val)
             
             # Cambiar pestaña a Rectificada
             self.notebook.select(1)
             
         except SAM2UnavailableError as e:
+            self.processed = False
+            self.btn_export.config(state=tk.DISABLED)
             messagebox.showerror(
                 "SAM 2 no disponible",
                 f"La segmentación de IA no pudo iniciarse:\n\n{e}\n\n"
                 "La aplicación no sustituirá SAM 2 por la línea base clásica de forma silenciosa."
             )
         except Exception as e:
+            self.processed = False
+            self.btn_export.config(state=tk.DISABLED)
             messagebox.showerror("Error Grave", f"Ocurrió un error en el pipeline: {e}")
             import traceback
             traceback.print_exc()
@@ -537,18 +634,26 @@ class InnokeyApp:
             }
             ax.set_title("Trayectorias en MODO ANÁLISIS (Sin origen WCS)", fontsize=12, fontweight="bold", color=self.accent_amber, pad=12)
             
-        # Graficar contornos
+        # Graficar siluetas y huecos preservados con trazabilidad de rol.
+        path_roles = self.report.get("path_roles", ["outer"] * len(self.contours))
+        outer_id = 0
         for idx, cnt in enumerate(self.contours):
+            role = path_roles[idx] if idx < len(path_roles) else "outer"
             pts_mm = simplify_and_transform_contour(cnt, wcs_dummy, scale_val, y_direction)
             if offset_mm > 0.0:
-                pts_mm = apply_offset_shapely(pts_mm, offset_mm)
+                pts_mm = apply_offset_shapely(pts_mm, offset_mm, role=role)
                 
             x_mm = [p[0] for p in pts_mm] + [pts_mm[0][0]]
             y_mm = [p[1] for p in pts_mm] + [pts_mm[0][1]]
-            ax.plot(x_mm, y_mm, color="cyan", linewidth=2.0, label="TOPPERS_CUT" if idx == 0 else "")
+            color = "#00a6b2" if role == "outer" else "#2e7d32"
+            label = "TOPPERS_CUT" if role == "outer" and outer_id == 0 else ""
+            if role == "hole" and "TOPPERS_HOLES" not in ax.get_legend_handles_labels()[1]:
+                label = "TOPPERS_HOLES"
+            ax.plot(x_mm, y_mm, color=color, linewidth=2.0, label=label)
             # Dibujar el ID del topper en su centroide para trazabilidad
             M = cv2.moments(cnt)
-            if M["m00"] != 0:
+            if role == "outer" and M["m00"] != 0:
+                outer_id += 1
                 cx = float(M["m10"] / M["m00"])
                 cy = float(M["m01"] / M["m00"])
                 # Proyectar centroide
@@ -556,7 +661,7 @@ class InnokeyApp:
                 S_Y = 1.0 if y_direction == "down" else -1.0
                 cx_mm = np.dot(v, wcs_dummy["uX"]) / scale_val
                 cy_mm = (np.dot(v, wcs_dummy["uY"]) / scale_val) * S_Y
-                ax.text(cx_mm, cy_mm, str(idx+1), color="#2e7d32", fontsize=10, fontweight="bold",
+                ax.text(cx_mm, cy_mm, str(outer_id), color="#2e7d32", fontsize=10, fontweight="bold",
                         bbox=dict(boxstyle="circle,pad=0.2", fc="yellow", ec="green", lw=1))
         
         # Graficar marca en L WCS si está presente y se seleccionó
@@ -590,17 +695,15 @@ class InnokeyApp:
         fig.savefig(os.path.join(out_dir, f"vector_preview_{base_name}.png"), dpi=200, bbox_inches="tight")
         
     def export_vector(self):
-        if not self.processed:
-            return
-            
-        wcs_success = self.wcs_info["status"] == "SUCCESS"
-        
-        # Si no hay WCS, el sistema se encuentra en modo análisis. Advertir y bloquear
-        if not wcs_success:
+        if not can_export_dxf(
+            processed=self.processed,
+            wcs_info=self.wcs_info,
+            contours=self.contours,
+        ):
             messagebox.showwarning(
-                "Modo Análisis Activo",
-                "El software se encuentra operando en Modo Análisis debido a la ausencia de una marca física WCS (marca en L).\n\n"
-                "La exportación de vectores de corte está bloqueada temporalmente para evitar incidentes y colisiones en la máquina láser."
+                "Exportación bloqueada",
+                "La exportación exige una segmentación válida, al menos una "
+                "trayectoria y un WCS geométricamente aceptado."
             )
             return
             
@@ -621,53 +724,47 @@ class InnokeyApp:
         
         success = self.save_dxf_logic(file_path, scale_val, offset_val, ydir_val, include_wcs_ref)
         if success:
+            self.last_dxf_path = file_path
+            self.last_dxf_validated = True
             messagebox.showinfo("Exportación Exitosa", f"Archivo vectorial guardado con éxito:\n{os.path.basename(file_path)}")
         else:
             messagebox.showerror("Error", "Fallo al generar el archivo DXF.")
             
     def save_dxf_logic(self, file_path, scale_val, offset_val, ydir_val, include_wcs_ref):
-        if self.wcs_info["status"] != "SUCCESS":
-            return False
-            
-        try:
-            doc = ezdxf.new(dxfversion='R2010')
-            doc.layers.new(name='TOPPERS_CUT', dxfattribs={'color': 4}) # Cyan
-            msp = doc.modelspace()
-            
-            # Exportar toppers
-            for cnt in self.contours:
-                pts_mm = simplify_and_transform_contour(cnt, self.wcs_info, scale_val, ydir_val)
-                if offset_val > 0.0:
-                    pts_mm = apply_offset_shapely(pts_mm, offset_val)
-                msp.add_lwpolyline(pts_mm, close=True, dxfattribs={'layer': 'TOPPERS_CUT'})
-                
-            # Exportar WCS auxiliar
-            if include_wcs_ref:
-                doc.layers.new(name='WCS_REF', dxfattribs={'color': 1}) # Rojo
-                S_Y = 1.0 if ydir_val == "down" else -1.0
-                
-                # Eje X
-                msp.add_line((0, 0), (20, 0), dxfattribs={'layer': 'WCS_REF'})
-                # Flecha Eje X
-                msp.add_lwpolyline([(18, 0.5), (20, 0), (18, -0.5)], close=False, dxfattribs={'layer': 'WCS_REF'})
-                
-                # Eje Y
-                msp.add_line((0, 0), (0, 20 * S_Y), dxfattribs={'layer': 'WCS_REF'})
-                # Flecha Eje Y
-                msp.add_lwpolyline([(0.5, 18 * S_Y), (0, 20 * S_Y), (-0.5, 18 * S_Y)], close=False, dxfattribs={'layer': 'WCS_REF'})
-                
-            os.makedirs(os.path.dirname(file_path), exist_ok=True)
-            doc.saveas(file_path)
-            return True
-        except Exception as e:
-            print(f"Error exportando DXF: {e}")
-            return False
+        return export_to_dxf(
+            self.contours,
+            self.wcs_info,
+            file_path,
+            scale_val,
+            offset_val,
+            ydir_val,
+            contour_roles=self.report.get("path_roles") if self.report else None,
+            include_wcs_reference=include_wcs_ref,
+            sheet_size_mm=(
+                self.config.geometry.sheet_width_mm,
+                self.config.geometry.sheet_height_mm,
+            ),
+            bounds_tolerance_mm=self.config.export.bounds_tolerance_mm,
+        )
             
     def save_json_report(self, out_dir, base_name, scale, offset, ydir):
+        wcs_success = self.wcs_info["status"] == "SUCCESS"
+        if self.last_dxf_validated:
+            mode = "SAM 2 + WCS + DXF VERIFICADO"
+            observations = "Procesamiento y validación estructural del DXF completados."
+        elif wcs_success:
+            mode = "SAM 2 + WCS · EXPORTACIÓN BLOQUEADA"
+            observations = "La segmentación terminó, pero el DXF no superó la validación."
+        else:
+            mode = "SAM 2 + MODO ANÁLISIS"
+            observations = (
+                f"WCS no disponible ({self.wcs_info['status']}); "
+                "no se generó ningún DXF de corte."
+            )
         report_data = {
             "image_used": os.path.basename(self.img_path),
             "processing_date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "wcs_detected": self.wcs_info["status"] == "SUCCESS",
+            "wcs_detected": wcs_success,
             "toppers_count": self.report["toppers_detected"],
             "scale_px_mm": scale,
             "offset_mm": offset,
@@ -675,11 +772,19 @@ class InnokeyApp:
             "processing_time_s": round(self.elapsed_time, 3),
             "segmentation_method": self.segmentation_result.method if self.segmentation_result else None,
             "segmentation_model_family": "SAM 2",
+            "sam2_checkpoint": str(self.config.sam2.checkpoint),
+            "sam2_checkpoint_available": self.config.sam2.checkpoint.is_file(),
+            "sam2_runtime_dependencies_detected": self.sam2_runtime_dependencies_detected,
+            "configuration_file": str(self.config.source_path),
             "prompt_source": self.segmentation_result.metadata.get("prompt_source") if self.segmentation_result else None,
             "prompt_count": len(self.segmentation_result.prompt_boxes) if self.segmentation_result else 0,
-            "output_dxf_path": os.path.join(out_dir, f"toppers_{base_name}.dxf"),
-            "mode": "SAM 2 + WCS EXPORT" if self.wcs_info["status"] == "SUCCESS" else "SAM 2 + MODO ANÁLISIS",
-            "observations": "Procesamiento exitoso." if self.wcs_info["status"] == "SUCCESS" else "WCS no encontrado. Modo análisis de seguridad activo."
+            "outer_contours_count": self.report.get("outer_contours_count", 0),
+            "holes_preserved_count": self.report.get("holes_preserved_count", 0),
+            "cut_paths_total": self.report.get("cut_paths_total", 0),
+            "output_dxf_path": self.last_dxf_path,
+            "dxf_roundtrip_validated": self.last_dxf_validated,
+            "mode": mode,
+            "observations": observations,
         }
         report_path = os.path.join(out_dir, "summary_report.json")
         with open(report_path, "w", encoding="utf-8") as f:
@@ -696,12 +801,16 @@ class InnokeyApp:
             f.write(f"Modo de operación:  {report_data['mode']}\n")
             f.write(f"Toppers detectados: {report_data['toppers_count']}\n")
             f.write(f"Segmentación:       {report_data['segmentation_model_family']}\n")
+            f.write(f"Checkpoint SAM 2:   {report_data['sam2_checkpoint']}\n")
+            f.write(f"Checkpoint presente:{report_data['sam2_checkpoint_available']}\n")
             f.write(f"Origen de prompts:  {report_data['prompt_source']}\n")
+            f.write(f"Huecos preservados: {report_data['holes_preserved_count']}\n")
             f.write(f"Escala de trabajo:  {report_data['scale_px_mm']} px/mm\n")
             f.write(f"Offset de corte:    {report_data['offset_mm']} mm\n")
             f.write(f"Avance de eje Y:    WCS_{report_data['y_axis_advance'].upper()}\n")
             f.write(f"Tiempo de ejecución: {report_data['processing_time_s']} s\n")
             f.write(f"Ruta DXF generada:  {report_data['output_dxf_path']}\n")
+            f.write(f"DXF reabierto y validado: {report_data['dxf_roundtrip_validated']}\n")
             f.write(f"Observaciones:      {report_data['observations']}\n")
             f.write("="*70 + "\n")
 

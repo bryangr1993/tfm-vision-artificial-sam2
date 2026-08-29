@@ -1,0 +1,55 @@
+{
+  "sample_id": "real_20",
+  "source_raw_image": "datos/reales/raw/20.jpg",
+  "roi_mm": [
+    0.0,
+    0.0,
+    45.0,
+    45.0
+  ],
+  "scale_px_per_mm": 10.0,
+  "preprocessing": {
+    "clahe_clip_limit": 3.0,
+    "clahe_grid": [
+      8,
+      8
+    ],
+    "adaptive_threshold_block_size": 51,
+    "adaptive_threshold_c": 15,
+    "hough_threshold": 40,
+    "hough_min_line_length_px": 30,
+    "hough_max_line_gap_px": 10
+  },
+  "hough_segments_total": 25,
+  "horizontal_segments_after_length_and_angle_filters": 16,
+  "vertical_segments_after_length_and_angle_filters": 8,
+  "segments_shown_per_orientation_max": 8,
+  "detector_result": {
+    "status": "SUCCESS",
+    "origin": [
+      223.199806067513,
+      96.55497158220582
+    ],
+    "uX": [
+      0.9999368042086876,
+      -0.011242223486336413
+    ],
+    "uY": [
+      0.011242223486336413,
+      0.9999368042086876
+    ],
+    "message": "Detección automática WCS superó las comprobaciones geométricas; pendiente de validación física en máquina",
+    "validation_mode": "automatic_geometric",
+    "raw_orthogonality_dot": 0.005773501557388247,
+    "distance_to_tl_mm": 12.324796321186094,
+    "candidate_clusters": 1
+  },
+  "figure": "resultados/figuras_protocolo_v8/wcs_detection_stages_v8.png",
+  "provenance": {
+    "raw_image_sha256": "d02186ed120d184a7aef1d39d0a79c86703c3473c34034786d0812e8b34dd9de",
+    "detect_wcs_l_sha256": "8de5baa097fc006b881cb8cd2811ebbdd1d47566c1816d4b08c7e079d6bdf6eb",
+    "detect_markers_sha256": "4709b7016617a991fedfa467c50afa195aeccec27b2b59e3db10468f841b3413",
+    "rectify_sheet_sha256": "3755bddeb640dc76fea7b714eff189dd82724154297b6567385a29a70fc5eccd"
+  },
+  "interpretation_limit": "The figure visualizes the current geometric detector and does not constitute independent metrological validation."
+}

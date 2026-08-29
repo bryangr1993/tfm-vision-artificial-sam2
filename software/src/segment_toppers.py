@@ -2,6 +2,8 @@ import cv2
 import numpy as np
 import os
 
+from configuration import validate_operational_scale
+
 def segment_toppers(rectified_img, debug_dir=None, img_name="img", scale=10.0, wcs_info=None):
     """
     Segmenta de forma robusta las siluetas exteriores de los toppers de color sobre la hoja rectificada.
@@ -16,6 +18,7 @@ def segment_toppers(rectified_img, debug_dir=None, img_name="img", scale=10.0, w
     Retorna:
         np.ndarray: Máscara binaria (255 para toppers, 0 para fondo).
     """
+    scale = validate_operational_scale(scale)
     h, w = rectified_img.shape[:2]
     
     # 1. Definición de la máscara de exclusión (protección de zonas que no son toppers)

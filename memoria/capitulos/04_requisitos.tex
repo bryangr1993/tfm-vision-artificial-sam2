@@ -18,13 +18,13 @@ Los requisitos se derivan del proceso observado en Innokey, de los objetivos del
 
     \item[\textbf{RF6. Segmentación mediante IA.}] SAM 2 debe producir la máscara binaria final de las instancias localizadas. Si el checkpoint, las dependencias o los prompts no están disponibles, la aplicación debe mostrar un error y no sustituir silenciosamente la salida por la máscara clásica.
 
-    \item[\textbf{RF7. Vectorización.}] Los contornos obtenidos de la máscara de SAM 2 deben simplificarse y transformarse a unidades físicas, conservando una trayectoria exterior por topper y los huecos relevantes cuando existan \cite{DouglasPeucker1973}.
+    \item[\textbf{RF7. Vectorización.}] Los contornos obtenidos de la máscara de SAM 2 deben simplificarse y transformarse a unidades físicas, conservando una trayectoria exterior por topper. Los cortes interiores solo se habilitan de forma explícita para piezas que realmente los requieran \cite{DouglasPeucker1973}.
 
-    \item[\textbf{RF8. Exportación DXF.}] El sistema debe generar un archivo DXF compatible con el flujo CAD/CAM cuando exista WCS válido. Las trayectorias de corte y la referencia auxiliar deben almacenarse en capas diferenciadas.
+    \item[\textbf{RF8. Exportación DXF.}] El sistema debe generar un archivo DXF estructuralmente verificable cuando exista un WCS válido. Las trayectorias de corte y la referencia auxiliar deben almacenarse en capas diferenciadas para conservar la vía de incorporación al flujo CAD/CAM.
 
-    \item[\textbf{RF9. Revisión visual.}] La interfaz debe mostrar la imagen original, la hoja rectificada, los prompts, la máscara de IA y la previsualización de los vectores para que el operario pueda detectar un resultado anómalo antes de exportarlo.
+    \item[\textbf{RF9. Revisión visual.}] La interfaz debe mostrar la imagen original, la hoja rectificada, la salida derivada de la máscara de SAM 2 y la previsualización vectorial. Las cajas utilizadas como prompts deben conservarse como artefacto de diagnóstico y su procedencia debe quedar registrada en el informe de ejecución.
 
-    \item[\textbf{RF10. Informe de ejecución.}] Cada procesamiento debe registrar el método de segmentación, la fuente de los prompts, el estado del WCS, el número de contornos y el tiempo de ejecución.
+    \item[\textbf{RF10. Informe de ejecución.}] Cada procesamiento completado debe registrar el método de segmentación, la fuente de los prompts, el estado del WCS, el número de contornos y el tiempo de ejecución.
 \end{description}
 
 \section{Requisitos no funcionales}
@@ -38,7 +38,7 @@ Los requisitos se derivan del proceso observado en Innokey, de los objetivos del
 
     \item[\textbf{RNF4. Robustez controlada.}] El sistema debe conservar las ocho instancias en las capturas reales evaluadas bajo sombras, recolocación de cámara y cambios de posición del material. Las condiciones que excedan este alcance deben declararse como limitaciones.
 
-    \item[\textbf{RNF5. Interoperabilidad.}] La salida debe incorporarse al flujo CAD/CAM existente sin obligar a reemplazar el software de preparación del corte.
+    \item[\textbf{RNF5. Interoperabilidad.}] La salida debe utilizar el formato DXF y capas diferenciadas para conservar la compatibilidad estructural con el flujo CAD/CAM. La importación en el programa CAM de Innokey y el corte físico quedan fuera de la validación realizada.
 
     \item[\textbf{RNF6. Usabilidad.}] El operario debe poder ejecutar el flujo principal desde una sola ventana y recibir mensajes claros cuando falte el WCS o no pueda cargarse el modelo.
 
@@ -49,6 +49,6 @@ Los requisitos se derivan del proceso observado en Innokey, de los objetivos del
 
 \section{Criterios de aceptación del prototipo}
 
-El prototipo se considera aceptado dentro del alcance computacional cuando cumple cuatro condiciones. Primero, procesa una captura real con cuatro marcadores y recupera la hoja rectificada. Segundo, localiza ocho cajas y obtiene ocho componentes mediante SAM 2. Tercero, la misma máscara neuronal llega al extractor de contornos. Cuarto, una imagen con marca WCS válida produce un DXF no vacío con ocho trayectorias principales.
+Los criterios de aceptación se expresan como contratos de entrada, procesamiento y salida. Una captura real con cuatro marcadores debe rectificarse y dar lugar a ocho cajas y ocho componentes obtenidas con SAM 2. En el interior del flujo ha de quedar trazado que la máscara neuronal llega al extractor sin sustituciones. Si el WCS es válido, el contrato de salida exige un DXF que pueda reabrirse y contenga ocho polilíneas exteriores cerradas en las capas previstas, con coordenadas finitas, área no nula y límites físicamente plausibles.
 
-Estos criterios no sustituyen la prueba física de corte. Verifican que el software conecta sus módulos de principio a fin y que la inteligencia artificial no queda limitada a una comparación aislada fuera de la aplicación.
+En conjunto, estas comprobaciones recorren el software de extremo a extremo y confirman la participación de la inteligencia artificial en la ruta operativa. Su alcance termina en la coherencia interna del archivo. El corte físico y la importación en el programa CAM de Innokey requieren una validación posterior.

@@ -1,27 +1,64 @@
-\documentclass[tikz,border=8pt]{standalone}
+\documentclass[tikz,border=10pt]{standalone}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
-\usetikzlibrary{arrows.meta,positioning,fit}
+\usetikzlibrary{arrows.meta,positioning,fit,calc}
 \definecolor{navy}{HTML}{15324B}
 \definecolor{blue}{HTML}{2F80C1}
 \definecolor{cyan}{HTML}{DCEFF7}
 \definecolor{orange}{HTML}{E8873A}
 \definecolor{green}{HTML}{3B8F72}
-\tikzset{box/.style={draw=navy,rounded corners=3pt,very thick,align=center,minimum width=2.5cm,minimum height=1.15cm,fill=white,font=\sffamily},arr/.style={-{Latex[length=3mm]},very thick,navy}}
+\tikzset{
+  box/.style={draw=navy,rounded corners=3pt,very thick,align=center,
+    minimum width=3.25cm,minimum height=1.05cm,fill=white,
+    font=\sffamily\fontsize{9.2}{10.5}\selectfont},
+  arr/.style={-{Latex[length=3mm]},very thick,navy},
+  sidearr/.style={-{Latex[length=2.5mm]},thick,blue,dashed},
+  note/.style={font=\sffamily\fontsize{9.2}{10.5}\selectfont,align=center,text=navy},
+  badge/.style={draw=green,rounded corners=2pt,fill=green!12,inner xsep=6pt,
+    inner ysep=3pt,font=\sffamily\fontsize{9.2}{10.5}\selectfont\bfseries,text=green}
+}
 \begin{document}
-\begin{tikzpicture}[node distance=0.75cm and 0.75cm]
-\node[box] (capture) {Fotografía\\de la hoja};
-\node[box,right=of capture,fill=cyan] (markers) {Marcadores\\de esquina};
-\node[box,right=of markers] (homography) {Homografía y\\rectificación};
-\node[box,right=of homography,fill=cyan] (wcs) {Marca en L\\y WCS};
-\node[box,right=of wcs,fill=orange!15] (localizer) {Localizador clásico\\cajas aproximadas};
-\node[box,right=of localizer,fill=green!18] (sam) {SAM 2\\máscara final};
-\node[box,right=of sam] (contours) {Contornos externos\\y simplificación};
-\node[box,right=of contours,fill=cyan] (dxf) {DXF en el\\WCS del láser};
-\draw[arr] (capture)--(markers); \draw[arr] (markers)--(homography); \draw[arr] (homography)--(wcs); \draw[arr] (wcs)--(localizer); \draw[arr] (localizer)--(sam); \draw[arr] (sam)--(contours); \draw[arr] (contours)--(dxf);
-\node[draw=blue,dashed,very thick,fit=(markers)(homography)(wcs)(localizer),inner sep=7pt,label={[navy,font=\sffamily\small]below:Geometría y guía espacial mediante visión clásica}] {};
-\node[draw=green,very thick,fit=(sam),inner sep=7pt,label={[green,font=\sffamily\small]above:Segmentación operativa de IA}] {};
-\node[navy,font=\sffamily\small,align=center,below=1.1cm of sam] {La máscara clásica no se entrega al módulo de contornos};
+\begin{tikzpicture}[node distance=0.7cm and 0.8cm]
+  \node[box,fill=cyan] (capture) at (0,4.8) {Fotografía\\de la zona de trabajo};
+  \node[box,right=of capture] (load) {Carga, EXIF\\y orientación};
+  \node[box,right=of load,fill=cyan] (markers) {Cuatro marcadores\\y homografía};
+  \node[box,right=of markers] (rectified) {Hoja A4 rectificada\\$2100\times2970$ px};
+  \draw[arr] (capture)--(load);
+  \draw[arr] (load)--(markers);
+  \draw[arr] (markers)--(rectified);
+
+  \node[box,fill=orange!14] (localizer) at (4.05,2.25)
+    {Localizador clásico\\ocho cajas aproximadas};
+  \node[box,fill=green!20,draw=green] (sam) at (8.1,2.25)
+    {SAM 2 Hiera Tiny\\máscara final de IA};
+  \node[box] (contours) at (12.15,2.25)
+    {Extracción de contornos\\ocho siluetas exteriores};
+  \coordinate (processlane) at ($(rectified.south)+(0,-0.55)$);
+  \draw[arr] (rectified.south) -- (processlane) -| (localizer.north);
+  \draw[arr] (localizer)--(sam);
+  \draw[arr] (sam)--(contours);
+  \node[badge,above=0.18cm of sam] {Segmentación operativa};
+
+  \node[box,fill=cyan] (wcs) at (12.15,0.05)
+    {Marca en L\\WCS válido o bloqueo};
+  \node[box] (transform) at (8.1,0.05)
+    {Simplificación y\\transformación a mm};
+  \node[box,fill=orange!12] (offset) at (4.05,0.05)
+    {Offset explícito\\sin sustitución silenciosa};
+  \node[box,fill=green!14] (dxf) at (0,0.05)
+    {DXF atómico\\reapertura y validación};
+  \draw[arr] (contours.south) -- ++(0,-0.35) -| (transform.north);
+  \draw[arr] (transform)--(offset);
+  \draw[arr] (offset)--(dxf);
+  \draw[sidearr] (rectified.east) -- ++(0.4,0) |- (wcs.east);
+  \draw[sidearr] (wcs)--(transform);
+
+  \node[draw=blue,dashed,very thick,fit=(capture)(load)(markers)(rectified),
+    inner sep=7pt,label={[note,fill=white]above:Registro y rectificación de la hoja}] {};
+  \node[note,draw=navy,rounded corners=3pt,fill=white,inner xsep=10pt,inner ysep=4pt]
+    at (6.1,-1.15)
+    {La máscara clásica solo localiza. La vectorización recibe la máscara de SAM 2.\\
+     La interfaz bloquea la exportación si el WCS no está en estado \texttt{SUCCESS}.};
 \end{tikzpicture}
 \end{document}

@@ -37,26 +37,13 @@ def main() -> None:
     plt.rcParams.update({
         "font.family": "DejaVu Sans",
         "axes.titleweight": "bold",
-        "axes.titlesize": 11.5,
+        "axes.titlesize": 9,
     })
-    fig, axes = plt.subplots(2, 2, figsize=(12.4, 7.5))
+    # La leyenda de la memoria aporta el contexto. Dentro de la figura se
+    # conservan solo las fotografías y sus encabezados para maximizar el área
+    # útil y evitar repetir texto a una escala menor.
+    fig, axes = plt.subplots(2, 2, figsize=(5.35, 3.55))
     fig.patch.set_facecolor("white")
-    fig.suptitle(
-        "Variabilidad visual en las capturas reales",
-        fontsize=18,
-        fontweight="bold",
-        color="#0b2d57",
-        y=0.975,
-    )
-    fig.text(
-        0.5,
-        0.935,
-        "Condiciones observadas en una misma lámina durante la adquisición en el taller",
-        ha="center",
-        va="center",
-        fontsize=10.5,
-        color="#425466",
-    )
 
     for index, (axis, (filename, title, subtitle)) in enumerate(zip(axes.flat, PANELS), start=1):
         axis.imshow(load_for_panel(RAW / filename))
@@ -66,28 +53,10 @@ def main() -> None:
             spine.set_color("#0b2d57")
             spine.set_linewidth(1.2)
         axis.set_title(f"{index}. {title}", loc="left", color="#0b2d57", pad=7)
-        axis.text(
-            0.5,
-            -0.065,
-            subtitle,
-            transform=axis.transAxes,
-            ha="center",
-            va="top",
-            fontsize=9,
-            color="#263746",
-        )
+        # El detalle se conserva en la leyenda larga de la memoria. Repetirlo
+        # dentro del panel reducía el área útil de la fotografía.
 
-    fig.text(
-        0.5,
-        0.02,
-        "La rectificación y el registro deben absorber esta variabilidad antes de segmentar los diseños.",
-        ha="center",
-        va="center",
-        fontsize=10,
-        color="#0b2d57",
-        bbox={"boxstyle": "round,pad=0.45", "facecolor": "#edf3f8", "edgecolor": "#9fb3c8"},
-    )
-    fig.subplots_adjust(left=0.035, right=0.985, top=0.89, bottom=0.09, wspace=0.07, hspace=0.20)
+    fig.subplots_adjust(left=0.035, right=0.985, top=0.965, bottom=0.02, wspace=0.08, hspace=0.20)
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(OUTPUT, format="pdf", bbox_inches="tight", facecolor="white")
     plt.close(fig)

@@ -5,9 +5,11 @@ import matplotlib
 matplotlib.use('Agg') # Forzar backend no interactivo para entornos headless
 import matplotlib.pyplot as plt
 
+from configuration import validate_operational_scale
+
 def generate_scientific_figures(img_raw, markers, rectified_img, wcs_info, 
                                  mask, contours, report, output_dir, img_name="img",
-                                 y_direction="down", offset_mm=0.0):
+                                 y_direction="down", offset_mm=0.0, scale=10.0):
     """
     Genera y guarda figuras técnicas individuales de alta resolución y un panel científico
     integrado de 3x3 para ilustrar el pipeline metodológico en el TFM.
@@ -24,10 +26,12 @@ def generate_scientific_figures(img_raw, markers, rectified_img, wcs_info,
         img_name (str): Nombre de la imagen base.
         y_direction (str): Dirección del eje Y ('down' o 'up').
         offset_mm (float): Offset aplicado.
+        scale (float): Escala operativa validada en píxeles por milímetro.
     """
     os.makedirs(output_dir, exist_ok=True)
     
     try:
+        scale = validate_operational_scale(scale)
         # ==========================================
         # 1. FIGURAS INDIVIDUALES DE ALTA CALIDAD
         # ==========================================
@@ -97,14 +101,20 @@ def generate_scientific_figures(img_raw, markers, rectified_img, wcs_info,
         
         # Figura 5: Contornos Detectados y Enumerados
         contours_img = rectified_img.copy()
+        path_roles = report.get("path_roles", ["outer"] * len(contours))
+        outer_id = 0
         for idx, cnt in enumerate(contours):
-            cv2.drawContours(contours_img, [cnt], -1, (0, 255, 0), 4)
+            role = path_roles[idx] if idx < len(path_roles) else "outer"
+            color = (0, 255, 0) if role == "outer" else (0, 165, 255)
+            cv2.drawContours(contours_img, [cnt], -1, color, 4)
             M = cv2.moments(cnt)
-            cx = int(M["m10"] / M["m00"]) if M["m00"] != 0 else 0
-            cy = int(M["m01"] / M["m00"]) if M["m00"] != 0 else 0
-            cv2.circle(contours_img, (cx, cy), 20, (0, 255, 0), -1)
-            cv2.putText(contours_img, str(idx + 1), (cx - 8, cy + 8), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 0), 2)
+            if role == "outer" and M["m00"] != 0:
+                outer_id += 1
+                cx = int(M["m10"] / M["m00"])
+                cy = int(M["m01"] / M["m00"])
+                cv2.circle(contours_img, (cx, cy), 20, (0, 255, 0), -1)
+                cv2.putText(contours_img, str(outer_id), (cx - 8, cy + 8),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 0), 2)
         contours_small = cv2.resize(contours_img, (rect_w, rect_h))
         cv2.imwrite(os.path.join(output_dir, f"{img_name}_06_contours.png"), contours_small)
         
@@ -195,18 +205,20 @@ def generate_scientific_figures(img_raw, markers, rectified_img, wcs_info,
             uY_a = np.array(wcs_info["uY"])
             S_Y = 1.0 if y_direction == "down" else -1.0
             
-            for cnt in contours:
+            for idx, cnt in enumerate(contours):
+                role = path_roles[idx] if idx < len(path_roles) else "outer"
                 pts_mm = []
                 for pt in cnt:
                     px, py = pt[0]
                     v = np.array([px - origin[0], py - origin[1]])
-                    x_mm = np.dot(v, uX_a) / 10.0
-                    y_mm = (np.dot(v, uY_a) / 10.0) * S_Y
+                    x_mm = np.dot(v, uX_a) / scale
+                    y_mm = (np.dot(v, uY_a) / scale) * S_Y
                     pts_mm.append((x_mm, y_mm))
                 pts_mm = np.array(pts_mm)
                 # Cerrar curva
                 pts_mm = np.vstack([pts_mm, pts_mm[0]])
-                axes[2, 1].plot(pts_mm[:, 0], pts_mm[:, 1], 'c-', linewidth=1.5)
+                color = 'c' if role == "outer" else '#2e7d32'
+                axes[2, 1].plot(pts_mm[:, 0], pts_mm[:, 1], color=color, linewidth=1.5)
                 
             # Ejes WCS (20mm)
             axes[2, 1].arrow(0, 0, 20, 0, head_width=1.5, head_length=2, fc='r', ec='r', label='Eje X')
@@ -222,7 +234,7 @@ def generate_scientific_figures(img_raw, markers, rectified_img, wcs_info,
                             fontsize=10, color='red', fontweight='bold')
             axes[2, 1].axis('off')
             
-        # Panel 9: Cuadro de Métricas / Observaciones del TFM
+        # Panel 9: cuadro de métricas y notas de la ejecución
         axes[2, 2].set_facecolor('#F1F5F9')
         axes[2, 2].axis('off')
         axes[2, 2].set_title("9. Resumen Cuantitativo TFM", fontsize=11, fontweight='bold')
@@ -239,7 +251,7 @@ def generate_scientific_figures(img_raw, markers, rectified_img, wcs_info,
             f"  • Offset Aplicado: {offset_mm} mm\n"
             f"  • Dirección del Eje Y: WCS_{y_direction.upper()}\n"
             f"  • Resolución Lienzo: {w_rect} x {h_rect} px\n"
-            f"  • Escala de Trabajo: {rectified_img.shape[1]/w_rect*10.0 if w_rect>0 else 10.0:.1f} px / mm\n"
+            f"  • Escala de Trabajo: {scale:.1f} px/mm\n"
         )
         axes[2, 2].text(0.05, 0.9, "Métricas del Experimento:", fontsize=10, fontweight='bold', color='#0F172A')
         axes[2, 2].text(0.05, 0.25, metrics_text, fontsize=9.5, color='#334155', family='monospace', va='top')

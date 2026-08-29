@@ -2,6 +2,8 @@ import cv2
 import numpy as np
 import os
 
+from configuration import validate_operational_scale
+
 def rectify_sheet(img, src_pts, out_dir=None, img_name="img", sheet_size=(210.0, 297.0), scale=10.0, marker_margin=10.0):
     """
     Rectifica la hoja de papel aplicando una transformación homográfica a resolución original.
@@ -21,6 +23,7 @@ def rectify_sheet(img, src_pts, out_dir=None, img_name="img", sheet_size=(210.0,
                warped_img: Imagen rectificada con dimensiones dinámicas según la escala y la hoja.
                homography_matrix: Matriz de homografía de 3x3.
     """
+    scale = validate_operational_scale(scale)
     if len(src_pts) != 4:
         raise ValueError("Se requieren exactamente 4 puntos de origen para la homografía.")
         

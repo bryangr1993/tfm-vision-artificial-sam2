@@ -1,11 +1,11 @@
-\chapter{Objetivos}
+\chapter{Objetivos y metodología de trabajo}
 \label{cap:objetivos}
 
 Los objetivos delimitan tanto la construcción de la herramienta como la evaluación experimental de sus métodos de segmentación. Se separa la meta general de las tareas verificables que permiten alcanzarla.
 
 \section{Objetivo general}
 
-Diseñar, implementar y evaluar una herramienta software basada en inteligencia artificial que, a partir de una fotografía de una hoja adhesiva impresa, rectifique la escena, segmente los \textit{toppers} mediante SAM 2 y genere trayectorias DXF registradas con el sistema de coordenadas del láser CNC, comparando su desempeño con Random Forest y una línea base clásica.
+Diseñar, implementar y evaluar una herramienta de software basada en inteligencia artificial que, a partir de una fotografía de una hoja adhesiva impresa, rectifique la escena, segmente los \textit{toppers} mediante SAM 2 y genere trayectorias DXF registradas con el sistema de coordenadas del láser CNC, comparando su desempeño con Random Forest y una línea base clásica.
 
 \section{Objetivos específicos}
 
@@ -25,10 +25,10 @@ Diseñar, implementar y evaluar una herramienta software basada en inteligencia 
     \item[\textbf{OE7.}] Comparar la línea base clásica, Random Forest y SAM 2 mediante Dice, IoU, coincidencia de bordes, error de componentes y tiempo, declarando con claridad las limitaciones de los datos reales y de la validación física.
 \end{description}
 
-\section{Impacto esperado}
+\section{Metodología de trabajo}
 
-El impacto esperado es concreto: disminuir las piezas repetidas por desalineación y hacer más estable la coincidencia entre lo impreso y lo cortado. En el proceso convencional, esa coincidencia depende del pulso y la experiencia del operario. El flujo propuesto la traslada a un registro geométrico verificable. La hoja se lamina primero sobre el soporte y el corte se calcula después a partir de la captura realizada sobre el material real.
+El proyecto se organizó en siete fases, con un punto de control común: separar las decisiones de desarrollo de la evaluación final. La delimitación del problema y la revisión técnica dieron lugar a los requisitos y al montaje de captura. Una vez implementado el registro geométrico, desde los marcadores de la hoja hasta el sistema de coordenadas de trabajo, se prepararon los datos sintéticos y reales. Sus particiones quedaron fijadas antes del entrenamiento y de cualquier selección de parámetros.
 
-La calidad geométrica ocupa el primer lugar. El tiempo de preparación es relevante, pero no constituye el criterio principal de esta fase. Una solución rápida que produzca contornos desplazados no aporta valor al taller. Por ello se evalúan la coincidencia de la máscara, la estabilidad del registro y la capacidad de generar una trayectoria utilizable.
+La comparación reunió una línea base de visión clásica, un Random Forest supervisado por píxel y SAM 2 como modelo fundacional condicionado mediante cajas. Los datos de entrenamiento y validación sirvieron para elegir los hiperparámetros de Random Forest y los prompts de SAM 2. La prueba no intervino en esas decisiones ni en los parámetros clásicos fijados durante el desarrollo previo. La máscara de SAM 2 se conectó después con la extracción de contornos dentro de la herramienta, cuya exportación DXF queda bloqueada si falta una referencia WCS válida. La evaluación, el análisis de amenazas y la comprobación de reproducibilidad completaron el estudio.
 
-El uso de una cámara de consumo, una hoja con marcadores sencillos y un modelo neuronal que puede ejecutarse en CPU mantiene el prototipo dentro de una escala razonable para Innokey. Además, el resultado experimental aporta conocimiento más allá del caso de uso. Permite observar con datos cómo un clasificador puede rendir de forma sobresaliente en sintético y fallar en real, y cómo un modelo fundacional condicionado por prompts conserva mejor su desempeño sin necesidad de entrenamiento local.
+El Capítulo~\ref{cap:metodologia} desarrolla con detalle el protocolo técnico, las unidades experimentales, la optimización de hiperparámetros, las métricas y las condiciones de prueba.

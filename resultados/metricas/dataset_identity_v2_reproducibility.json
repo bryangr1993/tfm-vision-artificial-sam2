@@ -1,0 +1,12 @@
+{
+  "dataset": "asset_identity_v2",
+  "verification_date": "2026-08-27",
+  "regeneration_command": "python experimentos/datos/generate_identity_disjoint_dataset.py --overwrite",
+  "manifest_sha256_before": "d850a74911feb592c33c7fc66e686d3093d34a33036742f981d1c2ab232c10dc",
+  "manifest_sha256_after": "d850a74911feb592c33c7fc66e686d3093d34a33036742f981d1c2ab232c10dc",
+  "manifest_identical_after_regeneration": true,
+  "quality_gate_passed_after_regeneration": true,
+  "critical_failure_count": 0,
+  "automated_tests_passed": 3,
+  "automated_tests_failed": 0
+}

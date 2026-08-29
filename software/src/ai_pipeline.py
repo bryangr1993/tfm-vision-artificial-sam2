@@ -10,6 +10,7 @@ import cv2
 import numpy as np
 
 from extract_contours import extract_contours
+from configuration import load_app_config
 from segmenters import ClassicalPromptLocalizer, SAM2Segmenter, SegmentationResult
 
 
@@ -87,23 +88,41 @@ def default_checkpoint() -> Path:
     configured = os.environ.get("TFM_SAM2_CHECKPOINT")
     if configured:
         return Path(configured).expanduser().resolve()
-    return Path(__file__).resolve().parents[2] / "resultados" / "modelos" / "sam2_hiera_tiny.pt"
+    return load_app_config().sam2.checkpoint
 
 
 def build_operational_pipeline(
     *,
     checkpoint: str | Path | None = None,
-    model_config: str = "configs/sam2/sam2_hiera_t.yaml",
-    device: str = "auto",
-    box_margin_fraction: float = 0.05,
+    model_config: str | None = None,
+    device: str | None = None,
+    box_margin_fraction: float | None = None,
+    multimask_output: bool | None = None,
+    min_component_area_px: int | None = None,
 ) -> HybridAISegmentationPipeline:
-    """Construye el pipeline predeterminado. No existe fallback clásico silencioso."""
+    """Construye el pipeline desde ``default.yaml`` salvo overrides explícitos."""
+
+    config = load_app_config()
 
     sam2 = SAM2Segmenter(
         checkpoint or default_checkpoint(),
-        model_config=model_config,
-        device=device,
-        box_margin_fraction=box_margin_fraction,
+        model_config=model_config or config.sam2.model_config,
+        device=device or config.device,
+        box_margin_fraction=(
+            config.sam2.box_margin_fraction
+            if box_margin_fraction is None
+            else box_margin_fraction
+        ),
+        multimask_output=(
+            config.sam2.multimask_output
+            if multimask_output is None
+            else multimask_output
+        ),
+        min_component_area_px=(
+            config.sam2.min_component_area_px
+            if min_component_area_px is None
+            else min_component_area_px
+        ),
     )
     return HybridAISegmentationPipeline(sam2)
 

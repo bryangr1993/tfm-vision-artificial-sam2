@@ -1,161 +1,296 @@
 \chapter{Metodología}
 \label{cap:metodologia}
 
-La metodología se diseñó para responder dos preguntas relacionadas. La primera es si los métodos de inteligencia artificial pueden segmentar los toppers con suficiente fidelidad geométrica para alimentar la vectorización. La segunda es cómo cambia su comportamiento cuando se pasa de hojas sintéticas controladas a fotografías reales del taller. La evaluación separa la selección de configuraciones de la prueba final y utiliza la lámina completa como unidad experimental.
+La metodología partió de las dos preguntas planteadas en la introducción. La primera examina si los métodos de inteligencia artificial conservan las ocho instancias y generan máscaras a partir de las cuales puede obtenerse un DXF estructuralmente válido. La segunda observa cómo cambia su comportamiento al pasar de hojas sintéticas controladas a fotografías del taller. El ajuste se mantuvo separado de la evaluación final, con la hoja completa como unidad experimental, y los resultados desfavorables se conservaron íntegros en el análisis.
 
 \section{Diseño general del estudio}
 
-El trabajo combina desarrollo software y experimentación cuantitativa. La parte de desarrollo implementa un flujo de captura, registro, segmentación, vectorización y exportación. La parte experimental compara tres métodos de segmentación:
+El trabajo combina desarrollo de software y experimentación cuantitativa. El flujo desarrollado comprende captura, registro geométrico, segmentación, extracción de contornos y exportación. La comparación incluye tres enfoques:
 
 \begin{itemize}
-    \item una línea base clásica basada en color, bordes y morfología.
-    \item un Random Forest supervisado por píxel.
-    \item SAM 2 Hiera Tiny condicionado mediante cajas.
+    \item Una línea base de visión clásica basada en color, bordes y morfología.
+    \item Un Random Forest supervisado a nivel de píxel \cite{Breiman2001}.
+    \item SAM 2 Hiera Tiny condicionado mediante cajas \cite{Ravi2025}.
 \end{itemize}
 
-La Figura~\ref{fig:diseno_experimental} resume el protocolo. Las 48 hojas sintéticas se dividen antes de cualquier ajuste. Las 36 de entrenamiento se usan para construir Random Forest. Las 6 de validación permiten seleccionar umbrales, candidatos y estrategias de prompt. Las 6 de prueba permanecen bloqueadas hasta cerrar esas decisiones. Las 13 capturas reales se utilizan como evaluación externa de transferencia y no intervienen en la selección del modelo principal.
+La Figura~\ref{fig:diseno_experimental} resume la separación de datos y el papel de cada subconjunto. Las identidades gráficas se asignaron a entrenamiento, validación o prueba antes de generar las hojas. Así se evitó que una misma ilustración reapareciera en la prueba con otro nombre o bajo otra condición visual.
 
-\figuraopcional{fig_diseno_experimental}{\textwidth}{Diseño experimental con separación por lámina y bloqueo del conjunto de prueba hasta cerrar las decisiones de modelo y prompt.}{fig:diseno_experimental}
+\figuraopcional{fig_diseno_experimental}{\textwidth}{Diseño experimental con separación por identidad gráfica. Las decisiones de Random Forest y SAM 2 se cierran en validación antes de abrir la prueba.}{fig:diseno_experimental}
+
+El trabajo se desarrolló en siete fases. Las tres primeras abarcaron la delimitación del problema, la revisión de métodos, la definición de requisitos, el montaje de captura y la implementación del registro geométrico. La cuarta se dedicó a construir y auditar los datos. En la quinta se implementaron las tres rutas de segmentación y se seleccionaron los hiperparámetros de Random Forest y el margen de caja de SAM 2 sin consultar la prueba. La sexta integró SAM 2 con la vectorización y la exportación. La evaluación final, el análisis de amenazas y la comprobación de reproducibilidad cerraron el estudio.
 
 \section{Montaje y adquisición de imágenes reales}
 
-El montaje se realizó en la cortadora láser CO\textsubscript{2} de Innokey. Una hoja A4 con ocho toppers se adhirió sobre una plancha de MDF. La hoja incluía cuatro marcadores cuadrados, una escala impresa de $50\,\text{mm}$ y una zona libre para la marca WCS. La cámara del teléfono se fijó a la compuerta superior mediante un soporte removible.
+El montaje se realizó en la cortadora láser CO\textsubscript{2} de Innokey. Una hoja A4 con ocho \textit{toppers} se adhirió sobre una plancha de MDF. La hoja incluía cuatro marcadores cuadrados, una escala impresa de $50\,\text{mm}$ usada únicamente como referencia visual y una zona libre para la marca del sistema de coordenadas de trabajo, en adelante WCS por \textit{Work Coordinate System}. La cámara de un teléfono se fijó a la compuerta superior mediante un soporte removible. La escala nominal del algoritmo procede de las dimensiones A4 y de las posiciones canónicas de los marcadores, no de la barra impresa.
 
 \figuraopcional{montaje_experimental}{0.52\textwidth}{Montaje utilizado para capturar la hoja A4 adherida al MDF dentro de la cortadora láser.}{fig:montaje_metodologia}
 
-La Figura~\ref{fig:montaje_metodologia} permite distinguir la hoja adherida, la zona de trabajo y la posición elevada desde la que se toma la fotografía. El soporte removible mantiene el teléfono fuera del recorrido del cabezal, aunque no garantiza una pose idéntica entre sesiones.
+La Figura~\ref{fig:montaje_metodologia} muestra la posición elevada del teléfono respecto de la hoja y del área de trabajo. Se seleccionaron trece fotografías: 13, 15, 17, 20, 22, 24, 26, 28, 30, 32, 34, 36 y 38. Las tres primeras no contienen una marca WCS utilizable. Las diez restantes incluyen la marca en L y cubren cambios de sombra, recolocación del teléfono, rotación y desplazamiento del MDF. Todas corresponden a la misma hoja física con una estrella, un arcoíris, una mariposa, un dinosaurio, una princesa, un unicornio, un camión y una sirena.
 
-Se seleccionaron trece fotografías: 13, 15, 17, 20, 22, 24, 26, 28, 30, 32, 34, 36 y 38. Las tres primeras no contienen una marca WCS utilizable. Las diez restantes incluyen la marca en L y cubren cambios de sombra, recolocación del teléfono, rotación y desplazamiento del MDF. Todas corresponden a la misma hoja física con una estrella, un arcoíris, una mariposa, un dinosaurio, una princesa, un unicornio, un camión y una sirena.
+Conviene precisar el alcance: las trece capturas proceden de una sola hoja y contienen los mismos ocho diseños. Sirven para estudiar la repetibilidad de la adquisición sobre esa escena, pero no equivalen a trece productos independientes ni permiten estimar por sí solas la generalización comercial.
 
-Esta última precisión afecta la interpretación estadística. Existen trece capturas, pero no trece diseños independientes. Las variaciones observadas describen robustez frente a la adquisición de una hoja concreta. No permiten estimar por sí solas la generalización a nuevos productos.
+\figuraopcionaldetallada{muestra_6_capturas_reales}{0.96\textwidth}{Seis capturas rectificadas representativas del conjunto real.}{Seis capturas rectificadas representativas del conjunto real. La fila superior muestra la captura 13 sin WCS, la captura 17 con sombra inferior y la captura 20 con la marca WCS visible. La fila inferior presenta la captura 24 con sombra y cabezal, la captura 30 después de recolocar el teléfono y la captura 38 con el MDF desplazado. Las trece fotografías, y no solo esta selección visual, participan en la evaluación.}{fig:capturas_reales_metodologia}
 
-La Figura~\ref{fig:capturas_reales_metodologia} presenta seis capturas representativas en lugar de reducir las trece fotografías a miniaturas. La selección conserva cambios de sombra, presencia del cabezal, recolocación del teléfono y desplazamiento del MDF. Las siete capturas restantes forman parte de la evaluación cuantitativa y permanecen disponibles en el repositorio.
+La Figura~\ref{fig:capturas_reales_metodologia} presenta seis vistas representativas, aunque las trece participaron en los cálculos. No se realizó una calibración intrínseca formal de la cámara. Durante la inspección no se observaron curvaturas evidentes en la región central de las imágenes ni en los márgenes de la hoja, por lo que se priorizó la rectificación proyectiva. Esta revisión visual no cuantifica la distorsión radial, cuya corrección suele requerir una calibración específica \cite{Madejski2024}. La falta de esa medición se trata como una amenaza a la validez geométrica.
 
-\figuraopcionaldetallada{muestra_6_capturas_reales}{0.96\textwidth}{Seis capturas rectificadas representativas del conjunto real.}{Seis capturas rectificadas representativas del conjunto real. La fila superior muestra la captura 13 sin WCS, la captura 17 con sombra inferior y la captura 20 con la marca WCS visible. La fila inferior presenta la captura 24 con sombra y cabezal, la captura 30 después de recolocar el teléfono y la captura 38 con el MDF desplazado. Todas contienen los mismos ocho diseños porque proceden de una sola hoja física. La selección visual no altera la evaluación, que utiliza las trece fotografías.}{fig:capturas_reales_metodologia}
+\section{Construcción y partición del conjunto sintético}
 
-\section{Construcción del conjunto sintético}
+El banco sintético parte de 32 ilustraciones con canal alfa, agrupadas en cuatro familias visuales. Dentro de cada familia se asignaron cuatro identidades a entrenamiento, dos a validación y dos a prueba. El reparto resultante es de 16, 8 y 8 activos gráficos, respectivamente. Las familias aparecen en los tres subconjuntos como estratos, pero las identidades, archivos y hashes de los activos no se comparten.
 
-El conjunto sintético parte de 32 toppers con canal alfa, organizados en cuatro grupos visuales. Estos elementos se combinaron en 48 hojas A4 mediante cuatro familias, dos distribuciones y seis condiciones de captura simulada. Las condiciones incluyen iluminación uniforme, sombras superiores e inferiores, contraste reducido, ruido con desenfoque y una deformación suave.
+Las hojas se componen a $2100\times2970$ píxeles, equivalentes a una página A4 a $10$ píxeles por milímetro. Cada una contiene ocho instancias y utiliza una de dos distribuciones espaciales. Se aplicaron seis condiciones reproducibles:
 
-Cada hoja se acompaña de una máscara binaria, metadatos y cajas de instancia. La máscara procede del canal alfa durante la composición y constituye una referencia conocida. La partición se realiza por identificador de hoja, no por píxel. De este modo ningún píxel de una lámina aparece en más de un subconjunto.
+\begin{itemize}
+    \item C1: imagen base sin degradación.
+    \item C2: gradiente de sombra de arriba hacia abajo.
+    \item C3: gradiente de sombra en sentido contrario.
+    \item C4: reducción de contraste con desplazamiento de brillo.
+    \item C5: desenfoque gaussiano $5\times5$ y ruido normal con $\sigma=7{,}5$.
+    \item C6: deformación ondulatoria bidimensional de amplitud 12 píxeles y periodo 600 píxeles.
+\end{itemize}
 
-La Figura~\ref{fig:dataset_sintetico_metodologia} muestra ocho hojas que cubren las cuatro familias y varias condiciones de captura simulada. Se evita presentar las 48 láminas a un tamaño que impida reconocer los diseños. El manifiesto conserva la relación completa de archivos y particiones.
+La deformación C6 remapea tanto la imagen como sus máscaras. Así se evita comparar una imagen alterada contra una etiqueta que conserve la geometría anterior. No se aplicó aumentación aleatoria adicional durante el entrenamiento. La variabilidad procede de estas seis condiciones, de las dos distribuciones y de las semillas registradas por el generador.
 
-\figuraopcionaldetallada{muestra_8_hojas_sinteticas}{0.96\textwidth}{Ocho ejemplos del conjunto de hojas sintéticas.}{Ocho ejemplos del conjunto de hojas sintéticas. Cada columna corresponde a una familia visual y cada fila utiliza una distribución diferente. Entre las muestras aparecen iluminación uniforme, sombras, contraste reducido y ruido con desenfoque. Los identificadores impresos sobre cada panel permiten localizar la imagen, la máscara y sus metadatos en el repositorio. Las 48 hojas, y no solo las ocho representadas, se utilizan en las particiones experimentales.}{fig:dataset_sintetico_metodologia}
+En entrenamiento, las 16 identidades se organizaron en cuatro cohortes con una identidad de cada familia. Cada cohorte aporta una hoja por condición y alterna las distribuciones L1 y L2. Sus cuatro identidades aparecen dos veces por hoja para completar ocho instancias, de modo que las 24 hojas contienen 192 instancias. Validación y prueba usan ocho identidades distintas en cada subconjunto y completan las doce combinaciones de dos distribuciones y seis condiciones. L2 añade respecto de L1 variaciones reproducibles de escala entre 0,88 y 1,12, rotación de hasta $\pm18$ grados y traslación de hasta $\pm35$ píxeles. Por tanto, el entrenamiento no corresponde a un factorial completo de cohortes, distribuciones y condiciones.
+
+La Tabla~\ref{tab:particiones} resume la función de los cuatro conjuntos utilizados en el estudio.
 
 \begin{table}[htbp]
 \centering
 \small
-\caption{Particiones utilizadas en el protocolo experimental.}
+\caption{Conjuntos utilizados en la evaluación y función de cada uno.}
 \label{tab:particiones}
-\begin{tabularx}{\textwidth}{p{3.3cm}p{2.1cm}p{2.4cm}Y}
+\begin{tabularx}{\textwidth}{p{2.7cm}cccY}
 \toprule
-\textbf{Conjunto} & \textbf{Láminas} & \textbf{Instancias} & \textbf{Uso} \\
+\textbf{Subconjunto} & \textbf{Activos} & \textbf{Hojas} & \textbf{Instancias} & \textbf{Uso} \\
 \midrule
-Sintético de entrenamiento & 36 & 288 & Ajuste de Random Forest y validación cruzada agrupada \\
-Sintético de validación & 6 & 48 & Selección de modelo, umbral y prompts \\
-Sintético de prueba & 6 & 48 & Evaluación final, una vez bloqueadas las decisiones \\
-Real externo & 13 capturas & 104 observaciones de 8 diseños & Transferencia de dominio sobre una misma hoja física \\
+Entrenamiento & 16 & 24 & 192 & Ajuste y validación cruzada de Random Forest \\
+Validación & 8 & 12 & 96 & Selección de modelo, umbral y margen de caja \\
+Prueba & 8 & 12 & 96 & Evaluación final después del bloqueo \\
+Real externo & 8 diseños & 13 vistas & 104 observaciones & Concordancia y transferencia sobre una hoja física \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-La Tabla~\ref{tab:particiones} resume la separación aplicada antes de entrenar o seleccionar cualquier configuración. La unidad de partición es la lámina completa, por lo que una misma hoja no aporta píxeles a más de un subconjunto.
+La Figura~\ref{fig:dataset_idv2} ofrece una comprobación visual complementaria de la separación por identidad.
 
-Las hojas sintéticas comparten el banco de 32 gráficos. Por ello, la prueba sintética mide cambios de composición y condición, pero no una separación completa de identidades visuales. El dominio real sí introduce ocho diseños distintos, además del papel, la iluminación y el ruido de cámara.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.94\textwidth]{../resultados/figuras/dataset_idv2_split_contact.pdf}
+\caption{Muestra de las particiones sintéticas. Cada columna reúne ejemplos de un subconjunto y permite comprobar visualmente que las identidades gráficas no se repiten entre entrenamiento, validación y prueba.}
+\label{fig:dataset_idv2}
+\end{figure}
 
-\section{Referencia canónica del dominio real}
+La auditoría previa a los experimentos comprobó 48 imágenes, 48 máscaras binarias, 48 máscaras de instancia y 48 metadatos. También verificó dimensiones, legibilidad, correspondencia de rutas y ausencia de coincidencias de nombre o hash entre particiones. Las cuatro familias, las dos distribuciones y las seis condiciones están representadas en los tres subconjuntos.
 
-Las trece fotografías se rectifican al mismo plano A4. Como muestran la misma hoja física, se construyó una referencia canónica común en esas coordenadas. Primero se calculó la mediana por píxel de las trece capturas, lo que reduce sombras y elementos transitorios. Después se inicializó GrabCut con una caja por topper, se incorporaron bordes Canny para cerrar zonas claras y se rellenaron los contornos externos.
+\section{Referencia canónica asistida del dominio real}
 
-Las salidas clásicas y las de SAM 2 no se utilizaron como etiquetas de píxel. Las cajas proceden de una localización clásica aproximada y sirven solo para delimitar cada región durante la construcción asistida. La máscara final se inspeccionó sobre la imagen mediana. El control verificó ocho regiones separadas, exclusión de marcadores y de la marca WCS, conservación de apéndices finos y mantenimiento del hueco interno del arcoíris.
+Como las trece fotografías corresponden a una misma hoja ya rectificada, se definió una referencia canónica común en el plano A4. Para cada coordenada y canal de color se tomó la mediana de los trece valores observados. Frente a la media, esta elección reduce la influencia de sombras localizadas, del cabezal y de otros elementos que no ocupan una posición estable.
 
-Esta referencia evita medir los métodos únicamente por su acuerdo con la máscara clásica. Pese a ello, no se presenta como una anotación manual independiente de varias hojas. Es una referencia asistida para un plano canónico y su naturaleza forma parte de las limitaciones del estudio.
+Sobre la imagen mediana se delimitaron ocho regiones mediante cajas obtenidas por el localizador clásico. Cada caja inicializó GrabCut, un método que alterna modelos de color de primer plano y fondo con una optimización por corte de grafo \cite{Rother2004}. Después se emplearon bordes Canny \cite{Canny1986} y operaciones morfológicas para cerrar discontinuidades. La máscara se revisó visualmente sobre la composición. Se comprobaron las ocho regiones, la exclusión de marcadores y WCS, los apéndices finos y la abertura inferior del arcoíris. Esta última es una concavidad conectada al fondo exterior, no un hueco topológico cerrado.
+
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{ccc}
+\includegraphics[width=0.30\textwidth,height=5.0cm,keepaspectratio]{../datos/anotaciones/referencia_real_canonica/imagen_mediana_real.png} &
+\includegraphics[width=0.30\textwidth,height=5.0cm,keepaspectratio]{../datos/anotaciones/referencia_real_canonica/referencia_canonica_real.png} &
+\includegraphics[width=0.30\textwidth,height=5.0cm,keepaspectratio]{../datos/anotaciones/referencia_real_canonica/control_visual_referencia_real.png} \\
+\footnotesize Imagen mediana & \footnotesize Máscara asistida & \footnotesize Control superpuesto
+\end{tabular}
+\caption{Construcción de la referencia canónica real. La máscara procede de una anotación asistida sobre la mediana de trece vistas y no de una verdad de terreno manual independiente.}
+\label{fig:referencia_real}
+\end{figure}
+
+En la Figura~\ref{fig:referencia_real} se reúnen la imagen sobre la que se construyó la referencia, la máscara obtenida y su control superpuesto. Aunque la salida binaria no copia píxeles de la segmentación clásica, las cajas utilizadas para construir la referencia sí proceden de ese método y no existe un registro independiente de edición manual. Los resultados reales se presentan, por tanto, como \emph{concordancia con una preanotación canónica asistida}, no como exactitud frente a un patrón oro. El IoU medio de la línea clásica respecto de esta referencia es $0{,}9787$. La cifra describe una concordancia alta, pero no convierte a la propia línea clásica en una referencia independiente.
+
+\section{Registro geométrico y sistema de coordenadas}
+
+\subsection{Rectificación de la hoja}
+
+Tras aplicar la orientación indicada por EXIF, se detectan los cuatro marcadores impresos y se ordenan como superior izquierdo, superior derecho, inferior derecho e inferior izquierdo. Sus centros definen los puntos de origen $p_i$, mientras que los destinos $q_i$ ocupan las posiciones canónicas de esos mismos centros, a $10\,\text{mm}$ de cada borde del lienzo A4 de $2100\times2970$ píxeles. La transformación incluye así el margen físico exterior a los marcadores. Salvo un factor de escala, la homografía $H$ satisface
+
+\begin{equation}
+\lambda
+\begin{bmatrix}
+u\\v\\1
+\end{bmatrix}
+=
+H
+\begin{bmatrix}
+x\\y\\1
+\end{bmatrix}.
+\label{eq:homografia_metodo}
+\end{equation}
+
+Con cuatro correspondencias no colineales se estiman los ocho grados de libertad de $H$. La transformación compensa la perspectiva planar de la hoja y fija la escala nominal en $10\,\text{px/mm}$. La Figura~\ref{fig:homografia} desarrolla este cálculo, mientras que la Figura~\ref{fig:registro_visual} muestra su efecto sobre una captura real.
+
+\figuraopcional{fig_homografia}{0.96\textwidth}{Cálculo de la homografía a partir de cuatro marcadores y proyección al plano A4 canónico.}{fig:homografia}
+
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{ccc}
+\includegraphics[width=0.30\textwidth,height=5.3cm,keepaspectratio]{figuras/22_01_raw.png} &
+\includegraphics[width=0.30\textwidth,height=5.3cm,keepaspectratio]{figuras/22_02_markers.png} &
+\includegraphics[width=0.30\textwidth,height=5.3cm,keepaspectratio]{figuras/22_03_rectified.png} \\
+\footnotesize Captura original & \footnotesize Marcadores & \footnotesize Hoja rectificada
+\end{tabular}
+\caption{Etapas del registro en la captura 22. Los centros de los cuatro marcadores determinan la transformación hacia el plano A4.}
+\label{fig:registro_visual}
+\end{figure}
+
+\subsection{Detección del WCS}
+
+La homografía expresa posiciones respecto de la hoja, pero la máquina necesita un origen y dos direcciones en el material. Para resolverlo se graba con el láser una marca en L. El detector busca candidatos oscuros en la zona prevista, aproxima sus segmentos, calcula el vértice común y verifica longitud, ortogonalidad y coherencia espacial. Los vectores unitarios de los brazos definen $\mathbf{u}_x$ y $\mathbf{u}_y$.
+
+Para un punto rectificado $\mathbf{p}$ y un origen $\mathbf{o}$, las coordenadas físicas se calculan como
+
+\begin{equation}
+X=\frac{(\mathbf{p}-\mathbf{o})\cdot\mathbf{u}_x}{10},
+\qquad
+Y=s_y\frac{(\mathbf{p}-\mathbf{o})\cdot\mathbf{u}_y}{10}.
+\label{eq:wcs_transformacion}
+\end{equation}
+
+El divisor es la escala de $10\,\text{px/mm}$. El factor $s_y$ vale 1 en el modo predeterminado \texttt{down}, coherente con el sentido vertical de la imagen, y $-1$ cuando se configura \texttt{up}. La aplicación solo acepta estados inequívocos. Si no encuentra la L, devuelve \texttt{WCS\_NOT\_FOUND}. Si dos candidatos son plausibles, devuelve \texttt{WCS\_AMBIGUOUS}. En ambos casos conserva la previsualización, pero bloquea la exportación. La Figura~\ref{fig:wcs_ajustes} muestra los filtros que conducen a esa decisión.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.98\textwidth]{../resultados/figuras_protocolo_v8/wcs_detection_stages_v8.pdf}
+\caption{Etapas de la detección WCS sobre la captura 20. La búsqueda se restringe a una región de $45\times45\,\text{mm}$, excluye el marcador M1 y evalúa los segmentos de Hough antes de devolver un origen y dos ejes ortogonales.}
+\label{fig:wcs_ajustes}
+\end{figure}
 
 \section{Línea base de visión clásica}
 
-La línea base combina tres fuentes de información. La saturación $S>45$ captura colores y tonos pastel. El valor $V<115$ incorpora trazos oscuros. Los bordes obtenidos mediante Canny ayudan a cerrar regiones claras. Antes de unir estas señales se excluyen los márgenes, los marcadores y, cuando está disponible, la marca WCS.
+La línea base combina saturación, oscuridad y bordes. En HSV, la condición $S>45$ recupera regiones coloreadas y $V<115$ incorpora trazos oscuros de baja saturación. Canny se ejecuta con umbrales 30 y 100 para reforzar límites claros. Antes de unir las señales se excluyen los márgenes, los cuatro marcadores y la zona WCS. La máscara recibe un cierre morfológico con núcleo $7\times7$, rellenado desde el fondo y apertura.
 
-La máscara combinada recibe cierre morfológico, rellenado desde el fondo y apertura. Finalmente se eliminan componentes pequeñas. Este método no tiene fase de entrenamiento ni selección sobre validación. Se conserva con sus parámetros previos como línea base fija y como generador de cajas aproximadas para la aplicación.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.98\textwidth]{../resultados/figuras/flujo_localizador_clasico_real20.pdf}
+\caption{Etapas del localizador clásico en la captura 20. Las señales de color, oscuridad y borde se consolidan para obtener ocho componentes. El margen del 5 por ciento amplía sus cajas antes de utilizarlas como prompts de SAM 2.}
+\label{fig:flujo_localizador_clasico}
+\end{figure}
 
-Los valores se congelaron antes de evaluar los conjuntos finales y no forman parte de la búsqueda de hiperparámetros. El umbral $S>45$ separa la mayor parte de los colores impresos del fondo blanco, mientras que $V<115$ recupera trazos oscuros que pueden tener poca saturación. El elemento morfológico de $7\times7$ píxeles equivale a $0.7\,\text{mm}$ a la escala de trabajo y cierra discontinuidades locales sin unir objetos separados. El área mínima de $20\,000$ píxeles, equivalente a $200\,\text{mm}^2$, descarta marcadores y residuos menores que los \textit{toppers} del montaje. Estos criterios proceden del diseño previo de la línea base y se mantienen fijos para no ajustarla a los resultados de prueba.
+Como se aprecia en la Figura~\ref{fig:flujo_localizador_clasico}, la máscara morfológica sirve para localizar las piezas, pero sus bordes no pasan a la vectorización de la aplicación.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.90\textwidth]{../resultados/figuras/evidencia_umbrales_hsv.pdf}
+\caption{Distribuciones HSV en las doce hojas de validación. La unión $S>45$ o $V<115$ recupera el 75,071 por ciento de los píxeles de objeto antes de incorporar bordes y admite el 0,0055 por ciento del fondo.}
+\label{fig:evidencia_hsv}
+\end{figure}
+
+Los histogramas de la Figura~\ref{fig:evidencia_hsv} describen lo ocurrido en validación, pero no se utilizaron para reajustar retrospectivamente los umbrales. Los valores proceden de la implementación previa y permanecieron fijos durante la comparación final. La Tabla~\ref{tab:parametros_clasicos} separa los umbrales que podrían confundirse porque cumplen funciones distintas.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Parámetros fijos de la línea clásica y del postprocesamiento.}
+\label{tab:parametros_clasicos}
+\begin{tabularx}{\textwidth}{p{3.3cm}p{2.7cm}Y}
+\toprule
+\textbf{Etapa} & \textbf{Valor} & \textbf{Función} \\
+\midrule
+Color HSV & $S>45$ o $V<115$ & Separar cromatismo y trazos oscuros del papel \\
+Bordes Canny & 30 y 100 & Recuperar límites con poco contraste \\
+Cierre clásico & $7\times7$ px & Unir discontinuidades locales de hasta $0{,}7$ mm \\
+Residuo en máscara clásica & $\geq5000$ px & Eliminar componentes pequeñas antes de localizar \\
+Caja de prompt & $20000$--$600000$ px & Formar candidatos para SAM 2 \\
+Componente SAM 2 & $\geq300$ px & Eliminar residuos después de inferencia \\
+Silueta exportable & $20000$--$600000$ px y aspecto $0{,}15$--$6$ & Rechazar ruido y fusiones anómalas \\
+Detalle interno & Excluido & Evitar que ojos, brillos o vacíos de la máscara se conviertan en cortes \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 \section{Random Forest y optimización de hiperparámetros}
 
-La construcción de Random Forest comprende la representación de cada píxel, el muestreo del conjunto de entrenamiento y una búsqueda de configuraciones que respeta la separación entre láminas. La decisión final no se apoya únicamente en la validación interna, sino también en la reconstrucción de hojas completas.
+\subsection{Representación y muestreo}
 
-\subsection{Características y muestreo}
+Cada píxel se describe mediante 19 variables: nueve canales de color repartidos entre RGB, HSV y Lab, tres medidas de gradiente Sobel (componente horizontal, componente vertical y magnitud), tres descriptores obtenidos a partir de suavizados gaussianos a escalas 2 y 5 y su diferencia, y cuatro estadísticas locales de media y desviación en ventanas de $7\times7$ y $15\times15$. Los espacios de color ayudan a separar papel, tinta y sombras, mientras que los gradientes recogen los límites. Las escalas y estadísticas locales añaden contexto sin codificar la posición del objeto.
 
-Cada píxel se representa mediante 19 características. Nueve corresponden a tres espacios de color. RGB conserva las intensidades roja, verde y azul de la captura. HSV separa matiz, saturación y valor, lo que ayuda a distinguir el papel blanco de los diseños cromáticos y de los trazos oscuros. Lab representa luminosidad y dos ejes cromáticos aproximadamente oponentes, por lo que aporta una descripción menos ligada al dispositivo. Cuatro características describen gradiente y borde mediante Sobel horizontal, Sobel vertical, magnitud y Laplaciana. Las seis restantes recogen suavizados gaussianos y diferencias entre escalas para representar cambios locales de textura. Las coordenadas absolutas se excluyen para evitar que el modelo memorice posiciones de la plantilla.
+\figuraopcional{fig_random_forest}{0.98\textwidth}{Representación de 19 variables, validación agrupada y selección final de Random Forest sobre hojas completas.}{fig:rf_metodo}
 
-Para la búsqueda se toman $2000$ píxeles de objeto y $2000$ de fondo por cada una de las 36 láminas de entrenamiento. La mitad de los negativos procede del fondo cercano al borde y la otra mitad del fondo lejano. El conjunto de ajuste contiene así $144\,000$ observaciones. Se aplican variaciones de exposición, balance de blancos, ruido y color del fondo.
+La Figura~\ref{fig:rf_metodo} sitúa la extracción de variables antes de la validación agrupada y de la reconstrucción por hoja. Las coordenadas absolutas se excluyeron del modelo principal porque podrían aprender la distribución de la plantilla. La decisión se comprobó mediante una ablación posterior limitada a validación. El muestreo toma, de cada una de las 24 hojas de entrenamiento, 1500 píxeles de objeto y 1500 de fondo. En total se utilizan 72\,000 observaciones. Los negativos combinan fondo cercano a los contornos y fondo lejano para que el clasificador aprenda tanto las zonas difíciles como el papel limpio.
 
-\subsection{Búsqueda agrupada}
+\subsection{Búsqueda agrupada y selección por hoja}
 
-Se utiliza \texttt{RandomizedSearchCV} con diez candidatos y cuatro particiones \texttt{GroupKFold}. El grupo es la lámina completa, por lo que los píxeles de una hoja nunca se reparten entre entrenamiento y validación interna. La función principal de puntuación es Jaccard, equivalente a IoU para la clase positiva.
+La búsqueda incluyó diez configuraciones, una de ellas fijada de antemano como control, sin pretender recorrer el producto cartesiano completo sino cubrir combinaciones diversas de forma eficiente \cite{Bergstra2012}. Para preservar la independencia entre identidades, la validación utilizó cuatro particiones \texttt{GroupKFold} en las que cada activo gráfico permaneció íntegro dentro de un grupo, de modo que ningún píxel apareció a ambos lados de un pliegue. La primera ordenación de los candidatos se basó en la media de Jaccard sobre los píxeles muestreados, equivalente a IoU para la clase positiva. La Tabla~\ref{tab:espacio_rf} recoge el espacio del que proceden las configuraciones aleatorias.
 
-El espacio de búsqueda incluye:
+\begin{table}[htbp]
+\centering
+\small
+\caption{Espacio de hiperparámetros explorado para Random Forest.}
+\label{tab:espacio_rf}
+\begin{tabularx}{\textwidth}{p{4.2cm}Y}
+\toprule
+\textbf{Hiperparámetro} & \textbf{Valores candidatos} \\
+\midrule
+Número de árboles & 100, 160, 240 \\
+Profundidad máxima & 12, 20, 30 o sin límite \\
+Muestras mínimas para dividir & 2, 5, 10 \\
+Muestras mínimas por hoja terminal & 1, 2, 4, 8 \\
+Variables consideradas por división & raíz cuadrada, 50\%, 80\% \\
+Ponderación de clases & balanceada, balanceada por submuestra \\
+Muestreo con reposición & activado \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
-\begin{itemize}
-    \item entre 100 y 300 árboles.
-    \item profundidad máxima de 12, 18, 25 o sin límite.
-    \item mínimo de 1, 2, 4 u 8 muestras por hoja del árbol.
-    \item mínimo de 2, 5 o 10 muestras por división.
-    \item selección de características igual a raíz cuadrada, 50\% u 80\%.
-    \item balanceo global o por submuestra.
-\end{itemize}
+Los intervalos abarcan desde modelos pequeños hasta configuraciones de mayor capacidad. La profundidad y los mínimos de división actúan como regularizadores. Por su parte, el número de variables considerado en cada división modifica la diversidad de los árboles, mientras que el balanceo compensa el predominio del fondo en una hoja completa.
 
-La puntuación sobre píxeles muestreados no basta para decidir qué modelo sirve para vectorizar una hoja. Por ello se realiza una segunda etapa sobre las seis láminas completas de validación. Se comparan el ganador de la búsqueda, un control entrenado con aumentación y otro control sin aumentación. Para cada candidato se examinan umbrales entre 0,30 y 0,75.
+El control C00 se definió por separado y no forma parte de los valores candidatos de la tabla. Utiliza 200 árboles, profundidad máxima 25, dos muestras mínimas para dividir, dos por hoja terminal, raíz cuadrada del número de variables por división, ponderación balanceada y muestreo con reposición. Su presencia permite comparar la búsqueda con una configuración de referencia fijada de antemano.
 
-La regla de selección es
+La segunda etapa reconstruye las doce hojas de validación con los dos mejores candidatos y el control. Para cada modelo examina umbrales de probabilidad entre 0,35 y 0,65 en pasos de 0,05. La regla de selección es
 
 \begin{equation}
-S = \overline{\operatorname{IoU}} - 0.005\,\overline{E_c},
+S = \overline{\operatorname{IoU}} - 0{,}005\,\overline{E_c},
 \label{eq:seleccion_rf}
 \end{equation}
 
-donde $E_c$ es el error absoluto en el número de componentes. Esta penalización evita favorecer una máscara con buen solapamiento global pero fragmentada en regiones espurias. El candidato y el umbral ganadores se bloquean antes de abrir el conjunto de prueba.
+donde $E_c$ es el error absoluto en el número de componentes. La penalización evita escoger una máscara con buen solapamiento global pero fragmentada en regiones que no pueden convertirse en ocho siluetas. El candidato, el umbral, el hash del manifiesto y el hash del modelo quedan registrados antes de ejecutar una sola predicción sobre prueba.
 
-\section{SAM 2 y selección de prompts}
+\section{SAM 2 y selección del prompt}
 
-SAM 2 se utiliza con el checkpoint Hiera Tiny preentrenado, sin ajuste fino sobre los datos del proyecto. La elección responde al tamaño reducido del conjunto real y a la necesidad de ejecutar el prototipo en CPU. Entrenar una red desde cero con trece vistas de una sola hoja no aportaría una base suficiente para evaluar generalización.
+SAM 2 se usa con el checkpoint Hiera Tiny preentrenado y sin ajuste fino sobre los datos del proyecto. De esta manera se aprovecha una representación visual aprendida a gran escala sin simular un entrenamiento neuronal que las trece vistas de una sola hoja no podrían sostener. En la aplicación, la línea clásica localiza componentes aproximados y SAM 2 determina la máscara final de cada caja. La separación entre localización, codificación de imagen y decodificación condicionada se representa en la Figura~\ref{fig:sam2_metodo}.
 
-En las seis hojas sintéticas de validación se comparan cinco estrategias:
+\figuraopcional{fig_sam2}{0.98\textwidth}{Flujo de SAM 2: codificación de la hoja, cajas del localizador, decodificación de máscaras y postprocesamiento.}{fig:sam2_metodo}
 
-\begin{itemize}
-    \item caja ajustada.
-    \item caja con 5\% de margen.
-    \item caja con 10\% de margen.
-    \item caja y un punto positivo central.
-    \item caja, punto positivo y cuatro puntos negativos.
-\end{itemize}
+La selección del prompt se realizó sobre las doce hojas sintéticas de validación. Se compararon márgenes de 0\%, 3\%, 5\% y 10\% alrededor de las cajas operativas del localizador clásico, solicitando tres máscaras por prompt. La elección interna acepta como compatibles las candidatas cuya área se encuentra entre el 10 y el 120 por ciento del área de la caja, escoge entre ellas la de mayor confianza y, si ninguna cumple ese intervalo, conserva la de mayor confianza global. Estos límites se fijaron antes de la validación. Las máscaras aceptadas se unen, se someten a un cierre $3\times3$ y se eliminan de ellas los componentes menores de 300 píxeles.
 
-SAM 2 genera tres candidatos por prompt. Se ordenan por la confianza predicha y se descartan, cuando es posible, los que presentan un área incompatible con la caja. Las máscaras elegidas se acumulan, se someten a un cierre $3\times3$ y se eliminan componentes menores de 300 píxeles. La estrategia con mayor puntuación de selección se aplica una sola vez a las seis hojas de prueba.
+La misma puntuación de la Ecuación~\ref{eq:seleccion_rf} ordena los márgenes. Si hubiera empate, se prioriza Boundary F1 y, después, el margen menor. Solo tras bloquear la opción ganadora se evalúa la prueba. Como análisis diagnóstico se repite la inferencia con cajas ideales derivadas de la máscara de referencia. Esa variante mide cuánto limita el localizador, pero no interviene en la selección ni representa el uso real del programa.
 
-En sintético, las cajas proceden de los metadatos del generador. En real, el localizador clásico obtiene ocho componentes aproximadas y las convierte en cajas. El margen se aplica sobre esas cajas y SAM 2 define los bordes finales. Este diseño separa la localización de la segmentación, pero también significa que SAM 2 no actúa como detector autónomo.
+\section{Vectorización y exportación DXF}
 
-\section{Métricas y análisis}
+En la ruta utilizada por la aplicación se inspecciona la jerarquía completa de contornos, aunque solo se conservan las regiones exteriores de la máscara operativa de SAM 2. Así se evita convertir en cortes internos los ojos, brillos y pequeñas zonas de fondo encerradas por la predicción. La biblioteca mantiene una opción para piezas que sí necesitan huecos, desactivada en los \textit{toppers} evaluados. Se descartan los componentes exteriores con menos de 20\,000 o más de 600\,000 píxeles, así como los de relación de aspecto extrema. Antes de aplicar ese filtro pueden agruparse fragmentos separados por menos de cinco píxeles. Cada contorno se simplifica mediante Douglas--Peucker \cite{DouglasPeucker1973} con una tolerancia de $0{,}15$ veces la escala, equivalente a $1{,}5$ píxeles.
 
-Las métricas se calculan por lámina. Dada una referencia $G$ y una predicción $P$, la intersección sobre unión se define como
+Los vértices simplificados se proyectan al WCS con la Ecuación~\ref{eq:wcs_transformacion}. El usuario puede solicitar una compensación geométrica en milímetros. Si la compensación es distinta de cero y la dependencia geométrica no está disponible, la operación falla de forma explícita. No se omite el desplazamiento silenciosamente.
+
+El DXF se escribe en un archivo temporal y solo reemplaza el destino si supera la validación posterior a su reapertura. Esta comprobación exige polilíneas cerradas, al menos tres vértices distintos, área no nula, coordenadas finitas, límites físicos plausibles y conteos coherentes. Las ocho siluetas se guardan en \texttt{TOPPERS\_CUT} y la referencia opcional en \texttt{WCS\_REF}. La capa \texttt{TOPPERS\_HOLES} se reserva para el modo explícito de huecos y no aparece en la ejecución operativa. La lectura de retorno comprueba la estructura y la geometría interna del archivo, pero todavía no informa sobre la precisión de un corte láser físico.
+
+\section{Métricas, tiempos y criterio estadístico}
+
+Las métricas se calculan por hoja. Dada una referencia $G$ y una predicción $P$, la intersección sobre unión es
 
 \begin{equation}
-\operatorname{IoU}(G,P)=\frac{|G\cap P|}{|G\cup P|},
+\operatorname{IoU}(G,P)=\frac{|G\cap P|}{|G\cup P|}.
 \label{eq:iou}
 \end{equation}
 
-y el coeficiente Dice como
+IoU, también denominado índice de Jaccard, vale uno cuando las máscaras coinciden y disminuye con falsos positivos o falsos negativos. El coeficiente Dice se define como
 
 \begin{equation}
 \operatorname{Dice}(G,P)=\frac{2|G\cap P|}{|G|+|P|}.
 \label{eq:dice}
 \end{equation}
 
-IoU penaliza de forma directa los falsos positivos y falsos negativos. Dice expresa el mismo solapamiento en una escala algo más favorable y facilita la comparación con trabajos de segmentación. Boundary F1 evalúa la coincidencia de los bordes dentro de una tolerancia de tres píxeles. El error de componentes mide la diferencia entre el número de regiones válidas predichas y esperadas. El tiempo incluye la inferencia y el postprocesamiento específico de cada método cuando se ejecuta de nuevo.
+El coeficiente Dice expresa el mismo solapamiento con una transformación distinta. El F1 de contorno compara bordes dentro de una tolerancia de tres píxeles. El error de componentes es la diferencia absoluta entre el número de regiones válidas predichas y las ocho esperadas. Este último indicador conecta la calidad de la máscara con la posibilidad real de vectorizar.
 
-En prueba sintética se presentan media y desviación estándar sobre seis láminas. En real se añade un intervalo percentil bootstrap de 10\,000 remuestreos sobre las trece capturas. Ese intervalo describe variación de adquisición de una misma hoja y no debe interpretarse como generalización a nuevos diseños.
+Los tiempos se midieron en las capturas rectificadas 13, 20, 28 y 38, precargadas a $2100\times2970$ píxeles. Se realizó una ejecución de calentamiento seguida de cinco repeticiones por imagen. Quedaron fuera la carga desde disco, la rectificación, la detección WCS y la inicialización de los modelos. Para la visión clásica se cronometró la llamada completa. En Random Forest se incluyeron el cálculo de las 19 variables, la probabilidad y el postprocesamiento. En SAM 2 se midieron el localizador de cajas, \texttt{set\_image} con el codificador, el decodificador por cajas y el postprocesamiento. Este alcance impide atribuir a SAM 2 únicamente el tiempo del decodificador. El tiempo mostrado por la interfaz es mayor porque comprende también las etapas que rodean la segmentación.
 
-\section{Trazabilidad y reproducibilidad}
+En sintético se presentan media y desviación estándar sobre las doce hojas de prueba. En real se informa media y desviación para los tres métodos. Para la línea clásica y SAM 2 se añade un intervalo percentil \textit{bootstrap} del 95 por ciento para la media de IoU, obtenido mediante 10\,000 remuestreos con reposición sobre las trece capturas. Este intervalo describe la variación observada al remuestrear adquisiciones de la única hoja estudiada. No representa incertidumbre sobre una población de productos.
 
-Un manifiesto canónico registra identificador, dominio, partición, ruta, dimensiones y SHA-256 de cada muestra. Los checkpoints y modelos incluyen checksum, y los resultados se guardan en CSV o JSON. Las tablas de evaluación se construyen a partir de esos archivos. El código, las configuraciones y las fuentes de la memoria se mantienen bajo control de versiones.
+\section{Trazabilidad y controles de reproducibilidad}
 
-Las pruebas automatizadas verifican que la máscara entregada por el adaptador de SAM 2 sea la misma que recibe el extractor de contornos, que la ausencia del checkpoint produzca un error y que no exista un retorno silencioso al método clásico. Además, una ejecución real completa comprueba la cadena desde la imagen hasta el DXF.
+El manifiesto canónico registra el identificador, el dominio, la partición, las rutas, las dimensiones, la condición, los activos y sus hashes SHA-256. Los scripts fijan las semillas y guardan las versiones del entorno. Los bloqueos de Random Forest y SAM 2 dejan constancia de que la prueba no participó en la selección.
+
+Las pruebas automatizadas abarcan la configuración, la escala, el bloqueo o habilitación de la exportación, la detección WCS, la jerarquía de contornos y la escritura DXF. Entre los controles de integración se verifica que el extractor reciba la máscara producida por SAM 2 y que la ruta neuronal se detenga si falta el checkpoint, sin recurrir silenciosamente a la visión clásica. La captura 20 añade una comprobación de extremo a extremo, desde la hoja rectificada hasta un DXF que puede reabrirse y validarse.

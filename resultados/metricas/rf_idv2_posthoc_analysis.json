@@ -1,0 +1,28 @@
+{
+  "models": {
+    "RF_selected": {
+      "sheet_count": 12,
+      "mean_iou": 0.9879282919816634,
+      "std_iou": 0.008859515130791968,
+      "mean_dice": 0.9939090774307807,
+      "mean_boundary_f1": 0.94123274120461,
+      "mean_component_error": 0.0,
+      "mean_inference_seconds": 10.216047566666626
+    },
+    "RF_control": {
+      "sheet_count": 12,
+      "mean_iou": 0.9875172692244788,
+      "std_iou": 0.009676378167611238,
+      "mean_dice": 0.9936974289005344,
+      "mean_boundary_f1": 0.93726307901273,
+      "mean_component_error": 0.0,
+      "mean_inference_seconds": 9.756822999999713
+    }
+  },
+  "selected_minus_control": {
+    "iou": 0.00041102275718463144,
+    "dice": 0.00021164853024635555,
+    "boundary_f1": 0.003969662191879997,
+    "inference_seconds": 0.45922456666691325
+  }
+}

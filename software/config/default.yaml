@@ -6,6 +6,7 @@ geometry:
   sheet_width_mm: 210.0
   sheet_height_mm: 297.0
   pixels_per_mm: 10.0
+  marker_margin_mm: 10.0
 
 segmentation:
   operational_method: sam2
@@ -18,9 +19,11 @@ segmentation:
     box_margin_fraction: 0.05
     multimask_output: true
     min_component_area_px: 300
-  random_forest:
-    model_path: resultados/modelos/random_forest_legacy_v1.joblib
-    probability_threshold: 0.70
+export:
+  offset_mm: 0.0
+  wcs_y_direction: down
+  include_wcs_reference: true
+  bounds_tolerance_mm: 50.0
 
 evaluation:
   metrics:

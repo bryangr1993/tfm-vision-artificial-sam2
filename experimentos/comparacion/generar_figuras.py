@@ -239,13 +239,15 @@ def figure_real20_pipeline():
         (rgb(source / "real_20_contours.png"), "Contornos extraídos", None),
         (rgb(source / "real_20_wcs_axes.png"), "Registro WCS", None),
     ]
-    fig, axes = plt.subplots(2, 3, figsize=(11, 11.8))
-    for ax, (image, title, cmap) in zip(axes.flat, panels):
+    fig, axes = plt.subplots(2, 3, figsize=(5.7, 5.35))
+    for panel_index, (ax, (image, title, cmap)) in enumerate(zip(axes.flat, panels), start=1):
         ax.imshow(image, cmap=cmap)
-        ax.set_title(title, fontsize=11)
+        ax.set_title(f"{panel_index}. {title}", fontsize=8.5, pad=3)
+        ax.set_anchor("S" if panel_index <= 3 else "N")
         ax.axis("off")
-    fig.suptitle("Flujo operativo de IA en la captura real 20", fontsize=15, weight="bold")
-    fig.subplots_adjust(top=0.91, bottom=0.03, hspace=0.16, wspace=0.06)
+    # El título ya aparece en la leyenda de la memoria. Al retirarlo se reserva
+    # la altura para los seis paneles y se reduce el vacío entre filas.
+    fig.subplots_adjust(top=0.985, bottom=0.02, hspace=0.14, wspace=0.06)
     save(fig, "real_20_pipeline_sam2")
 
 
@@ -297,7 +299,7 @@ def figure_real_samples():
         30: "recolocación y sombra",
         38: "MDF desplazado",
     }
-    fig, axes = plt.subplots(2, 3, figsize=(10.8, 8.1))
+    fig, axes = plt.subplots(2, 3, figsize=(5.7, 4.65))
     for ax, identifier in zip(axes.flat, identifiers):
         image = rgb(
             ROOT
@@ -307,11 +309,11 @@ def figure_real_samples():
             / f"rectified_{identifier}.png"
         )
         ax.imshow(image)
-        ax.set_title(f"Captura {identifier} · {notes[identifier]}", fontsize=10)
+        ax.set_title(f"Captura {identifier}\n{notes[identifier]}", fontsize=8.5, pad=4)
         ax.axis("off")
     fig.suptitle(
         "Muestras representativas del conjunto real",
-        fontsize=15,
+        fontsize=10.5,
         weight="bold",
     )
     fig.text(
@@ -319,10 +321,10 @@ def figure_real_samples():
         0.025,
         "Se muestran 6 de las 13 capturas; todas corresponden a una misma hoja física rectificada.",
         ha="center",
-        fontsize=9,
+        fontsize=8.5,
         color="#4F5B62",
     )
-    fig.subplots_adjust(top=0.91, bottom=0.07, hspace=0.14, wspace=0.08)
+    fig.subplots_adjust(top=0.86, bottom=0.09, hspace=0.25, wspace=0.12)
     save(fig, "muestra_6_capturas_reales")
 
 

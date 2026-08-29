@@ -1,0 +1,125 @@
+{
+  "protocol": "asset_identity_disjoint",
+  "domain": "synthetic",
+  "split": "val",
+  "sheets": 12,
+  "thresholds": {
+    "saturation_strictly_greater_than": 45,
+    "value_strictly_less_than": 115
+  },
+  "interpretation": "descriptive evidence; thresholds were not optimized by this script",
+  "foreground_recall_union_mean": 0.7507123227131317,
+  "foreground_recall_union_std": 0.019589263777532263,
+  "background_rate_union_mean": 5.50203254187569e-05,
+  "background_rate_union_std": 9.341515355925269e-05,
+  "per_sheet": [
+    {
+      "sample_id": "idv2_val_L1_C1",
+      "foreground_recall_s": 0.7439495442749714,
+      "background_rate_s": 0.0,
+      "foreground_recall_v": 0.13501228523538075,
+      "background_rate_v": 0.0,
+      "foreground_recall_union": 0.7581833469230616,
+      "background_rate_union": 0.0
+    },
+    {
+      "sample_id": "idv2_val_L1_C2",
+      "foreground_recall_s": 0.7441656481937163,
+      "background_rate_s": 0.0,
+      "foreground_recall_v": 0.18201761156137805,
+      "background_rate_v": 0.0,
+      "foreground_recall_union": 0.7600175062334177,
+      "background_rate_union": 0.0
+    },
+    {
+      "sample_id": "idv2_val_L1_C3",
+      "foreground_recall_s": 0.7442673441554786,
+      "background_rate_s": 0.0,
+      "foreground_recall_v": 0.16156582725124896,
+      "background_rate_v": 0.0,
+      "foreground_recall_union": 0.760820177931613,
+      "background_rate_union": 0.0
+    },
+    {
+      "sample_id": "idv2_val_L1_C4",
+      "foreground_recall_s": 0.6757387939222135,
+      "background_rate_s": 0.0,
+      "foreground_recall_v": 0.13501228523538075,
+      "background_rate_v": 0.0,
+      "foreground_recall_union": 0.7121096282467798,
+      "background_rate_union": 0.0
+    },
+    {
+      "sample_id": "idv2_val_L1_C5",
+      "foreground_recall_s": 0.7397055538707118,
+      "background_rate_s": 0.0002367076602362258,
+      "foreground_recall_v": 0.09491502031195237,
+      "background_rate_v": 8.089563425606527e-06,
+      "foreground_recall_union": 0.751899989285604,
+      "background_rate_union": 0.00023987314157668054
+    },
+    {
+      "sample_id": "idv2_val_L1_C6",
+      "foreground_recall_s": 0.7381704730357973,
+      "background_rate_s": 7.984040360555042e-05,
+      "foreground_recall_v": 0.1222305758949326,
+      "background_rate_v": 7.561976552948608e-06,
+      "foreground_recall_union": 0.7550576040213854,
+      "background_rate_union": 8.617136071964693e-05
+    },
+    {
+      "sample_id": "idv2_val_L2_C1",
+      "foreground_recall_s": 0.7355201523279975,
+      "background_rate_s": 0.0,
+      "foreground_recall_v": 0.13871875067874287,
+      "background_rate_v": 0.0,
+      "foreground_recall_union": 0.7539602383382927,
+      "background_rate_union": 0.0
+    },
+    {
+      "sample_id": "idv2_val_L2_C2",
+      "foreground_recall_s": 0.7291839049303812,
+      "background_rate_s": 0.0,
+      "foreground_recall_v": 0.18243016719926958,
+      "background_rate_v": 0.0,
+      "foreground_recall_union": 0.7520507589591418,
+      "background_rate_union": 0.0
+    },
+    {
+      "sample_id": "idv2_val_L2_C3",
+      "foreground_recall_s": 0.7624956134210225,
+      "background_rate_s": 0.0,
+      "foreground_recall_v": 0.17260483696472373,
+      "background_rate_v": 0.0,
+      "foreground_recall_union": 0.7846021531966114,
+      "background_rate_union": 0.0
+    },
+    {
+      "sample_id": "idv2_val_L2_C4",
+      "foreground_recall_s": 0.6757910931637499,
+      "background_rate_s": 0.0,
+      "foreground_recall_v": 0.1402346136819266,
+      "background_rate_v": 0.0,
+      "foreground_recall_union": 0.7160935424848043,
+      "background_rate_union": 0.0
+    },
+    {
+      "sample_id": "idv2_val_L2_C5",
+      "foreground_recall_s": 0.7305500260990347,
+      "background_rate_s": 0.00023819409733517047,
+      "foreground_recall_v": 0.10252585573869115,
+      "background_rate_v": 9.873330459488932e-06,
+      "foreground_recall_union": 0.7446629685661456,
+      "background_rate_union": 0.00024295445309242407
+    },
+    {
+      "sample_id": "idv2_val_L2_C6",
+      "foreground_recall_s": 0.7410719707448065,
+      "background_rate_s": 8.663840848964273e-05,
+      "foreground_recall_v": 0.13188451755244143,
+      "background_rate_v": 6.201113082080768e-06,
+      "foreground_recall_union": 0.7590899583707232,
+      "background_rate_union": 9.124494963633129e-05
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "status": "locked_before_test",
+  "selected_candidate": "C07_search",
+  "selected_candidate_origin": "seeded_parameter_sample",
+  "selected_threshold": 0.55,
+  "selection_rule": "mean_full_sheet_validation_iou - 0.005 * mean_absolute_component_count_error",
+  "pixel_screening_rule": "mean Jaccard across four asset-identity-disjoint GroupKFold folds",
+  "test_set_used_for_selection": false,
+  "stage2_candidates": [
+    "C03_search",
+    "C07_search",
+    "C00_control"
+  ],
+  "validation": {
+    "candidate_id": "C07_search",
+    "threshold": 0.55,
+    "mean_validation_iou": 0.9918141303770233,
+    "std_validation_iou": 0.009651038177877056,
+    "mean_validation_dice": 0.9958685004444647,
+    "mean_component_error": 0.0,
+    "selection_score": 0.9918141303770233,
+    "sheet_count": 12,
+    "selection_rank": 1
+  },
+  "selected_hyperparameters": {
+    "n_estimators": 240,
+    "min_samples_split": 2,
+    "min_samples_leaf": 2,
+    "max_features": 0.5,
+    "max_depth": 20,
+    "class_weight": "balanced",
+    "bootstrap": true
+  },
+  "control_hyperparameters": {
+    "n_estimators": 200,
+    "max_depth": 25,
+    "min_samples_split": 2,
+    "min_samples_leaf": 2,
+    "max_features": "sqrt",
+    "class_weight": "balanced",
+    "bootstrap": true
+  },
+  "search_space": {
+    "n_estimators": [
+      100,
+      160,
+      240
+    ],
+    "max_depth": [
+      12,
+      20,
+      30,
+      null
+    ],
+    "min_samples_split": [
+      2,
+      5,
+      10
+    ],
+    "min_samples_leaf": [
+      1,
+      2,
+      4,
+      8
+    ],
+    "max_features": [
+      "sqrt",
+      0.5,
+      0.8
+    ],
+    "class_weight": [
+      "balanced",
+      "balanced_subsample"
+    ],
+    "bootstrap": [
+      true
+    ]
+  },
+  "search_candidate_count_including_control": 10,
+  "threshold_grid": [
+    0.35,
+    0.4,
+    0.45,
+    0.5,
+    0.55,
+    0.6,
+    0.65
+  ],
+  "component_area_px": 20000,
+  "samples_per_class_per_training_sheet": 1500,
+  "seed": 20260827,
+  "dataset_manifest_sha256": "d850a74911feb592c33c7fc66e686d3093d34a33036742f981d1c2ab232c10dc",
+  "selected_model": "resultados/modelos/random_forest_identity_v2_selected.joblib",
+  "selected_model_sha256": "4d2b085da6cd81d91d83ddb2a451a49c7d54e3ea829e856df0480cdd4ef06a5a",
+  "control_model": "resultados/modelos/random_forest_identity_v2_control.joblib",
+  "control_model_sha256": "9bb195df4a0338bbdb58eaad1c83b89b7634f3e7eeaf3750e9420924b9cb1122",
+  "elapsed_seconds": 950.5733349000075
+}

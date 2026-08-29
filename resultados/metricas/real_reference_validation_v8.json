@@ -1,0 +1,74 @@
+{
+  "protocol_version": "real_reference_validation_v8",
+  "overall_assessment": "needs_independent_manual_review",
+  "canonical_reference": "datos/anotaciones/referencia_real_canonica/referencia_canonica_real.png",
+  "canonical_sha256": "325d6b318809ae98e6b8e859063fa1f154788e520099fb2fa9be551edfa1d614",
+  "ground_truth_copies": 13,
+  "all_13_ground_truth_files_byte_identical_to_canonical": true,
+  "experimental_unit": "one physical sheet observed in 13 captures",
+  "annotation_pipeline": [
+    "pixelwise median of 13 rectified captures",
+    "eight prompt boxes derived from the classical coarse localizer on real_13",
+    "box-initialized GrabCut",
+    "Canny edge closure and morphology",
+    "external-contour filling",
+    "recorded visual quality check without a saved manual pixel-edit audit trail"
+  ],
+  "direct_use_of_classical_mask_pixels_as_labels": false,
+  "algorithmic_assistance_from_classical_localizer": true,
+  "prompt_sources": [
+    "classic_bbox"
+  ],
+  "external_components": 8,
+  "closed_holes_in_binary_reference": 0,
+  "rainbow_opening_evidence": {
+    "supported": true,
+    "interpretation": "border-connected concavity, not a closed topological hole",
+    "exterior_background_fraction_in_central_lower_roi": 0.42955894989291166,
+    "component_label": 2,
+    "component_bbox_px": [
+      1092,
+      203,
+      790,
+      506
+    ],
+    "inspection_roi_px": [
+      1368,
+      380,
+      1605,
+      709
+    ]
+  },
+  "foreground_fraction": 0.2877037037037037,
+  "mean_iou_with_classical_capture_masks": 0.9787319212964515,
+  "std_iou_with_classical_capture_masks": 0.01589299041993386,
+  "metadata_contradictions": [
+    {
+      "severity": "medium",
+      "claim": "uses_classical_masks_as_labels: false",
+      "evidence": "No classical mask pixels are copied as labels, but classical-derived boxes delimit all eight annotation regions. The statement is technically narrow and must not be paraphrased as methodological independence."
+    }
+  ],
+  "safe_description": "Algorithmically assisted canonical reference based on 13 rectified views, classical-derived boxes, GrabCut, edge detection and morphology; reviewed visually by one author.",
+  "unsafe_descriptions": [
+    "independent manual ground truth",
+    "reference independent of classical vision",
+    "gold-standard annotation"
+  ],
+  "required_human_action": "Inspect and, if necessary, edit the binary mask against the median image, with special attention to the rainbow opening, thin butterfly appendages, the dinosaur mouth and the vehicle wheels. Save an audit note identifying the reviewer and changes.",
+  "ground_truth_hashes": {
+    "real_13_gt.png": "325d6b318809ae98e6b8e859063fa1f154788e520099fb2fa9be551edfa1d614",
+    "real_15_gt.png": "325d6b318809ae98e6b8e859063fa1f154788e520099fb2fa9be551edfa1d614",
+    "real_17_gt.png": "325d6b318809ae98e6b8e859063fa1f154788e520099fb2fa9be551edfa1d614",
+    "real_20_gt.png": "325d6b318809ae98e6b8e859063fa1f154788e520099fb2fa9be551edfa1d614",
+    "real_22_gt.png": "325d6b318809ae98e6b8e859063fa1f154788e520099fb2fa9be551edfa1d614",
+    "real_24_gt.png": "325d6b318809ae98e6b8e859063fa1f154788e520099fb2fa9be551edfa1d614",
+    "real_26_gt.png": "325d6b318809ae98e6b8e859063fa1f154788e520099fb2fa9be551edfa1d614",
+    "real_28_gt.png": "325d6b318809ae98e6b8e859063fa1f154788e520099fb2fa9be551edfa1d614",
+    "real_30_gt.png": "325d6b318809ae98e6b8e859063fa1f154788e520099fb2fa9be551edfa1d614",
+    "real_32_gt.png": "325d6b318809ae98e6b8e859063fa1f154788e520099fb2fa9be551edfa1d614",
+    "real_34_gt.png": "325d6b318809ae98e6b8e859063fa1f154788e520099fb2fa9be551edfa1d614",
+    "real_36_gt.png": "325d6b318809ae98e6b8e859063fa1f154788e520099fb2fa9be551edfa1d614",
+    "real_38_gt.png": "325d6b318809ae98e6b8e859063fa1f154788e520099fb2fa9be551edfa1d614"
+  }
+}

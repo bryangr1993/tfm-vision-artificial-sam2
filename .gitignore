@@ -37,6 +37,11 @@ datos/reales/prompts_legacy/*
 datos/sinteticos/imagenes/*
 datos/sinteticos/mascaras/*
 datos/sinteticos/prompts/*
+datos/sinteticos_identidad_v2/imagenes/*
+datos/sinteticos_identidad_v2/mascaras/*
+datos/sinteticos_identidad_v2/instancias/*
+datos/sinteticos_identidad_v2/contornos/*
+datos/fuentes_toppers/alpha/*
 !datos/**/README.md
 !datos/manifiesto/**
 !datos/anotaciones/**
@@ -44,10 +49,20 @@ datos/sinteticos/prompts/*
 # Resultados temporales
 tmp/
 resultados/cache/
+resultados/wcs_repeatability_v8/rectified_recomputed/
+resultados/integracion_lote_v8/contours/
 output/pdf/*
 !output/pdf/TFM_Bryan_Guananga.pdf
 software/outputs_gui/
 datos/anotaciones/borrador_referencia_real/
+
+# Credenciales y configuración local
+.env
+.env.*
+*.pem
+*.key
+credentials*.json
+secrets*.json
 
 # PDFs de compilación local; el entregable versionado está en output/pdf/
 memoria/main.pdf

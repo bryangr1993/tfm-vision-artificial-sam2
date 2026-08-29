@@ -1,6 +1,28 @@
 import cv2
 import numpy as np
 
+
+# Contrato explícito de las 19 características usadas por el modelo principal.
+# La memoria anterior mencionaba erróneamente un Laplaciano y seis escalas.
+# El código real y reproducible contiene nueve canales de color, tres
+# gradientes de Sobel, tres respuestas multiescala y cuatro estadísticas
+# locales. Las coordenadas forman una ablación separada de 21 variables.
+BASE_FEATURE_NAMES = (
+    "red", "green", "blue",
+    "hue", "saturation", "value",
+    "L_lightness", "a_redgreen", "b_blueyellow",
+    "sobel_x", "sobel_y", "grad_magnitude",
+    "gaussian_blur_s2", "gaussian_blur_s5", "difference_of_gaussians",
+    "local_mean_7", "local_std_7", "local_mean_15", "local_std_15",
+)
+
+FEATURE_GROUPS = {
+    "color_9": tuple(range(0, 9)),
+    "gradients_3": tuple(range(9, 12)),
+    "multiscale_3": tuple(range(12, 15)),
+    "local_statistics_4": tuple(range(15, 19)),
+}
+
 def extract_pixel_features(img_bgr, include_coords=False):
     """
     Extrae un tensor de características locales por píxel a partir de una imagen BGR.
@@ -72,15 +94,7 @@ def extract_pixel_features(img_bgr, include_coords=False):
         mean_15, std_15               # Textura 15x15
     ]
     
-    feature_names = [
-        "red", "green", "blue",
-        "hue", "saturation", "value",
-        "L_lightness", "a_redgreen", "b_blueyellow",
-        "sobel_x", "sobel_y", "grad_magnitude",
-        "gaussian_blur_s2", "gaussian_blur_s5", "difference_of_gaussians",
-        "local_mean_7", "local_std_7",
-        "local_mean_15", "local_std_15"
-    ]
+    feature_names = list(BASE_FEATURE_NAMES)
     
     # 8. Coordenadas normalizadas (Opcional - Ablación)
     if include_coords:
@@ -94,5 +108,11 @@ def extract_pixel_features(img_bgr, include_coords=False):
     # Stack y aplanar
     stacked = np.stack(feature_maps, axis=-1)  # (H, W, num_features)
     flat_features = stacked.reshape(-1, len(feature_names))
+    expected = 21 if include_coords else 19
+    if flat_features.shape[1] != expected or len(feature_names) != expected:
+        raise RuntimeError(
+            f"Contrato de características incumplido: esperado={expected}, "
+            f"tensor={flat_features.shape[1]}, nombres={len(feature_names)}"
+        )
     
     return flat_features, feature_names

@@ -1,0 +1,23 @@
+{
+  "status": "real_external_evaluation_after_synthetic_selection_lock",
+  "model": "RF_selected_IDV2_locked",
+  "model_sha256": "4d2b085da6cd81d91d83ddb2a451a49c7d54e3ea829e856df0480cdd4ef06a5a",
+  "selection_lock_sha256": "6d6f14050b5a87de8400954dc304b35a9508a8f6333eca82675163948f3d1731",
+  "synthetic_test_used_for_selection": false,
+  "real_data_used_for_selection_or_tuning": false,
+  "capture_count": 13,
+  "physical_sheet_count": 1,
+  "reference_status": "assisted_canonical_not_independent_ground_truth",
+  "metric_interpretation": "agreement_with_assisted_reference_not_accuracy",
+  "mean_agreement_iou": 0.2880675324940954,
+  "std_agreement_iou_across_captures": 0.003660305934238188,
+  "mean_agreement_dice": 0.44727490443295587,
+  "mean_agreement_boundary_f1": 0.23657658183844413,
+  "mean_absolute_component_error": 7.0,
+  "captures_with_eight_components": 0,
+  "mean_inference_seconds_including_feature_extraction": 19.111068630769015,
+  "timing_context": "Observed wall-clock time on a shared workstation with concurrent project processes; descriptive only, not the controlled final runtime benchmark.",
+  "scope": "Trece adquisiciones de una sola lámina física; describe estabilidad de transferencia en esas capturas y no generalización poblacional a nuevos diseños físicos.",
+  "metrics_csv": "resultados/metricas/rf_idv2_real_agreement_metrics.csv",
+  "figure": "resultados/figuras/rf_idv2_real_agreement_examples.png"
+}

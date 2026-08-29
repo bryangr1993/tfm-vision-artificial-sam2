@@ -1,0 +1,29 @@
+{
+  "dataset_version": "asset_identity_v2",
+  "split_protocol": "asset_identity_disjoint",
+  "split_seed": 20260827,
+  "generation_seed_base": 42027,
+  "canvas": {
+    "width_px": 2100,
+    "height_px": 2970,
+    "px_per_mm": 10.0
+  },
+  "asset_allocation_per_family": {
+    "train": 4,
+    "val": 2,
+    "test": 2
+  },
+  "sheet_allocation": {
+    "train": 24,
+    "val": 12,
+    "test": 12
+  },
+  "semantic_families_disjoint": false,
+  "asset_identity_disjoint": true,
+  "train_cv_groups": 4,
+  "instances_per_sheet": 8,
+  "generator": "experimentos/datos/generate_identity_disjoint_dataset.py",
+  "asset_registry": "datos/manifiesto/asset_registry_v2.csv",
+  "asset_split": "datos/manifiesto/asset_split_v2.csv",
+  "dataset_manifest": "datos/manifiesto/datasets_asset_identity_v2.csv"
+}

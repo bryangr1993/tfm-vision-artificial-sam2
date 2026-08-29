@@ -1,0 +1,74 @@
+\chapter{Discusión}
+\label{cap:discusion}
+
+Los tres métodos no cubren el mismo alcance dentro del sistema, de modo que una sola métrica no basta para ordenarlos. La comparación cambia con el grado de control del entorno, el dominio de las imágenes y la forma de construir la referencia. Esas diferencias también condicionan qué método resulta viable dentro de la herramienta.
+
+\section{Respuesta a las preguntas de evaluación}
+
+La primera pregunta se responde al seguir la cadena completa y no solo una máscara aislada. SAM 2 mantuvo ocho instancias en las doce hojas sintéticas de prueba y en las trece capturas reales. Cuando el WCS era válido, sus máscaras dieron lugar a ocho trayectorias exteriores. La evidencia confirma la continuidad estructural del flujo, aunque todavía no establece la precisión geométrica necesaria para producción ni la calidad física del corte.
+
+Random Forest también respondió bien dentro del dominio sintético. Su IoU de $0{,}9879$ se obtuvo sobre identidades que no aparecen en entrenamiento y no puede atribuirse a una repetición directa de los activos. Sin embargo, el modelo no conservó ese comportamiento en real. La salida se redujo a una región dominante y perdió siete de las ocho componentes esperadas.
+
+El cambio entre dominios, objeto de la segunda pregunta, requiere una lectura cautelosa. SAM 2 obtuvo $0{,}9231$ frente a la referencia sintética y una concordancia de $0{,}9536$ frente a la referencia canónica real. Que la cifra real sea mayor no implica un mejor desempeño, porque ambas referencias se construyeron de forma distinta. Esa diferencia podría ser compatible con una escena rectificada de fondo claro y con el aislamiento espacial aportado por las cajas, pero una sola hoja no permite confirmarlo. Random Forest pasó de $0{,}9879$ a $0{,}2881$, una brecha marcada en el montaje evaluado.
+
+\section{Alcance de la optimización de Random Forest}
+
+La búsqueda de hiperparámetros separó las identidades mediante grupos, de modo que una misma identidad no aportara píxeles a ambos lados de un pliegue. Después, la reconstrucción de hojas completas evitó decidir solo con el Jaccard de una muestra balanceada. C07 no encabezó la etapa interna, pero fue el mejor sobre las doce láminas.
+
+Las variables de color por sí solas ya aportaban gran parte de la capacidad de separación dentro del generador. Los gradientes y el contexto local mejoraron el Jaccard, mientras que las coordenadas no aportaron ventaja. Esto reduce el riesgo de que el modelo memorice la plantilla, pero no elimina el problema fotométrico: las variables continúan ligadas a intensidades, estadísticas de vecindad y escalas definidas en el corpus sintético.
+
+El fracaso en las capturas reales no invalida Random Forest para cualquier tarea de segmentación industrial. Sí muestra que este modelo, entrenado únicamente con las simulaciones del estudio, no se transfirió al montaje. Ajustarlo tras observar las trece capturas quizá habría elevado la cifra, a costa de convertir la evaluación externa en un nuevo conjunto de validación. Por eso se conservó el resultado bloqueado.
+
+\section{SAM 2 como componente de inteligencia artificial}
+
+Sin superar a la línea clásica en concordancia real, SAM 2 mantuvo estable el número de instancias y mostró una diferencia entre dominios mucho menor que Random Forest, aun sin haberse entrenado con las imágenes del proyecto. Este comportamiento es compatible con una representación preentrenada menos ligada al color exacto del generador. La comparación, sin embargo, no aísla ese efecto porque también cambian la arquitectura, los prompts y la supervisión.
+
+La arquitectura sigue siendo híbrida porque SAM 2 recibe las cajas del localizador clásico. Para estimar cuánto dependía de ellas se compararon cajas ideales y operativas. Las diferencias de IoU fueron inferiores a una diezmilésima tanto en prueba como en real, lo que indica que las cajas disponibles bastaron en este banco. El error restante se relaciona principalmente con la máscara generada por SAM 2 y con su contorno.
+
+El contorno sí requiere atención. Aunque SAM 2 superó a la línea clásica en IoU sintético, quedó por debajo en Boundary F1, y esa desventaja de borde se repitió en real. Parte de la diferencia procede de pequeñas irregularidades y vacíos internos. Por ese motivo, el programa no convierte automáticamente todos los niveles de la máscara en rutas. Exportar solo la envolvente exterior evita que ojos o brillos impresos terminen como perforaciones.
+
+La elección de SAM 2 para la interfaz respondió al objetivo de construir una herramienta basada en inteligencia artificial y a su comportamiento operativo, no a que fuera el mejor en todas las métricas. Es el modelo que genera la máscara vectorizada, conserva las ocho instancias y comunica el fallo si no puede inicializarse. La línea clásica se mantiene como referencia experimental, apoyo geométrico y posible alternativa práctica para la empresa fuera del alcance académico.
+
+\section{Interpretación de la ventaja clásica}
+
+Que la visión clásica alcanzara una concordancia real de $0{,}9787$, frente a $0{,}9536$ de SAM 2, resulta plausible en un entorno de fondo claro, hoja conocida, rectificación y colores impresos para el que se diseñaron sus reglas. El experimento no separa el efecto de cada condición. Sí muestra que, en la escena estudiada, una solución específica puede coincidir más con la referencia que un modelo general.
+
+La comparación, sin embargo, presenta una asimetría metodológica. La referencia canónica se construyó con cajas del localizador clásico, GrabCut, Canny y morfología. No copia la máscara clásica, pero comparte parte del procedimiento y puede favorecer un tipo de borde semejante. El $0{,}9787$ describe, por ello, una concordancia alta con la preanotación disponible y no una exactitud física independiente.
+
+Una anotación manual independiente podría modificar las diferencias observadas, en especial en antenas, patas, cabello y en la abertura del arcoíris. Aportaría además un criterio externo para decidir si un borde más suave de SAM 2 resulta preferible para el láser aunque su Boundary F1 sea menor.
+
+\section{Registro geométrico y alcance estructural del DXF}
+
+El sistema clasificó correctamente el WCS en las trece capturas y respondió también ante un caso sintético ambiguo. La dispersión radial media de $0{,}195\,\text{mm}$ y la desviación estándar del ángulo del eje X de $0{,}085$ grados muestran repetibilidad entre adquisiciones. No miden exactitud absoluta porque no existe una referencia metrológica externa.
+
+La lectura de retorno de diez DXF aporta una verificación más fuerte que comprobar únicamente que el archivo no esté vacío. Las polilíneas son cerradas, finitas y coherentes con el número de siluetas. Aun así, una geometría válida puede producir un corte desalineado si la cámara conserva distorsión radial, si la marca WCS se graba con error o si la máquina introduce holgura.
+
+El offset permanece en cero por la misma razón. Su aplicación matemática funciona y no se omite cuando falta una dependencia, pero el valor apropiado depende del ancho real del haz, del material, de la potencia y de la velocidad. Elegirlo sin una campaña física daría una apariencia de precisión no respaldada.
+
+\section{Coste computacional y uso en taller}
+
+El tiempo de la línea clásica es el menor porque opera con transformaciones locales. Random Forest debe calcular 19 variables para más de seis millones de píxeles y después evaluar cientos de árboles. SAM 2 codifica la imagen una vez y decodifica ocho cajas. En CPU no ofrece respuesta instantánea. La media de $2{,}17$ segundos permitió completar el flujo del prototipo, aunque su aceptabilidad para producción no se evaluó con operarios ni mediante un requisito temporal externo.
+
+La medición excluye la carga inicial del modelo y la lectura desde disco. En una sesión de trabajo, el checkpoint se carga una vez y el coste se amortiza. Una GPU reduciría la espera, aunque no corregiría por sí sola los errores de borde. Para producción importan tanto el tiempo como la posibilidad de inspeccionar la máscara y bloquear una exportación dudosa.
+
+\section{Amenazas a la validez}
+
+\subsection{Validez interna}
+
+La separación por identidad y el bloqueo de prueba reducen la contaminación. Persisten, sin embargo, decisiones incorporadas al generador, como el fondo, el tamaño de los activos y las seis degradaciones. Los umbrales clásicos proceden del desarrollo previo y la gráfica HSV sirve para describirlos, no para convertirlos en un método optimizado bajo el mismo presupuesto que Random Forest.
+
+\subsection{Validez de constructo}
+
+IoU, Dice y Boundary F1 miden propiedades de una máscara. No miden directamente acabado, ancho de haz ni aceptación del cliente. El F1 de contorno usa una tolerancia de tres píxeles y una coincidencia por dilatación, no el emparejamiento uno a uno del protocolo BSDS. El error de componentes se acerca más a la vectorización, pero tampoco garantiza que todos los detalles geométricos sean fabricables.
+
+\subsection{Validez externa}
+
+Las ocho identidades de prueba sintética son nuevas para los modelos, aunque se repiten en doce combinaciones. El dominio real solo contiene una hoja, un teléfono, una máquina y un conjunto de ocho diseños. No se evaluaron otros materiales, cámaras, tamaños ni talleres. En consecuencia, la evidencia respalda el prototipo y su montaje, no una tasa de acierto poblacional.
+
+\subsection{Validez de la referencia}
+
+La preanotación real es canónica y asistida. Las trece copias de referencia son idénticas porque representan el mismo plano físico. Esto es coherente para estudiar variación de captura, pero impide tratar cada archivo como una etiqueta independiente. La inspección visual disponible tampoco equivale a un acuerdo entre anotadores.
+
+\section{Síntesis}
+
+El balance es desigual y, precisamente por ello, informativo. Random Forest dominó dentro del generador y perdió siete componentes al transferirse, mientras la línea clásica fue la que más coincidió con la referencia real asistida. SAM 2 quedó entre ambas en las métricas, pero fue el único de los dos métodos de inteligencia artificial que conservó las ocho instancias en los dos dominios y completó la ruta operativa de la interfaz. El aporte académico consiste en delimitar ese comportamiento dentro del montaje estudiado, integrarlo con comprobaciones explícitas y dejar identificadas las pruebas necesarias antes de usar la salida como orden de producción.

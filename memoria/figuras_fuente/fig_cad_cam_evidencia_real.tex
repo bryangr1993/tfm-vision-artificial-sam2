@@ -1,0 +1,41 @@
+\documentclass[tikz,border=10pt]{standalone}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{graphicx}
+\usetikzlibrary{arrows.meta,positioning}
+\definecolor{navy}{HTML}{15324B}
+\definecolor{cyan}{HTML}{DCEFF7}
+\definecolor{orange}{HTML}{E8873A}
+\tikzset{
+  panel/.style={draw=navy,rounded corners=3pt,very thick,inner sep=4pt,fill=white},
+  arr/.style={-{Latex[length=2.5mm]},very thick,navy},
+  title/.style={font=\sffamily\normalsize\bfseries,align=center,text=navy},
+  note/.style={font=\sffamily\normalsize,align=center,text=navy}
+}
+\begin{document}
+\begin{tikzpicture}[node distance=0.55cm]
+  \node[panel] (raw)
+    {\includegraphics[width=3.0cm,height=3.7cm,keepaspectratio]{figuras/22_01_raw.png}};
+  \node[panel,right=of raw] (rect)
+    {\includegraphics[width=2.55cm,height=3.7cm,keepaspectratio]{figuras/22_03_rectified.png}};
+  \node[panel,right=of rect] (mask)
+    {\includegraphics[width=2.55cm,height=3.7cm,keepaspectratio]{../resultados/integracion_lote_v8/masks/real_20_sam2_operational.png}};
+  \node[panel,right=of mask] (contours)
+    {\includegraphics[width=2.55cm,height=3.7cm,keepaspectratio]{figuras/22_06_contours.png}};
+  \node[draw=navy,rounded corners=3pt,very thick,minimum width=3.15cm,
+    minimum height=3.9cm,text width=2.75cm,align=center,fill=cyan,
+    font=\sffamily\normalsize,right=of contours] (handoff)
+    {Contornos en mm\\[3pt]WCS válido\\[3pt]DXF verificado\\estructuralmente\\[8pt]
+     \textcolor{orange}{Entrega a CAM}};
+  \draw[arr] (raw)--(rect);
+  \draw[arr] (rect)--(mask);
+  \draw[arr] (mask)--(contours);
+  \draw[arr] (contours)--(handoff);
+  \node[title,above=0.23cm of raw] {Captura real};
+  \node[title,above=0.23cm of rect] {Rectificación};
+  \node[title,above=0.23cm of mask] {SAM 2};
+  \node[title,above=0.23cm of contours] {Vectorización};
+  \node[title,above=0.23cm of handoff] {CAD/CAM};
+\end{tikzpicture}
+\end{document}

@@ -3,7 +3,8 @@
 La estrategia de prompts ya está bloqueada con el conjunto sintético de
 validación. Las cajas reales proceden del localizador clásico aproximado, pero
 las fronteras de sus máscaras no intervienen en el cálculo de la salida de SAM 2.
-La referencia se define en el plano canónico común de la lámina rectificada.
+La referencia se define en el plano canónico común de la lámina rectificada y
+es una preanotación algorítmica asistida, no una anotación manual independiente.
 """
 
 from __future__ import annotations
@@ -109,7 +110,11 @@ def main() -> None:
         "selection_partition": "synthetic_validation",
         "evaluation_domain": "13 rectified captures of one physical sheet",
         "prompt_source": "classical coarse localizer; boxes only",
-        "reference": "assisted canonical reference independent of compared masks",
+        "reference": (
+            "algorithmically assisted canonical reference; classical-derived boxes plus "
+            "GrabCut/Canny/morphology; no direct copy of compared mask pixels; not an "
+            "independent manual annotation"
+        ),
         "mean_iou": float(np.mean(iou_values)),
         "std_iou": float(np.std(iou_values, ddof=1)),
         "iou_capture_bootstrap_95_ci": bootstrap_mean_ci(iou_values, seed=42),

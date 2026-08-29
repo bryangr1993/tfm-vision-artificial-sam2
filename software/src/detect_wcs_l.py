@@ -2,6 +2,16 @@ import cv2
 import numpy as np
 import os
 
+from configuration import validate_operational_scale
+
+
+MAX_RAW_ORTHOGONALITY_DOT = 0.08
+MAX_WCS_DISTANCE_FROM_TL_MM = 25.0
+MAX_ENDPOINT_DISTANCE_MM = 4.5
+MIN_CANVAS_EDGE_CLEARANCE_MM = 6.0
+AMBIGUITY_CLUSTER_DISTANCE_MM = 2.5
+AMBIGUITY_SCORE_RATIO = 0.90
+
 def detect_wcs_l(rectified_img, debug_dir=None, img_name="img", 
                  manual_origin=None, manual_axes=None, marker_margin=10.0, scale=10.0):
     """
@@ -24,13 +34,39 @@ def detect_wcs_l(rectified_img, debug_dir=None, img_name="img",
                 "message": Mensaje descriptivo
               }
     """
+    scale = validate_operational_scale(scale)
+    if rectified_img is None or rectified_img.ndim != 3:
+        raise ValueError("La imagen rectificada debe ser una matriz BGR válida.")
+    H, W = rectified_img.shape[:2]
+
     # 1. Modo Manual Forzado
     if manual_origin is not None:
+        manual_origin_array = np.asarray(manual_origin, dtype=float)
+        if (
+            manual_origin_array.shape != (2,)
+            or not np.all(np.isfinite(manual_origin_array))
+            or not (0 <= manual_origin_array[0] < W)
+            or not (0 <= manual_origin_array[1] < H)
+        ):
+            raise ValueError("El origen manual del WCS debe estar dentro de la imagen.")
+        manual_origin = tuple(map(float, manual_origin_array))
         uX = (1.0, 0.0)
         uY = (0.0, 1.0)
         if manual_axes is not None and len(manual_axes) == 4:
-            uX = (manual_axes[0], manual_axes[1])
-            uY = (manual_axes[2], manual_axes[3])
+            raw_uX = np.asarray((manual_axes[0], manual_axes[1]), dtype=float)
+            raw_uY = np.asarray((manual_axes[2], manual_axes[3]), dtype=float)
+            if not np.all(np.isfinite(np.concatenate((raw_uX, raw_uY)))):
+                raise ValueError("Los ejes manuales del WCS deben ser finitos.")
+            norm_x = np.linalg.norm(raw_uX)
+            norm_y = np.linalg.norm(raw_uY)
+            if norm_x == 0 or norm_y == 0:
+                raise ValueError("Los ejes manuales del WCS no pueden ser nulos.")
+            raw_uX /= norm_x
+            raw_uY /= norm_y
+            if abs(float(np.dot(raw_uX, raw_uY))) > 0.05:
+                raise ValueError("Los ejes manuales del WCS deben ser ortogonales.")
+            uX = tuple(raw_uX)
+            uY = tuple(raw_uY)
             
         print(f"  [detect_wcs_l] Usando WCS configurado manualmente: Origen={manual_origin}, uX={uX}, uY={uY}")
         
@@ -43,10 +79,10 @@ def detect_wcs_l(rectified_img, debug_dir=None, img_name="img",
             "origin": manual_origin,
             "uX": uX,
             "uY": uY,
-            "message": "Manual override applied"
+            "message": "WCS manual aplicado; pendiente de validación física en máquina",
+            "validation_mode": "manual_override",
         }
         
-    H, W = rectified_img.shape[:2]
     # Calcular el margen físico en píxeles donde está mapeado el centroide del marcador TL
     margin_px = int(marker_margin * scale)
     
@@ -57,9 +93,9 @@ def detect_wcs_l(rectified_img, debug_dir=None, img_name="img",
     # El rango X e Y abarca un área de búsqueda acotada de 45 mm x 45 mm (450x450 px)
     # cubriendo de forma segura el cuadrante de calibración y evitando falsos positivos con los toppers.
     roi_x_start = 0
-    roi_x_end = min(W, 450)
+    roi_x_end = min(W, int(45.0 * scale))
     roi_y_start = 0
-    roi_y_end = min(H, 450)
+    roi_y_end = min(H, int(45.0 * scale))
     
     roi = rectified_img[roi_y_start:roi_y_end, roi_x_start:roi_x_end]
     gray_roi = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
@@ -74,10 +110,11 @@ def detect_wcs_l(rectified_img, debug_dir=None, img_name="img",
                                   cv2.THRESH_BINARY_INV, 51, 15)
 
     # Filtrar el área del marcador de esquina M1 para evitar falsos positivos con sus bordes cuadrados
-    m_start_x = max(0, margin_px - 85)
-    m_end_x = min(roi_x_end, margin_px + 85)
-    m_start_y = max(0, margin_px - 85)
-    m_end_y = min(roi_y_end, margin_px + 85)
+    marker_exclusion_px = int(8.5 * scale)
+    m_start_x = max(0, margin_px - marker_exclusion_px)
+    m_end_x = min(roi_x_end, margin_px + marker_exclusion_px)
+    m_start_y = max(0, margin_px - marker_exclusion_px)
+    m_end_y = min(roi_y_end, margin_px + marker_exclusion_px)
     thresh[m_start_y:m_end_y, m_start_x:m_end_x] = 0
     
     # Detectar segmentos de línea usando Hough lineal probabilístico
@@ -107,7 +144,7 @@ def detect_wcs_l(rectified_img, debug_dir=None, img_name="img",
         # Filtro físico: la marca grabada por el láser tiene brazos de 15-20 mm (150-200 px).
         # Cualquier segmento mayor a 25 mm (250 px) pertenece a bordes impresos de la hoja o al chasis.
         # Cualquier segmento menor a 2.5 mm (25 px) es ruido.
-        if length < 25 or length > 250:
+        if length < 2.5 * scale or length > 25.0 * scale:
             continue
             
         angle = np.abs(np.degrees(np.arctan2(dy, dx)))
@@ -127,6 +164,7 @@ def detect_wcs_l(rectified_img, debug_dir=None, img_name="img",
     
     found_l = False
     best_wcs = None
+    valid_candidates = []
     
     # Búsqueda combinatoria robusta RANSAC-like evaluando los segmentos más largos
     # (revisando las mejores 8 combinaciones horizontales y verticales)
@@ -186,7 +224,7 @@ def detect_wcs_l(rectified_img, debug_dir=None, img_name="img",
             
             # Filtrar alineaciones crudas no ortogonales (p. ej. si no es una forma en L)
             raw_dot_product = np.abs(np.dot(raw_uX, raw_uY))
-            if raw_dot_product > 0.45: # Tolerancia ortogonal cruda de cos(63°)
+            if raw_dot_product > MAX_RAW_ORTHOGONALITY_DOT:
                 continue
                 
             # ORTOGONALIZACIÓN MATEMÁTICA ESTRICTA (90.00°):
@@ -214,7 +252,8 @@ def detect_wcs_l(rectified_img, debug_dir=None, img_name="img",
                 # --- FILTRO 1: MARGEN DE SEGURIDAD FÍSICA CONTRA MARCOS IMPRESOS ---
                 # Exigimos una holgura mínima absoluta de 6.0 mm (60 px) desde el borde físico del lienzo (0,0).
                 # Esto descarta de forma absoluta la esquina del marco impreso a (40, 30).
-                if origin[0] < 60 or origin[1] < 60:
+                min_clearance_px = MIN_CANVAS_EDGE_CLEARANCE_MM * scale
+                if origin[0] < min_clearance_px or origin[1] < min_clearance_px:
                     continue
                     
                 # --- FILTRO 2: PROXIMIDAD DE EXTREMOS (SHAPE MATCHING) ---
@@ -227,29 +266,33 @@ def detect_wcs_l(rectified_img, debug_dir=None, img_name="img",
                                  np.hypot(orig_x - (v_x2 + roi_x_start), orig_y - (v_y2 + roi_y_start)))
                 
                 # Los extremos deben coincidir con la intersección a menos de 4.5 mm (45 px)
-                if min_dist_h > 45 or min_dist_v > 45:
+                max_endpoint_distance_px = MAX_ENDPOINT_DISTANCE_MM * scale
+                if min_dist_h > max_endpoint_distance_px or min_dist_v > max_endpoint_distance_px:
                     continue
                     
                 # --- FILTRO 3: PROXIMIDAD GENERAL AL MARCADOR TL ---
                 # El operario colocará por diseño el WCS "cercano al TL".
-                # Aumentamos la tolerancia máxima a 75 mm (750 px) para dar amplio margen a la colocación manual "al ojo".
+                # La validación real limita el vértice a 25 mm del marcador TL;
+                # así se excluyen intersecciones de los propios diseños.
                 dist_to_tl = np.hypot(orig_x - margin_px, orig_y - margin_px)
-                if dist_to_tl > 750:
+                if dist_to_tl > MAX_WCS_DISTANCE_FROM_TL_MM * scale:
                     continue
                     
                 # Si pasa todos los filtros, hemos hallado un L-mark candidato robusto.
                 # Favorecemos la combinación que maximice la longitud acumulada de los brazos.
                 combined_len = h_len + v_len
+                candidate = {
+                    "score": float(combined_len),
+                    "origin": (float(origin[0]), float(origin[1])),
+                    "uX": (float(uX[0]), float(uX[1])),
+                    "uY": (float(uY[0]), float(uY[1])),
+                    "dot": float(raw_dot_product),
+                    "angle": float(np.degrees(np.arccos(np.clip(raw_dot_product, -1.0, 1.0)))),
+                    "dist_to_tl": float(dist_to_tl),
+                }
+                valid_candidates.append(candidate)
                 if best_wcs is None or combined_len > best_wcs["score"]:
-                    best_wcs = {
-                        "score": combined_len,
-                        "origin": origin,
-                        "uX": tuple(uX),
-                        "uY": tuple(uY),
-                        "dot": raw_dot_product,
-                        "angle": np.degrees(np.arccos(np.clip(raw_dot_product, -1.0, 1.0))),
-                        "dist_to_tl": dist_to_tl
-                    }
+                    best_wcs = candidate
                     found_l = True
             except np.linalg.LinAlgError:
                 continue
@@ -261,7 +304,44 @@ def detect_wcs_l(rectified_img, debug_dir=None, img_name="img",
             "origin": None,
             "uX": None,
             "uY": None,
-            "message": "No valid physical L-shape matching in ROI"
+            "message": "No se encontró una marca L geométricamente válida en la ROI"
+        }
+
+    # Agrupar soluciones Hough que describen el mismo vértice. Si dos marcas
+    # espacialmente distintas tienen soporte casi equivalente, el detector no
+    # elige una de forma arbitraria: declara ambigüedad y bloquea la exportación.
+    candidate_clusters = []
+    cluster_radius_px = AMBIGUITY_CLUSTER_DISTANCE_MM * scale
+    for candidate in sorted(valid_candidates, key=lambda item: item["score"], reverse=True):
+        for cluster in candidate_clusters:
+            if np.hypot(
+                candidate["origin"][0] - cluster["origin"][0],
+                candidate["origin"][1] - cluster["origin"][1],
+            ) <= cluster_radius_px:
+                cluster["members"] += 1
+                break
+        else:
+            candidate_clusters.append(
+                {
+                    "origin": candidate["origin"],
+                    "score": candidate["score"],
+                    "members": 1,
+                }
+            )
+    candidate_clusters.sort(key=lambda item: item["score"], reverse=True)
+    if (
+        len(candidate_clusters) > 1
+        and candidate_clusters[1]["score"]
+        >= AMBIGUITY_SCORE_RATIO * candidate_clusters[0]["score"]
+    ):
+        print("  [detect_wcs_l] Detección ambigua: dos vértices tienen soporte similar.")
+        return {
+            "status": "WCS_AMBIGUOUS",
+            "origin": None,
+            "uX": None,
+            "uY": None,
+            "message": "Se detectaron candidatos WCS incompatibles con soporte similar",
+            "candidate_clusters": len(candidate_clusters),
         }
         
     origin = best_wcs["origin"]
@@ -269,12 +349,12 @@ def detect_wcs_l(rectified_img, debug_dir=None, img_name="img",
     uY = best_wcs["uY"]
     actual_angle = best_wcs["angle"]
     
-    print(f"  [detect_wcs_l] ¡Marca L Detectada Exitosamente y validada físicamente!")
+    print("  [detect_wcs_l] Marca L detectada y validada geométricamente.")
     print(f"    Vértice (Origen): {origin}")
     print(f"    Eje X Unitario (uX): {uX}")
     print(f"    Eje Y Unitario (uY): {uY}")
     print(f"    Ángulo entre ejes: {actual_angle:.1f}° (dot={best_wcs['dot']:.3f})")
-    print(f"    Distancia al TL: {best_wcs['dist_to_tl']:.1f} px ({best_wcs['dist_to_tl']/10.0:.1f} mm)")
+    print(f"    Distancia al TL: {best_wcs['dist_to_tl']:.1f} px ({best_wcs['dist_to_tl']/scale:.1f} mm)")
     
     # Guardar depuración visual
     if debug_dir:
@@ -285,7 +365,11 @@ def detect_wcs_l(rectified_img, debug_dir=None, img_name="img",
         "origin": origin,
         "uX": uX,
         "uY": uY,
-        "message": "Automatic WCS L-mark detection successful and physically validated"
+        "message": "Detección automática WCS superó las comprobaciones geométricas; pendiente de validación física en máquina",
+        "validation_mode": "automatic_geometric",
+        "raw_orthogonality_dot": best_wcs["dot"],
+        "distance_to_tl_mm": best_wcs["dist_to_tl"] / scale,
+        "candidate_clusters": len(candidate_clusters),
     }
 
 def save_wcs_debug(img, origin, uX, uY, debug_dir, img_name, manual=False):

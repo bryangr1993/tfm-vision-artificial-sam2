@@ -1,0 +1,62 @@
+{
+  "python": "3.12.10",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "numpy": "2.5.2",
+  "opencv": "4.14.0",
+  "scikit_learn": "1.9.0",
+  "joblib": "1.5.3",
+  "feature_names": [
+    "red",
+    "green",
+    "blue",
+    "hue",
+    "saturation",
+    "value",
+    "L_lightness",
+    "a_redgreen",
+    "b_blueyellow",
+    "sobel_x",
+    "sobel_y",
+    "grad_magnitude",
+    "gaussian_blur_s2",
+    "gaussian_blur_s5",
+    "difference_of_gaussians",
+    "local_mean_7",
+    "local_std_7",
+    "local_mean_15",
+    "local_std_15"
+  ],
+  "feature_groups": {
+    "color_9": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "gradients_3": [
+      9,
+      10,
+      11
+    ],
+    "multiscale_3": [
+      12,
+      13,
+      14
+    ],
+    "local_statistics_4": [
+      15,
+      16,
+      17,
+      18
+    ]
+  },
+  "script": "experimentos/random_forest/train_rf_identity_v2.py",
+  "training_script_sha256_at_run": "71d5b9623c9c45f0289384d62531bd34e6a516ba277f86d2a8cdbc3123e83eb0",
+  "current_script_sha256": "04852c6e1e19ee1ddb4562c40b6c1cd194522e8a923a9731ac075966442f91af",
+  "post_run_change_scope": "Solo se mejoró la presentación de tres figuras; no cambiaron muestreo, búsqueda, ajuste, selección ni evaluación."
+}

@@ -1,0 +1,195 @@
+{
+  "protocol_version": "sam2_prompt_margin_identity_v2",
+  "dataset_version": "asset_identity_v2",
+  "split_protocol": "asset_identity_disjoint",
+  "dataset_integrity": {
+    "split_counts": {
+      "train": 24,
+      "val": 12,
+      "test": 12
+    },
+    "asset_sets": {
+      "train": [
+        "A01",
+        "A04",
+        "A05",
+        "A08",
+        "A10",
+        "A12",
+        "A13",
+        "A16",
+        "A19",
+        "A21",
+        "A22",
+        "A23",
+        "A25",
+        "A30",
+        "A31",
+        "A32"
+      ],
+      "val": [
+        "A02",
+        "A07",
+        "A09",
+        "A14",
+        "A20",
+        "A24",
+        "A27",
+        "A29"
+      ],
+      "test": [
+        "A03",
+        "A06",
+        "A11",
+        "A15",
+        "A17",
+        "A18",
+        "A26",
+        "A28"
+      ]
+    }
+  },
+  "candidate_margins": [
+    0.0,
+    0.03,
+    0.05,
+    0.1
+  ],
+  "selection_partition": "val only",
+  "selection_prompt_source": "classical_prompt_localizer",
+  "selection_rule": "maximize mean IoU minus 0.005 times mean absolute component-count error; tie-break by boundary F1 and then smaller margin",
+  "selected_box_margin_fraction": 0.05,
+  "validation_winner": {
+    "box_margin_fraction": 0.05,
+    "n_validation_sheets": 12,
+    "mean_validation_iou": 0.9231556680747209,
+    "std_validation_iou": 0.0031849767526459993,
+    "iou_bootstrap_95_ci_low": 0.9217241827832344,
+    "iou_bootstrap_95_ci_high": 0.9250623400730767,
+    "mean_validation_dice": 0.9600399766919329,
+    "mean_validation_boundary_f1": 0.7663333305404435,
+    "mean_component_error": 0.0,
+    "selection_score": 0.9231556680747209,
+    "mean_prompt_count": 8.0
+  },
+  "test_access_policy": "The test partition was evaluated only after locking the margin on validation; no alternative margin was evaluated on test.",
+  "ideal_prompt_policy": "Ideal boxes were evaluated only after selection as an oracle diagnostic and did not affect the winner.",
+  "real_reference_policy": "Real results are agreement with an algorithmically assisted canonical preannotation, not accuracy against independent ground truth.",
+  "manifest": "datos/manifiesto/datasets_asset_identity_v2.csv",
+  "manifest_sha256": "d850a74911feb592c33c7fc66e686d3093d34a33036742f981d1c2ab232c10dc",
+  "dataset_config_sha256": "c66be9c5d543d31e8c5a111f3bac0c670e29f294149cefcf3807c1bd28651b1c",
+  "checkpoint_sha256": "65b50056e05bcb13694174f51bb6da89c894b57b75ccdf0ba6352c597c5d1125",
+  "model_config": "configs/sam2/sam2_hiera_t.yaml",
+  "device": "cpu",
+  "python": "3.12.10",
+  "torch": "2.13.0+cpu",
+  "opencv": "4.14.0",
+  "validation_table": [
+    {
+      "box_margin_fraction": 0.05,
+      "n_validation_sheets": 12,
+      "mean_validation_iou": 0.9231556680747209,
+      "std_validation_iou": 0.0031849767526459993,
+      "iou_bootstrap_95_ci_low": 0.9217241827832344,
+      "iou_bootstrap_95_ci_high": 0.9250623400730767,
+      "mean_validation_dice": 0.9600399766919329,
+      "mean_validation_boundary_f1": 0.7663333305404435,
+      "mean_component_error": 0.0,
+      "selection_score": 0.9231556680747209,
+      "mean_prompt_count": 8.0
+    },
+    {
+      "box_margin_fraction": 0.03,
+      "n_validation_sheets": 12,
+      "mean_validation_iou": 0.922847135252577,
+      "std_validation_iou": 0.0032194740836222614,
+      "iou_bootstrap_95_ci_low": 0.9213725610419381,
+      "iou_bootstrap_95_ci_high": 0.9247567624770854,
+      "mean_validation_dice": 0.9598730507620811,
+      "mean_validation_boundary_f1": 0.7684918592309747,
+      "mean_component_error": 0.0,
+      "selection_score": 0.922847135252577,
+      "mean_prompt_count": 8.0
+    },
+    {
+      "box_margin_fraction": 0.1,
+      "n_validation_sheets": 12,
+      "mean_validation_iou": 0.9228124146307489,
+      "std_validation_iou": 0.0035737100354873074,
+      "iou_bootstrap_95_ci_low": 0.92118404001105,
+      "iou_bootstrap_95_ci_high": 0.9249627778386599,
+      "mean_validation_dice": 0.9598536518498858,
+      "mean_validation_boundary_f1": 0.7578714885526661,
+      "mean_component_error": 0.0,
+      "selection_score": 0.9228124146307489,
+      "mean_prompt_count": 8.0
+    },
+    {
+      "box_margin_fraction": 0.0,
+      "n_validation_sheets": 12,
+      "mean_validation_iou": 0.9213996885522918,
+      "std_validation_iou": 0.003488001591762245,
+      "iou_bootstrap_95_ci_low": 0.9198112702154951,
+      "iou_bootstrap_95_ci_high": 0.9235173763242516,
+      "mean_validation_dice": 0.9590890254518544,
+      "mean_validation_boundary_f1": 0.7679077990672077,
+      "mean_component_error": 0.0,
+      "selection_score": 0.9213996885522918,
+      "mean_prompt_count": 8.0
+    }
+  ],
+  "locked_scenario_summary": [
+    {
+      "split": "real",
+      "prompt_scenario": "ideal",
+      "n_images": 13,
+      "mean_iou": 0.9537198681863852,
+      "std_iou": 0.008230076700941277,
+      "iou_bootstrap_95_ci_low": 0.9492658037769776,
+      "iou_bootstrap_95_ci_high": 0.9576829096066962,
+      "mean_dice": 0.9762949564415787,
+      "mean_boundary_f1": 0.720567773576267,
+      "mean_component_error": 0.0,
+      "mean_prompt_count": 8.0
+    },
+    {
+      "split": "real",
+      "prompt_scenario": "operational",
+      "n_images": 13,
+      "mean_iou": 0.9536402066630841,
+      "std_iou": 0.00825933167952818,
+      "iou_bootstrap_95_ci_low": 0.9491519155601739,
+      "iou_bootstrap_95_ci_high": 0.9576801490043063,
+      "mean_dice": 0.9762530932052796,
+      "mean_boundary_f1": 0.7200017398041768,
+      "mean_component_error": 0.0,
+      "mean_prompt_count": 8.0
+    },
+    {
+      "split": "test",
+      "prompt_scenario": "ideal",
+      "n_images": 12,
+      "mean_iou": 0.9231758654782308,
+      "std_iou": 0.0070485635938889605,
+      "iou_bootstrap_95_ci_low": 0.9193809943806339,
+      "iou_bootstrap_95_ci_high": 0.9269367928885373,
+      "mean_dice": 0.9600406958009103,
+      "mean_boundary_f1": 0.737646409678319,
+      "mean_component_error": 0.0,
+      "mean_prompt_count": 8.0
+    },
+    {
+      "split": "test",
+      "prompt_scenario": "operational",
+      "n_images": 12,
+      "mean_iou": 0.9230782853903857,
+      "std_iou": 0.007181907871669617,
+      "iou_bootstrap_95_ci_low": 0.919241379025382,
+      "iou_bootstrap_95_ci_high": 0.9268922766005075,
+      "mean_dice": 0.9599874361780757,
+      "mean_boundary_f1": 0.7375948627836054,
+      "mean_component_error": 0.0,
+      "mean_prompt_count": 8.0
+    }
+  ]
+}

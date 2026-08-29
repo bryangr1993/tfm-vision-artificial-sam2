@@ -1,0 +1,222 @@
+{
+  "protocol_version": "integration_batch_v8",
+  "n_captures": 13,
+  "expected_wcs_captures": 10,
+  "expected_no_wcs_captures": 3,
+  "markers_4_of_4": 13,
+  "correct_wcs_classifications": 13,
+  "captures_with_8_toppers": 13,
+  "captures_with_8_external_paths_and_no_holes": 13,
+  "hole_paths_per_capture": {
+    "real_13": 0,
+    "real_15": 0,
+    "real_17": 0,
+    "real_20": 0,
+    "real_22": 0,
+    "real_24": 0,
+    "real_26": 0,
+    "real_28": 0,
+    "real_30": 0,
+    "real_32": 0,
+    "real_34": 0,
+    "real_36": 0,
+    "real_38": 0
+  },
+  "correct_dxf_policy": 13,
+  "structurally_valid_dxf_expected_or_not_applicable": 13,
+  "all_checks_pass": true,
+  "mean_total_seconds": 4.430663184615416,
+  "device": "cpu",
+  "sam2_box_margin_fraction": 0.05,
+  "sam2_margin_selection": "resultados/metricas/sam2_idv2_prompt_selection.json",
+  "contour_export_policy": "external silhouettes only: 8 outer paths, internal printed details excluded",
+  "hole_support": "available as an explicit opt-in, disabled for this product",
+  "python": "3.12.10",
+  "torch": "2.13.0+cpu",
+  "dxf_validation_scope": "ezdxf round-trip, layer/polyline count, closure, finite coordinates and plausible bounds",
+  "dxf_validation_limit": "No physical laser cut and no RDWorks import were performed; the result is structural, not physical.",
+  "wcs_validation_limit": "SUCCESS denotes geometric detection and is not treated as independent metrological validation.",
+  "reference_limit": "Quality metrics use an algorithmically assisted canonical reference, not an independent manual annotation.",
+  "dxf_details": {
+    "real_20": {
+      "roundtrip_readable": true,
+      "outer_polyline_count": 8,
+      "hole_polyline_count": 0,
+      "polyline_count": 8,
+      "polyline_count_matches_contours": true,
+      "all_polylines_closed": true,
+      "all_coordinates_finite": true,
+      "bounds_mm": [
+        -3.6488483102682494,
+        9.651786714214563,
+        165.00019861359596,
+        253.65834825183364
+      ],
+      "bounds_plausible_for_a4_context": true,
+      "structurally_valid": true,
+      "error": ""
+    },
+    "real_22": {
+      "roundtrip_readable": true,
+      "outer_polyline_count": 8,
+      "hole_polyline_count": 0,
+      "polyline_count": 8,
+      "polyline_count_matches_contours": true,
+      "all_polylines_closed": true,
+      "all_coordinates_finite": true,
+      "bounds_mm": [
+        -3.7065440530568097,
+        9.897966090879926,
+        165.15216681285295,
+        253.96130869646422
+      ],
+      "bounds_plausible_for_a4_context": true,
+      "structurally_valid": true,
+      "error": ""
+    },
+    "real_24": {
+      "roundtrip_readable": true,
+      "outer_polyline_count": 8,
+      "hole_polyline_count": 0,
+      "polyline_count": 8,
+      "polyline_count_matches_contours": true,
+      "all_polylines_closed": true,
+      "all_coordinates_finite": true,
+      "bounds_mm": [
+        -3.803742258456407,
+        9.782086506696256,
+        165.06780851376408,
+        253.74956428886668
+      ],
+      "bounds_plausible_for_a4_context": true,
+      "structurally_valid": true,
+      "error": ""
+    },
+    "real_26": {
+      "roundtrip_readable": true,
+      "outer_polyline_count": 8,
+      "hole_polyline_count": 0,
+      "polyline_count": 8,
+      "polyline_count_matches_contours": true,
+      "all_polylines_closed": true,
+      "all_coordinates_finite": true,
+      "bounds_mm": [
+        -3.711145144451443,
+        9.677826789422966,
+        165.3105259173273,
+        253.94140324436654
+      ],
+      "bounds_plausible_for_a4_context": true,
+      "structurally_valid": true,
+      "error": ""
+    },
+    "real_28": {
+      "roundtrip_readable": true,
+      "outer_polyline_count": 8,
+      "hole_polyline_count": 0,
+      "polyline_count": 8,
+      "polyline_count_matches_contours": true,
+      "all_polylines_closed": true,
+      "all_coordinates_finite": true,
+      "bounds_mm": [
+        -3.476451356738729,
+        9.671281747639934,
+        165.38439125514523,
+        253.77394351048284
+      ],
+      "bounds_plausible_for_a4_context": true,
+      "structurally_valid": true,
+      "error": ""
+    },
+    "real_30": {
+      "roundtrip_readable": true,
+      "outer_polyline_count": 8,
+      "hole_polyline_count": 0,
+      "polyline_count": 8,
+      "polyline_count_matches_contours": true,
+      "all_polylines_closed": true,
+      "all_coordinates_finite": true,
+      "bounds_mm": [
+        -3.643289321089663,
+        9.680152565028923,
+        165.2844496386063,
+        253.5131581856147
+      ],
+      "bounds_plausible_for_a4_context": true,
+      "structurally_valid": true,
+      "error": ""
+    },
+    "real_32": {
+      "roundtrip_readable": true,
+      "outer_polyline_count": 8,
+      "hole_polyline_count": 0,
+      "polyline_count": 8,
+      "polyline_count_matches_contours": true,
+      "all_polylines_closed": true,
+      "all_coordinates_finite": true,
+      "bounds_mm": [
+        -3.685202471438663,
+        9.659430917629901,
+        165.18161754401507,
+        253.53225538199445
+      ],
+      "bounds_plausible_for_a4_context": true,
+      "structurally_valid": true,
+      "error": ""
+    },
+    "real_34": {
+      "roundtrip_readable": true,
+      "outer_polyline_count": 8,
+      "hole_polyline_count": 0,
+      "polyline_count": 8,
+      "polyline_count_matches_contours": true,
+      "all_polylines_closed": true,
+      "all_coordinates_finite": true,
+      "bounds_mm": [
+        -3.1998463918529736,
+        9.608523664521284,
+        165.56309005432965,
+        253.36020520224957
+      ],
+      "bounds_plausible_for_a4_context": true,
+      "structurally_valid": true,
+      "error": ""
+    },
+    "real_36": {
+      "roundtrip_readable": true,
+      "outer_polyline_count": 8,
+      "hole_polyline_count": 0,
+      "polyline_count": 8,
+      "polyline_count_matches_contours": true,
+      "all_polylines_closed": true,
+      "all_coordinates_finite": true,
+      "bounds_mm": [
+        -4.097692711022324,
+        9.376390806776875,
+        165.72969520154135,
+        254.09011080098895
+      ],
+      "bounds_plausible_for_a4_context": true,
+      "structurally_valid": true,
+      "error": ""
+    },
+    "real_38": {
+      "roundtrip_readable": true,
+      "outer_polyline_count": 8,
+      "hole_polyline_count": 0,
+      "polyline_count": 8,
+      "polyline_count_matches_contours": true,
+      "all_polylines_closed": true,
+      "all_coordinates_finite": true,
+      "bounds_mm": [
+        -3.079779639642356,
+        9.37745073169458,
+        165.86956715999273,
+        253.83692002255128
+      ],
+      "bounds_plausible_for_a4_context": true,
+      "structurally_valid": true,
+      "error": ""
+    }
+  }
+}

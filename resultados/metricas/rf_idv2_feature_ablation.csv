@@ -1,0 +1,5 @@
+ablation,feature_count,validation_sampled_pixel_jaccard,validation_pixel_count,seed,role
+color_9,9,0.9523339907955293,24000,20260828,diagnostic_only_not_used_for_model_selection
+color_gradients_12,12,0.9635584137191854,24000,20260829,diagnostic_only_not_used_for_model_selection
+full_19,19,0.9810163309292879,24000,20260830,diagnostic_only_not_used_for_model_selection
+full_19_plus_coordinates_21,21,0.9800281760172371,24000,20260831,diagnostic_only_not_used_for_model_selection

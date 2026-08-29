@@ -28,6 +28,7 @@ class SAM2Segmenter:
         model_config: str = "configs/sam2/sam2_hiera_t.yaml",
         device: str = "auto",
         box_margin_fraction: float = 0.05,
+        multimask_output: bool = True,
         min_component_area_px: int = 300,
         predictor: Any | None = None,
         model_builder: Callable[..., Any] | None = None,
@@ -37,6 +38,7 @@ class SAM2Segmenter:
         self.model_config = model_config
         self.device = device
         self.box_margin_fraction = box_margin_fraction
+        self.multimask_output = multimask_output
         self.min_component_area_px = min_component_area_px
         self._predictor = predictor
         self._model_builder = model_builder
@@ -127,7 +129,7 @@ class SAM2Segmenter:
             box_area = max(1, (x2 - x1) * (y2 - y1))
             masks, scores, _ = predictor.predict(
                 box=np.asarray(padded, dtype=np.float32),
-                multimask_output=True,
+                multimask_output=self.multimask_output,
             )
             selected, score = self._select_mask(masks, scores, box_area)
             accumulated[selected.astype(bool)] = 255
@@ -144,6 +146,11 @@ class SAM2Segmenter:
                 "model_variant": "Hiera Tiny",
                 "pretrained": True,
                 "device": self._resolve_device(),
+                "checkpoint": str(self.checkpoint.resolve()),
+                "checkpoint_available": self.checkpoint.is_file(),
+                "model_config": self.model_config,
                 "box_margin_fraction": self.box_margin_fraction,
+                "multimask_output": self.multimask_output,
+                "min_component_area_px": self.min_component_area_px,
             },
         )

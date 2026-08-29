@@ -2,17 +2,21 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{estilo_unir-1}
-\usepackage{apacite}
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{tabularx}
 \usepackage{ragged2e}
 \usepackage{float}
+\usepackage{pdflscape}
+\usepackage{capt-of}
 \usepackage{amsmath}
 \usepackage{chngcntr}
 \usepackage{url}
 \usepackage{seqsplit}
+\usepackage[hidelinks]{hyperref}
+\usepackage[all]{hypcap}
+\usepackage{apacite}
 \numberwithin{equation}{chapter}
 \counterwithout{figure}{chapter}
 \counterwithout{table}{chapter}
@@ -26,6 +30,12 @@
 \date{agosto de 2026}
 \director{María Flores Ceballos}
 \nombreciudad{Riobamba}
+\hypersetup{
+  pdftitle={Sistema de visión artificial para el registro geométrico y vectorización de contornos en operaciones de impresión y corte con láser CNC},
+  pdfauthor={Bryan Guillermo Guananga Rodríguez},
+  pdfsubject={Trabajo Fin de Máster del Máster Universitario en Inteligencia Artificial},
+  pdfkeywords={visión artificial, segmentación, vectorización, Random Forest, SAM 2}
+}
 
 \newcommand{\figuraopcional}[4]{%
 \IfFileExists{figuras/#1.pdf}{%
@@ -84,6 +94,7 @@
 }
 
 \begin{document}
+\hypersetup{pageanchor=false}
 \renewcommand{\listfigurename}{Índice de Figuras}
 \renewcommand{\listtablename}{Índice de Tablas}
 \renewcommand{\contentsname}{Índice de Contenidos}
@@ -93,6 +104,7 @@
 \maketitle
 
 \frontmatter
+\hypersetup{pageanchor=true}
 \tableofcontents
 \begingroup
 \makeatletter
@@ -110,36 +122,37 @@
 \endgroup
 
 \chapter*{Resumen}
-Este Trabajo Fin de Máster desarrolla un sistema de inteligencia artificial aplicado a visión artificial para registrar una hoja adhesiva impresa, segmentar sus diseños y convertir las siluetas en trayectorias de corte láser CNC. El caso de aplicación procede de Innokey, un taller de Riobamba donde los toppers personalizados se fabrican uniendo de forma manual una impresión adhesiva y una base rígida de MDF o acrílico. Esa operación puede introducir desplazamientos visibles y reprocesos. El flujo propuesto invierte la secuencia: la hoja completa se adhiere primero al soporte, una cámara registra la escena y el software calcula el contorno que debe seguir la máquina.
+En un taller de fabricación personalizada, una desviación mínima entre la silueta impresa y la trayectoria del láser basta para inutilizar una pieza. Este Trabajo Fin de Máster aborda ese problema mediante un sistema de inteligencia artificial aplicado a visión artificial que registra una hoja adhesiva impresa, segmenta sus diseños y convierte las siluetas en trayectorias de corte láser CNC. El caso procede de Innokey, un taller de producción bajo pedido ubicado en Riobamba, Ecuador. Allí, los \textit{toppers} se fabrican uniendo de forma manual una impresión adhesiva y una base rígida de MDF o acrílico, operación que puede dejar desplazamientos visibles y obligar a repetir la pieza. La propuesta cambia el orden: primero se adhiere la hoja completa al soporte. Después, una cámara registra la escena para que el software calcule el contorno que debe seguir la máquina.
 
-La herramienta combina rectificación por homografía, detección del sistema de coordenadas de trabajo y segmentación neuronal con SAM 2 Hiera Tiny. La visión clásica se conserva como línea base y como localizador aproximado de cajas, pero la máscara final que alimenta la extracción de contornos y la exportación DXF procede de SAM 2. También se estudió un Random Forest por píxel mediante búsqueda de hiperparámetros, validación agrupada y selección del umbral sobre láminas completas. Los experimentos utilizaron 48 hojas sintéticas separadas en 36 de entrenamiento, 6 de validación y 6 de prueba, además de 13 capturas rectificadas de una misma lámina real.
+La rectificación homográfica y la detección del sistema de coordenadas de trabajo abren el procesamiento. La visión clásica aporta esas referencias geométricas y propone cajas aproximadas, aunque la máscara enviada a la extracción de contornos y a la exportación DXF la genera SAM 2 Hiera Tiny. La comparación incorpora un Random Forest por píxel, con hiperparámetros escogidos mediante validación agrupada y un umbral decidido sobre láminas completas. Las 48 hojas sintéticas se construyeron con 32 identidades gráficas separadas entre entrenamiento, validación y prueba, lo que impide que una misma ilustración reaparezca en más de una partición. La evaluación externa utilizó 13 capturas rectificadas de una única hoja real.
 
-Los resultados muestran una diferencia clara entre dominios. En prueba sintética, Random Forest obtuvo un IoU medio de 0,9902, SAM 2 alcanzó 0,9153 y la línea clásica 0,9016. En las capturas reales, la visión clásica mantuvo el mejor IoU, con 0,9787, mientras que SAM 2 obtuvo 0,9536 y conservó las ocho instancias correctas en todas las imágenes. Random Forest descendió a 0,2877, lo que evidencia la brecha entre el banco sintético y las condiciones del taller. A pesar de no superar a la línea base real, SAM 2 ofreció contornos estables y quedó integrado como motor de segmentación de la interfaz. Una ejecución completa con referencia WCS válida generó ocho contornos y un archivo DXF no vacío.
+El comportamiento de los métodos cambió con el dominio. En la prueba sintética con identidades no vistas, Random Forest obtuvo un IoU medio de 0,9879, frente a 0,9231 de SAM 2 y 0,9098 de la línea clásica. Sobre las capturas reales la comparación midió concordancia con una referencia canónica asistida, no exactitud frente a un patrón oro independiente: la línea clásica alcanzó 0,9787, SAM 2 obtuvo 0,9536 y Random Forest 0,2881. Aunque no encabezó la comparación real, SAM 2 conservó ocho instancias en todas las capturas y su máscara alimentó la interfaz y la ejecución por lote hasta generar las siluetas del DXF. Diez capturas con WCS produjeron archivos estructuralmente válidos, mientras las tres sin referencia utilizable quedaron bloqueadas. Verificar esta cadena mediante cortes físicos es el paso que queda pendiente.
 
-\textbf{Palabras clave.} Visión artificial, Segmentación, Vectorización, Random Forest, SAM.
+\textbf{Palabras clave.} Visión artificial, Segmentación, Vectorización, Random Forest, SAM 2.
 
 \chapter*{Abstract}
-This Master's Thesis develops an artificial intelligence system for computer vision to register a printed adhesive sheet, segment its designs and convert their silhouettes into CNC laser-cutting paths. The application stems from Innokey, a small workshop in Riobamba where custom cake toppers are produced by manually joining an adhesive print to a rigid MDF or acrylic base. That operation may introduce visible offsets and rework. The proposed workflow changes the sequence: the complete sheet is first attached to the substrate, a camera records the scene and the software estimates the contour that the machine must follow.
+In a custom-production workshop, even a slight mismatch between a printed silhouette and the laser path can render a piece unusable. This Master's Thesis addresses that problem through an AI-based computer vision system that registers a printed adhesive sheet, segments its designs and converts their silhouettes into CNC laser-cutting paths. The case comes from Innokey, a made-to-order production workshop in Riobamba, Ecuador. There, custom cake toppers are assembled by manually joining an adhesive print to a rigid MDF or acrylic base, which can leave visible offsets and force the piece to be remade. The proposed workflow changes the order: the complete sheet is attached to the substrate first. A camera then captures the scene so that the software can estimate the contour the machine must follow.
 
-The tool combines homography-based rectification, work coordinate system detection and neural segmentation with SAM 2 Hiera Tiny. Classical computer vision is retained as a baseline and as a coarse box localizer, while the final mask passed to contour extraction and DXF export is generated by SAM 2. A pixel-wise Random Forest was also studied through hyperparameter search, grouped validation and full-sheet threshold selection. The experiments used 48 synthetic sheets split into 36 training, 6 validation and 6 test samples, together with 13 rectified captures of one physical sheet.
+Processing begins with homographic rectification and detection of the work coordinate system. Classical computer vision provides those geometric references and proposes coarse boxes, but the mask sent to contour extraction and DXF export is generated by SAM 2 Hiera Tiny. The comparison also includes a pixel-wise Random Forest, with hyperparameters chosen through grouped validation and a decision threshold selected on complete sheets. To prevent the same illustration from appearing in more than one split, the 48 synthetic sheets were built from 32 graphic identities kept disjoint across training, validation and test. External evaluation used 13 rectified captures of a single physical sheet.
 
-The results reveal a marked domain difference. On the synthetic test set, Random Forest achieved a mean IoU of 0.9902, SAM 2 reached 0.9153 and the classical baseline obtained 0.9016. On real captures, classical vision remained the strongest method with an IoU of 0.9787, while SAM 2 obtained 0.9536 and preserved the correct eight instances in every image. Random Forest fell to 0.2877, exposing the gap between synthetic training data and workshop conditions. Although SAM 2 did not outperform the real classical baseline, it produced stable contours and was integrated as the segmentation engine of the user interface. A complete run with a valid WCS reference generated eight contours and a non-empty DXF file.
+Performance changed across domains. On the synthetic test set with unseen identities, mean IoU was 0.9879 for Random Forest, compared with 0.9231 for SAM 2 and 0.9098 for the classical baseline. The real captures measured agreement with an assisted canonical reference rather than accuracy against an independent gold standard. Classical vision reached 0.9787, SAM 2 obtained 0.9536 and Random Forest 0.2881. Although it did not lead that comparison, SAM 2 preserved eight instances in every capture, and its mask was used by both the interface and the batch pipeline to generate the DXF silhouettes. Ten captures with a valid WCS produced structurally valid files, while the three without a usable reference were blocked. Physical cutting trials are still needed to verify the complete chain.
 
-\textbf{Keywords.} Computer vision, Segmentation, Vectorization, Random Forest, SAM.
+\textbf{Keywords.} Computer vision, Segmentation, Vectorization, Random Forest, SAM 2.
 
 \mainmatter
-\include{capitulos/01_introduccion}
-\include{capitulos/02_contexto_estado_arte}
-\include{capitulos/03_objetivos}
-\include{capitulos/04_requisitos}
-\include{capitulos/05_metodologia}
-\include{capitulos/06_herramienta_software}
-\include{capitulos/07_evaluacion_discusion}
-\include{capitulos/08_conclusiones}
+\input{capitulos/01_introduccion}
+\input{capitulos/02_contexto_estado_arte}
+\input{capitulos/03_objetivos}
+\input{capitulos/04_requisitos}
+\input{capitulos/05_metodologia}
+\input{capitulos/06_herramienta_software}
+\input{capitulos/07_resultados}
+\input{capitulos/08_discusion}
+\input{capitulos/09_conclusiones}
 
 \appendix
 \renewcommand{\appendixname}{ANEXO}
-\include{apendices/apendice_a_repositorio}
+\input{apendices/apendice_a_repositorio}
 
 \begingroup
 \small

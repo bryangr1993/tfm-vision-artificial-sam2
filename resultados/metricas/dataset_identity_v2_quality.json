@@ -1,0 +1,277 @@
+{
+  "dataset": "asset_identity_v2",
+  "grain": "one full synthetic A4 sheet per manifest row; eight instances per sheet",
+  "intended_use": "RF hyperparameter selection and locked synthetic evaluation",
+  "passed": true,
+  "sheet_count": 48,
+  "asset_count": 32,
+  "split_counts": {
+    "train": 24,
+    "val": 12,
+    "test": 12
+  },
+  "checks": [
+    {
+      "check": "sheet_count_by_split",
+      "passed": true,
+      "severity": "critical",
+      "evidence": {
+        "train": 24,
+        "val": 12,
+        "test": 12
+      }
+    },
+    {
+      "check": "unique_sample_id",
+      "passed": true,
+      "severity": "critical",
+      "evidence": 48
+    },
+    {
+      "check": "split_protocol_label",
+      "passed": true,
+      "severity": "critical",
+      "evidence": [
+        "asset_identity_disjoint"
+      ]
+    },
+    {
+      "check": "asset_id_cross_split",
+      "passed": true,
+      "severity": "critical",
+      "evidence": {
+        "train__val": [],
+        "train__test": [],
+        "val__test": []
+      }
+    },
+    {
+      "check": "asset_hash_cross_split",
+      "passed": true,
+      "severity": "critical",
+      "evidence": {
+        "train__val": [],
+        "train__test": [],
+        "val__test": []
+      }
+    },
+    {
+      "check": "source_filename_cross_split",
+      "passed": true,
+      "severity": "critical",
+      "evidence": {
+        "train__val": [],
+        "train__test": [],
+        "val__test": []
+      }
+    },
+    {
+      "check": "semantic_family_present_in_each_split",
+      "passed": true,
+      "severity": "critical",
+      "evidence": {
+        "train": [
+          "F1",
+          "F2",
+          "F3",
+          "F4"
+        ],
+        "val": [
+          "F1",
+          "F2",
+          "F3",
+          "F4"
+        ],
+        "test": [
+          "F1",
+          "F2",
+          "F3",
+          "F4"
+        ]
+      }
+    },
+    {
+      "check": "semantic_families_intentionally_not_disjoint",
+      "passed": true,
+      "severity": "info",
+      "evidence": "Las familias son estratos compartidos; la identidad de activo es la unidad disjunta."
+    },
+    {
+      "check": "asset_registry_unique_hash",
+      "passed": true,
+      "severity": "critical",
+      "evidence": 32
+    },
+    {
+      "check": "all_paths_exist",
+      "passed": true,
+      "severity": "critical",
+      "evidence": []
+    },
+    {
+      "check": "dimensions_2100x2970",
+      "passed": true,
+      "severity": "critical",
+      "evidence": []
+    },
+    {
+      "check": "binary_and_instance_mask_validity",
+      "passed": true,
+      "severity": "critical",
+      "evidence": []
+    },
+    {
+      "check": "metadata_asset_authorization",
+      "passed": true,
+      "severity": "critical",
+      "evidence": []
+    },
+    {
+      "check": "image_hash_cross_split",
+      "passed": true,
+      "severity": "critical",
+      "evidence": {
+        "train__val": [],
+        "train__test": [],
+        "val__test": []
+      }
+    },
+    {
+      "check": "mask_hash_cross_split",
+      "passed": true,
+      "severity": "critical",
+      "evidence": {
+        "train__val": [],
+        "train__test": [],
+        "val__test": []
+      }
+    },
+    {
+      "check": "all_allocated_assets_used",
+      "passed": true,
+      "severity": "critical",
+      "evidence": {
+        "train": [
+          "A01",
+          "A04",
+          "A05",
+          "A08",
+          "A10",
+          "A12",
+          "A13",
+          "A16",
+          "A19",
+          "A21",
+          "A22",
+          "A23",
+          "A25",
+          "A30",
+          "A31",
+          "A32"
+        ],
+        "val": [
+          "A02",
+          "A07",
+          "A09",
+          "A14",
+          "A20",
+          "A24",
+          "A27",
+          "A29"
+        ],
+        "test": [
+          "A03",
+          "A06",
+          "A11",
+          "A15",
+          "A17",
+          "A18",
+          "A26",
+          "A28"
+        ]
+      }
+    },
+    {
+      "check": "train_cv_groups_asset_disjoint",
+      "passed": true,
+      "severity": "critical",
+      "evidence": {
+        "G1": [
+          "A08",
+          "A10",
+          "A22",
+          "A31"
+        ],
+        "G2": [
+          "A01",
+          "A16",
+          "A23",
+          "A25"
+        ],
+        "G3": [
+          "A05",
+          "A12",
+          "A19",
+          "A30"
+        ],
+        "G4": [
+          "A04",
+          "A13",
+          "A21",
+          "A32"
+        ]
+      }
+    },
+    {
+      "check": "condition_coverage",
+      "passed": true,
+      "severity": "critical",
+      "evidence": {
+        "train": [
+          "C1",
+          "C2",
+          "C3",
+          "C4",
+          "C5",
+          "C6"
+        ],
+        "val": [
+          "C1",
+          "C2",
+          "C3",
+          "C4",
+          "C5",
+          "C6"
+        ],
+        "test": [
+          "C1",
+          "C2",
+          "C3",
+          "C4",
+          "C5",
+          "C6"
+        ]
+      }
+    },
+    {
+      "check": "layout_coverage",
+      "passed": true,
+      "severity": "critical",
+      "evidence": {
+        "train": [
+          "L1",
+          "L2"
+        ],
+        "val": [
+          "L1",
+          "L2"
+        ],
+        "test": [
+          "L1",
+          "L2"
+        ]
+      }
+    }
+  ],
+  "critical_failure_count": 0
+}

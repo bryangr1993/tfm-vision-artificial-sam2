@@ -1,0 +1,94 @@
+{
+  "status": "passed",
+  "assessment": "ready_to_use_with_explicit_real_reference_caveat",
+  "validated_test_sample_ids": [
+    "idv2_test_L1_C1",
+    "idv2_test_L1_C2",
+    "idv2_test_L1_C3",
+    "idv2_test_L1_C4",
+    "idv2_test_L1_C5",
+    "idv2_test_L1_C6",
+    "idv2_test_L2_C1",
+    "idv2_test_L2_C2",
+    "idv2_test_L2_C3",
+    "idv2_test_L2_C4",
+    "idv2_test_L2_C5",
+    "idv2_test_L2_C6"
+  ],
+  "checks": {
+    "same_test_population_all_methods": true,
+    "test_sheet_count_per_method": 12,
+    "test_sample_ids_unique": true,
+    "metric_ranges_valid": true,
+    "boundary_f1_tolerance_px": 3,
+    "selection_locks_exclude_test": true,
+    "dataset_manifest_hash_aligned": true,
+    "real_capture_population_aligned": true,
+    "real_capture_count": 13,
+    "real_physical_sheet_count": 1,
+    "real_reference_is_assisted_not_independent": true,
+    "runtime_same_process_hardware_inputs": true,
+    "runtime_scope_aligned": true
+  },
+  "required_caveat": "Real-domain metrics are agreement with an algorithmically assisted canonical reference over 13 captures of one physical sheet, not accuracy against independent ground truth or population-level generalization.",
+  "chart_contracts": [
+    {
+      "figure": "comparison_test_idv2_final",
+      "question": "How do the three final methods compare on the same locked IDV2 TEST sheets?",
+      "family": "Comparison and uncertainty",
+      "variant": "grouped strip and mean plot",
+      "palette": "three explicit method colors plus distinct marker shapes",
+      "scale": "focused score scale 0.70-1.00, explicitly disclosed"
+    },
+    {
+      "figure": "synthetic_real_gap_final",
+      "question": "How do synthetic TEST IoU and assisted real-domain agreement differ descriptively?",
+      "family": "Comparison",
+      "variant": "paired bars from zero",
+      "palette": "hard two-root domain comparison with hatch",
+      "scale": "zero-based 0-1.13"
+    },
+    {
+      "figure": "runtime_comparison_idv2_final",
+      "question": "What is the segmentation time of each final method under one coherent protocol?",
+      "family": "Distribution and comparison",
+      "variant": "median and interquartile dot-interval",
+      "palette": "three explicit method colors plus distinct marker shapes",
+      "scale": "logarithmic seconds, explicitly disclosed"
+    }
+  ],
+  "source_hashes": {
+    "datos/manifiesto/datasets_asset_identity_v2.csv": "d850a74911feb592c33c7fc66e686d3093d34a33036742f981d1c2ab232c10dc",
+    "resultados/metricas/classical_idv2_test_metrics.csv": "0d3fa5223695c082fd3da50ee8df10e5e078775b665087b526f2ac0d1f2ee7d5",
+    "resultados/metricas/classical_idv2_test_summary.json": "dba12da68c75ef06ff6413ff20466474fefc0bbda962761f783615a01be2d8cf",
+    "resultados/metricas/rf_idv2_test_metrics.csv": "1b93314c89c53129cfde30ea44b4400fe4f34df04e67cf2ddd9132166a1b994a",
+    "resultados/metricas/rf_idv2_test_summary.json": "b1cd10e69054ebb786311ef6ff180be4ee10e0d879fa6bdc260ccde42cb09721",
+    "resultados/metricas/rf_idv2_selection_locked.json": "6d6f14050b5a87de8400954dc304b35a9508a8f6333eca82675163948f3d1731",
+    "resultados/metricas/sam2_idv2_locked_test_operational_metrics.csv": "a1f3924f41cff0b04df38176b7a98ea8ab2f4312041d5d33f1af9c1eccb98975",
+    "resultados/metricas/sam2_idv2_prompt_selection.json": "9b26689a00003378db4ba60de94f5b114b6ffd1bf1d9df91add9a05f5f0fcaf5",
+    "resultados/metricas/classical_real_metrics.csv": "1a77f8eed23f1731bc4d513783df89ac6ef010e105af2043c2dbb6500984f6f8",
+    "resultados/metricas/classical_rf_real_summary.json": "50e037b3f986bf4aeab4b08aac5f797ba6654705a902dc8018b2c7e6d4a2f748",
+    "resultados/metricas/rf_idv2_real_agreement_metrics.csv": "8d2c6632c81d47331db7362cfc59b8fd4350670772b60e148379a884dab59f7a",
+    "resultados/metricas/rf_idv2_real_agreement_summary.json": "24e8638a6cf5d98d68962feafa5dcc99e2ed4caf8e6f8c40a40830993116df08",
+    "resultados/metricas/sam2_idv2_locked_scenario_summary.csv": "cbf821acddb6f1fceea859de822b1b45c86284386385d915f8f9886f9ed59e5a",
+    "resultados/metricas/sam2_idv2_locked_real_prompt_scenarios.csv": "6ebe2e6a98e51d8e56398f999475227f9d52c1b58594823dd706d7eafc24aba4",
+    "resultados/metricas/real_reference_validation_v8.json": "472b26a9c0e279ae61076e8d7a2ff8ebcd0f24f7e495fa0c786683a6d61c194b",
+    "resultados/metricas/segmentation_runtime_idv2_final_runs.csv": "5766a2695b1e028b36a8655d6dc7e32d24576a740c87d1c384c068fd77aae84c",
+    "resultados/metricas/segmentation_runtime_idv2_final_summary.json": "39eff595d63a17ff41ebd38b65f98f997ae419c067ce361d3630c973e55458d7"
+  },
+  "derived_tables": [
+    "resultados/metricas/comparison_idv2_final_per_sheet.csv",
+    "resultados/metricas/comparison_idv2_final_summary.csv",
+    "resultados/metricas/synthetic_real_gap_final.csv",
+    "resultados/metricas/runtime_comparison_idv2_final.csv"
+  ],
+  "figures": [
+    "resultados/figuras/comparison_test_idv2_final.png",
+    "resultados/figuras/comparison_test_idv2_final.pdf",
+    "resultados/figuras/synthetic_real_gap_final.png",
+    "resultados/figuras/synthetic_real_gap_final.pdf",
+    "resultados/figuras/runtime_comparison_idv2_final.png",
+    "resultados/figuras/runtime_comparison_idv2_final.pdf"
+  ],
+  "generator": "experimentos/comparacion/generate_final_idv2_figures.py"
+}

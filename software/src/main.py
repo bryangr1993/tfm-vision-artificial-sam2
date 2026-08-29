@@ -19,6 +19,8 @@ from ai_pipeline import build_operational_pipeline, segment_and_extract_with_ai
 from export_dxf import export_to_dxf, generate_validation_dxf
 from metrics_report import save_individual_report, generate_lot_summary
 from visualization import generate_scientific_figures
+from application_state import has_successful_wcs
+from configuration import load_app_config, validate_operational_scale
 
 # Mapeo oficial de las 13 imágenes prioritarias a sus condiciones del TFM
 IMAGE_CONDITIONS = {
@@ -51,6 +53,7 @@ def process_single_image(img_path, args, is_batch=False):
     print("-"*70)
     
     t_start = time.time()
+    validate_operational_scale(args.scale)
     
     # 1. Rutas de salida específicas
     out_debug_dir = os.path.join(args.output, "debug")
@@ -66,19 +69,35 @@ def process_single_image(img_path, args, is_batch=False):
     if args.manual_wcs_origin:
         try:
             parts = [float(x) for x in args.manual_wcs_origin.split(",")]
-            if len(parts) == 2:
-                manual_origin = (parts[0], parts[1])
-        except Exception:
-            print("  [main] Error: Formato incorrecto para --manual-wcs-origin. Debe ser 'x,y'.")
+        except ValueError as exc:
+            raise ValueError(
+                "Formato incorrecto para --manual-wcs-origin; use 'x,y'."
+            ) from exc
+        if len(parts) != 2:
+            raise ValueError(
+                "Formato incorrecto para --manual-wcs-origin; use 'x,y'."
+            )
+        manual_origin = (parts[0], parts[1])
             
     manual_axes = None
     if args.manual_wcs_axes:
         try:
             parts = [float(x) for x in args.manual_wcs_axes.split(",")]
-            if len(parts) == 4:
-                manual_axes = (parts[0], parts[1], parts[2], parts[3])
-        except Exception:
-            print("  [main] Error: Formato incorrecto para --manual-wcs-axes. Debe ser 'ux_x,ux_y,uy_x,uy_y'.")
+        except ValueError as exc:
+            raise ValueError(
+                "Formato incorrecto para --manual-wcs-axes; "
+                "use 'ux_x,ux_y,uy_x,uy_y'."
+            ) from exc
+        if len(parts) != 4:
+            raise ValueError(
+                "Formato incorrecto para --manual-wcs-axes; "
+                "use 'ux_x,ux_y,uy_x,uy_y'."
+            )
+        manual_axes = (parts[0], parts[1], parts[2], parts[3])
+        if manual_origin is None:
+            raise ValueError(
+                "--manual-wcs-axes requiere también --manual-wcs-origin."
+            )
             
     # Inicialización de métricas
     metrics = {
@@ -91,6 +110,8 @@ def process_single_image(img_path, args, is_batch=False):
         "wcs_uX": None,
         "wcs_uY": None,
         "toppers_detected": 0,
+        "holes_preserved": 0,
+        "cut_paths_total": 0,
         "segmentation_method": None,
         "discarded_count": 0,
         "time_load_ms": 0.0,
@@ -163,6 +184,8 @@ def process_single_image(img_path, args, is_batch=False):
                     model_config=args.sam_config,
                     device=args.device,
                     box_margin_fraction=args.sam_box_margin,
+                    multimask_output=args.sam_multimask_output,
+                    min_component_area_px=args.sam_min_component_area,
                 )
             result, contours, report = segment_and_extract_with_ai(
                 args._ai_pipeline,
@@ -193,15 +216,28 @@ def process_single_image(img_path, args, is_batch=False):
         cv2.imwrite(os.path.join(out_masks_dir, f"{img_name.rsplit('.', 1)[0]}_{args.segmenter}_mask.png"), mask)
         metrics["time_segment_ms"] = (time.time() - t0) * 1000
         metrics["toppers_detected"] = report["toppers_detected"]
+        metrics["holes_preserved"] = report.get("holes_preserved_count", 0)
+        metrics["cut_paths_total"] = report.get("cut_paths_total", len(contours))
         metrics["discarded_count"] = report["discarded_components_count"]
         metrics["time_contours_ms"] = 0.0
         
         # STEP 7: Exportación DXF
         t0 = time.time()
-        if wcs["status"] == "SUCCESS":
+        if has_successful_wcs(wcs):
             dxf_filename = f"toppers_{img_name.replace('.jpg', '.dxf')}"
             dxf_path = os.path.join(out_dxf_dir, dxf_filename)
-            success_dxf = export_to_dxf(contours, wcs, dxf_path, args.scale, args.offset, args.wcs_y_direction)
+            success_dxf = export_to_dxf(
+                contours,
+                wcs,
+                dxf_path,
+                args.scale,
+                args.offset,
+                args.wcs_y_direction,
+                contour_roles=report.get("path_roles"),
+                include_wcs_reference=args.include_wcs_reference,
+                sheet_size_mm=(sheet_w, sheet_h),
+                bounds_tolerance_mm=args.dxf_bounds_tolerance,
+            )
             if success_dxf:
                 metrics["dxf_path"] = dxf_path
                 metrics["observations"] = "Procesamiento y DXF exitoso"
@@ -214,7 +250,9 @@ def process_single_image(img_path, args, is_batch=False):
                 generate_validation_dxf(val_dxf_path, args.wcs_y_direction)
         else:
             # Modo Análisis
-            metrics["observations"] = "WCS_NOT_FOUND (Modo Análisis - Sin DXF WCS)"
+            metrics["observations"] = (
+                f"{wcs['status']} (Modo Análisis - Sin DXF WCS)"
+            )
             print(f"  [main] Advertencia: {wcs['message']}. Ejecutando en Modo Análisis.")
             
         metrics["time_export_dxf_ms"] = (time.time() - t0) * 1000
@@ -222,7 +260,7 @@ def process_single_image(img_path, args, is_batch=False):
         # STEP 8: Renderizado de Figuras Académicas para LaTeX
         generate_scientific_figures(img, markers, rectified, wcs, mask, contours, 
                                      report, out_figures_dir, img_name.replace('.jpg', ''),
-                                     args.wcs_y_direction, args.offset)
+                                     args.wcs_y_direction, args.offset, scale=args.scale)
         
         metrics["time_total_ms"] = (time.time() - t_start) * 1000
         print(f"  [main] Tiempo total: {metrics['time_total_ms']:.2f} ms")
@@ -240,7 +278,7 @@ def process_single_image(img_path, args, is_batch=False):
         save_individual_report(img_name, metrics, out_reports_dir)
         return metrics
 
-def main():
+def create_argument_parser(config):
     parser = argparse.ArgumentParser(description="Pipeline de Visión Artificial Industrial para Toppers Innokey")
     
     parser.add_argument("--input", type=str, default="data/raw",
@@ -249,34 +287,74 @@ def main():
                         help="Ruta a una imagen específica de entrada")
     parser.add_argument("--output", type=str, default="outputs",
                         help="Directorio de salida para los resultados")
-    parser.add_argument("--scale", type=float, default=10.0,
-                        help="Escala del lienzo rectificado en px/mm (defecto: 10.0)")
-    parser.add_argument("--sheet-size", type=str, default="210,297",
+    parser.add_argument("--config", type=str, default=str(config.source_path),
+                        help="Archivo YAML de configuración operativa")
+    parser.add_argument("--scale", type=float, default=config.geometry.pixels_per_mm,
+                        help="Escala bloqueada al valor validado de 10 px/mm")
+    parser.add_argument("--sheet-size", type=str,
+                        default=f"{config.geometry.sheet_width_mm:g},{config.geometry.sheet_height_mm:g}",
                         help="Dimensiones físicas de la hoja en mm como 'ancho,alto' (defecto: '210,297' para A4)")
-    parser.add_argument("--marker-margin", type=float, default=10.0,
+    parser.add_argument("--marker-margin", type=float, default=config.geometry.marker_margin_mm,
                         help="Margen físico del centro del marcador al borde de la hoja en mm (defecto: 10.0)")
-    parser.add_argument("--offset", type=float, default=0.0,
+    parser.add_argument("--offset", type=float, default=config.export.offset_mm,
                         help="Compensación exterior de corte en mm (defecto: 0.0)")
     parser.add_argument("--rotate", type=int, default=0, choices=[0, 90, 180, 270],
                         help="Forzar rotación horaria de la imagen de entrada (grados)")
-    parser.add_argument("--wcs-y-direction", type=str, default="down", choices=["down", "up"],
+    parser.add_argument("--wcs-y-direction", type=str, default=config.export.wcs_y_direction, choices=["down", "up"],
                         help="Sentido de avance del eje Y de la cortadora (defecto: 'down')")
     parser.add_argument("--segmenter", type=str, default="sam2", choices=["sam2", "classical"],
                         help="Segmentador. SAM 2 es el flujo operativo; classical solo reproduce la línea base.")
-    parser.add_argument("--sam-checkpoint", type=str, default=None,
-                        help="Ruta opcional al checkpoint de SAM 2.")
-    parser.add_argument("--sam-config", type=str, default="configs/sam2/sam2_hiera_t.yaml",
+    parser.add_argument("--sam-checkpoint", type=str, default=str(config.sam2.checkpoint),
+                        help="Ruta al checkpoint de SAM 2 definida por default.yaml.")
+    parser.add_argument("--sam-config", type=str, default=config.sam2.model_config,
                         help="Configuración de la variante SAM 2.")
-    parser.add_argument("--sam-box-margin", type=float, default=0.05,
+    parser.add_argument("--sam-box-margin", type=float, default=config.sam2.box_margin_fraction,
                         help="Margen proporcional aplicado a las cajas de prompt.")
-    parser.add_argument("--device", type=str, default="auto", choices=["auto", "cpu", "cuda"],
+    parser.add_argument("--sam-min-component-area", type=int, default=config.sam2.min_component_area_px,
+                        help="Área mínima de posprocesado SAM 2 en píxeles.")
+    parser.add_argument(
+        "--sam-multimask-output",
+        action=argparse.BooleanOptionalAction,
+        default=config.sam2.multimask_output,
+        help="Solicitar múltiples máscaras candidatas por prompt.",
+    )
+    parser.add_argument("--device", type=str, default=config.device, choices=["auto", "cpu", "cuda"],
                         help="Dispositivo de inferencia para SAM 2.")
+    parser.add_argument(
+        "--include-wcs-reference",
+        action=argparse.BooleanOptionalAction,
+        default=config.export.include_wcs_reference,
+        help="Incluir ejes auxiliares en la capa WCS_REF.",
+    )
+    parser.add_argument(
+        "--dxf-bounds-tolerance",
+        type=float,
+        default=config.export.bounds_tolerance_mm,
+        help="Tolerancia para la comprobación de límites físicos del DXF.",
+    )
     parser.add_argument("--manual-wcs-origin", type=str, default=None,
                         help="Origen forzado manual del WCS en píxeles rectificados 'x,y'")
     parser.add_argument("--manual-wcs-axes", type=str, default=None,
                         help="Vectores base manuales 'ux_x,ux_y,uy_x,uy_y'")
                         
+    return parser
+
+
+def main():
+    bootstrap = argparse.ArgumentParser(add_help=False)
+    bootstrap.add_argument("--config", type=str, default=None)
+    bootstrap_args, _ = bootstrap.parse_known_args()
+    try:
+        config = load_app_config(bootstrap_args.config)
+    except (FileNotFoundError, ValueError) as exc:
+        bootstrap.error(str(exc))
+    parser = create_argument_parser(config)
     args = parser.parse_args()
+    try:
+        validate_operational_scale(args.scale)
+    except ValueError as exc:
+        parser.error(str(exc))
+    args._app_config = config
     
     print("\n" + "="*80)
     print(" INICIALIZANDO PIPELINE DE VISIÓN ARTIFICIAL - TFM INNOKEY")
@@ -289,6 +367,8 @@ def main():
     print(f"  • Offset de Corte: {args.offset} mm")
     print(f"  • Dirección del Eje Y: WCS_{args.wcs_y_direction.upper()}")
     print(f"  • Segmentación: {'SAM 2 (operativa)' if args.segmenter == 'sam2' else 'Visión clásica (línea base)'}")
+    print(f"  • Configuración: {config.source_path}")
+    print(f"  • Checkpoint SAM 2: {args.sam_checkpoint}")
     print("="*80 + "\n")
     
     # Si se procesa una imagen individual
